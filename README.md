@@ -28,6 +28,13 @@ This project follows a pure frontend philosophy:
 4. **Developer Experience**:
     - All runtime dependencies are listed in `devDependencies` in `package.json` to provide local linting support and TypeScript definitions, while actual production code runs via CDN.
 
+## Data Persistence & Privacy
+
+StudiKu is designed with a "Local First, Privacy Always" philosophy:
+- **Persistent Storage**: All user data (Tasks, Schedules, Study Sessions, and Theme preferences) are automatically persisted in your browser's `localStorage`. No data ever leaves your device for these features.
+- **Ephemeral P2P Chat**: The Group Chat feature is strictly ephemeral. Messages exist only in memory during the session and are never stored locally or on a server, ensuring total conversation privacy.
+
+
 ## Getting Started
 
 Ensure you have Node.js installed, then run:
