@@ -34,7 +34,10 @@ export default defineConfig({
       { find: /^react-router-dom$/, replacement: 'https://esm.sh/react-router-dom@6.22.3?deps=react@19.2.0,react-dom@19.2.0' },
       
       // Hello Pangea DND
-      { find: /^@hello-pangea\/dnd$/, replacement: 'https://esm.sh/@hello-pangea/dnd@16.5.0?deps=react@19.2.0,react-dom@19.2.0' }
+      { find: /^@hello-pangea\/dnd$/, replacement: 'https://esm.sh/@hello-pangea/dnd@16.5.0?deps=react@19.2.0,react-dom@19.2.0' },
+      
+      // PeerJS
+      { find: /^peerjs$/, replacement: 'https://esm.sh/peerjs@1.5.2' }
     ]
   },
   build: {
@@ -49,7 +52,8 @@ export default defineConfig({
         'zustand/middleware',
         'lucide-react',
         'react-router-dom',
-        '@hello-pangea/dnd'
+        '@hello-pangea/dnd',
+        'peerjs'
       ],
       output: {
         // THIS IS CRITICAL FOR BUILD MODE
@@ -64,7 +68,8 @@ export default defineConfig({
           'zustand/middleware': 'https://esm.sh/zustand@4.5.2/middleware?deps=react@19.2.0',
           'lucide-react': 'https://esm.sh/lucide-react@0.576.0?deps=react@19.2.0',
           'react-router-dom': 'https://esm.sh/react-router-dom@6.22.3?deps=react@19.2.0,react-dom@19.2.0',
-          '@hello-pangea/dnd': 'https://esm.sh/@hello-pangea/dnd@16.5.0?deps=react@19.2.0,react-dom@19.2.0'
+          '@hello-pangea/dnd': 'https://esm.sh/@hello-pangea/dnd@16.5.0?deps=react@19.2.0,react-dom@19.2.0',
+          'peerjs': 'https://esm.sh/peerjs@1.5.2'
         }
       }
     },

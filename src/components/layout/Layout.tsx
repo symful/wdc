@@ -1,6 +1,6 @@
 import { useState, useEffect, Suspense } from 'react';
 import { NavLink, Outlet } from 'react-router-dom';
-import { Calendar, CheckSquare, BookOpen, BarChart3, Menu, X, Moon, Sun } from 'lucide-react';
+import { Calendar, CheckSquare, BookOpen, BarChart3, Menu, X, Moon, Sun, MessageSquare } from 'lucide-react';
 import { DashboardSkeleton } from '../ui/Skeleton';
 
 export function Layout() {
@@ -30,6 +30,7 @@ export function Layout() {
     { to: "/schedule", icon: <Calendar size={20} />, label: "Jadwal Waktu" },
     { to: "/tasks", icon: <CheckSquare size={20} />, label: "Tugas & Kanban" },
     { to: "/study", icon: <BookOpen size={20} />, label: "Rencana Belajar" },
+    { to: "/chat", icon: <MessageSquare size={20} />, label: "Grup Chat P2P" },
   ];
 
   return (
