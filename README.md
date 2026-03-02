@@ -1,73 +1,53 @@
-# React + TypeScript + Vite
+# StudiKu - WDC Productivity Dashboard
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+StudiKu is a high-performance productivity dashboard designed for students and academic management. It features a modern UI, real-time tracking, and functional scheduling logic.
 
-Currently, two official plugins are available:
+## Features
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) (or [oxc](https://oxc.rs) when used in [rolldown-vite](https://vite.dev/guide/rolldown)) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+- **Advanced Analytics Dashboard**: Real-time summary of study hours, task completion, and academic focus intensity via a dynamic heatmap.
+- **Project Scheduling (Kanban & Grid)**:
+    - **Draggable Kanban Board** for task management with deadline urgency tracking and weighted task priority.
+    - **Dynamic Time-Block Grid** for weekly scheduling with optimization logic to organize your week.
+- **Focus Timer**: Log dedicated study sessions for specific courses with confidence-level tracking to measure learning efficiency.
+- **Premium Aesthetics**: Built with Tailwind CSS v4's architecture, utilizing glassmorphism, pulse animations, and custom gradients.
+- **Performance Optimized**: Built with lazy loading and skeleton screens for instantaneous sub-module transitions.
 
-## React Compiler
+## Technical Architecture
 
-The React Compiler is currently not compatible with SWC. See [this issue](https://github.com/vitejs/vite-plugin-react/issues/428) for tracking the progress.
+This project follows a pure frontend philosophy:
 
-## Expanding the ESLint configuration
+1. **Frontend Only**: No backend server or traditional database is required. State is persisted client-side using Zustand with persistence middleware.
+2. **CDN-First Strategy**: 
+    - Almost all runtime libraries (React, React Router, Lucide, Zustand, etc.) are served via CDNs (esm.sh) to ensure minimum bundle size.
+    - Vite is configured with `resolve.alias` to map standard imports directly to their respective CDN URLs during both development and build.
+3. **Optimized Build**:
+    - **TypeScript**: Full type safety across all components and stores.
+    - **SWC**: Used for extremely fast builds and HMR.
+    - **Tailwind CSS v4**: Implemented via the latest `@tailwindcss/vite` plugin for a modern CSS architecture.
+4. **Developer Experience**:
+    - All runtime dependencies are listed in `devDependencies` in `package.json` to provide local linting support and TypeScript definitions, while actual production code runs via CDN.
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+## Getting Started
 
-```js
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
+Ensure you have Node.js installed, then run:
 
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
+```bash
+# Install toolchain
+npm install
 
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+# Start development server
+npm run dev
+
+# Build for production
+npm run build
 ```
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+## Repository Structure
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
+- `/src/features/`: Component-based feature implementation (Analytics, Schedule, Tasks, Study).
+- `/src/store/`: Zustand state management with persistence.
+- `/src/components/ui/`: Reusable primitive components (Modals, Skeletons).
+- `/src/styles/`: Global Tailwind v4 architecture and custom themes.
 
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
-```
+---
+Built for WDC UDINUS.

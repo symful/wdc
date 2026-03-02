@@ -1,35 +1,60 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
-import './App.css'
+import { lazy, Suspense } from 'react';
+import { createBrowserRouter, RouterProvider, Navigate } from 'react-router-dom';
+import { Layout } from './components/layout/Layout';
+import { DashboardSkeleton, KanbanSkeleton, ScheduleSkeleton } from './components/ui/Skeleton';
 
-function App() {
-  const [count, setCount] = useState(0)
+const DashboardView = lazy(() => import('./features/analytics/DashboardView').then(m => ({ default: m.DashboardView })));
+const ScheduleView = lazy(() => import('./features/schedule/ScheduleView').then(m => ({ default: m.ScheduleView })));
+const KanbanBoard = lazy(() => import('./features/tasks/KanbanBoard').then(m => ({ default: m.KanbanBoard })));
+const StudyView = lazy(() => import('./features/study/StudyView').then(m => ({ default: m.StudyView })));
 
+const router = createBrowserRouter([
+  {
+    path: "/",
+    element: <Layout />,
+    children: [
+      {
+        index: true,
+        element: (
+          <Suspense fallback={<DashboardSkeleton />}>
+            <DashboardView />
+          </Suspense>
+        )
+      },
+      {
+        path: "schedule",
+        element: (
+          <Suspense fallback={<ScheduleSkeleton />}>
+            <ScheduleView />
+          </Suspense>
+        )
+      },
+      {
+        path: "tasks",
+        element: (
+          <Suspense fallback={<KanbanSkeleton />}>
+            <KanbanBoard />
+          </Suspense>
+        )
+      },
+      {
+        path: "study",
+        element: (
+          <Suspense fallback={<DashboardSkeleton />}>
+            <StudyView />
+          </Suspense>
+        )
+      },
+      {
+        path: "*",
+        element: <Navigate to="/" replace />
+      }
+    ]
+  }
+]);
+
+export default function App() {
   return (
-    <>
-      <div>
-        <a href="https://vite.dev" target="_blank">
-          <img src={viteLogo} className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://react.dev" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
-      </div>
-      <h1>Vite + React</h1>
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
-        </button>
-        <p>
-          Edit <code>src/App.tsx</code> and save to test HMR
-        </p>
-      </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
-    </>
-  )
+    <RouterProvider router={router} />
+  );
 }
-
-export default App
