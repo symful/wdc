@@ -31,7 +31,14 @@
     33% { transform: translate(30px, -50px) scale(1.1); }
     66% { transform: translate(-20px, 20px) scale(0.9); }
   }
+
+  @keyframes scan-line {
+    0% { top: 0%; }
+    50% { top: 100%; }
+    100% { top: 0%; }
+  }
 }
+
 :root {
   --bg-main: #09090b;
   --text-main: #f8fafc;
@@ -47,26 +54,32 @@
   --status-info: #3b82f6;
   
   --status-success-subtle: rgba(16, 185, 129, 0.1);
-  --status-warning-subtle: rgba(245, 158, 11, 0.1);
+  --status-warning-subtle: rgba(245, 158, 11, 0.15);
   --status-danger-subtle: rgba(239, 68, 68, 0.1);
   --status-info-subtle: rgba(59, 130, 246, 0.1);
+  
+  --color-status-success: var(--status-success);
+  --color-status-warning: var(--status-warning);
+  --color-status-danger: var(--status-danger);
+  --color-status-info: var(--status-info);
 }
 
 [data-theme='light'] {
-  --bg-main: #f1f5f9;
+  --bg-main: #f8fafc;
   --text-main: #0f172a;
-  --text-muted: #475569;
-  --surface-1: rgba(255, 255, 255, 0.8);
-  --surface-2: rgba(241, 245, 249, 0.9);
+  --text-muted: #64748b;
+  --surface-1: rgba(255, 255, 255, 0.85);
+  --surface-2: rgba(241, 245, 249, 0.95);
   --border-main: rgba(0, 0, 0, 0.08);
   --sidebar-bg: rgba(255, 255, 255, 0.9);
+  
   --status-success: #059669;
-  --status-warning: #d97706;
+  --status-warning: #b45309; /* Darker for light mode visibility */
   --status-danger: #dc2626;
   --status-info: #2563eb;
 
-  --status-success-subtle: rgba(5, 150, 105, 0.08);
-  --status-warning-subtle: rgba(217, 119, 6, 0.08);
+  --status-success-subtle: rgba(5, 150, 105, 0.1);
+  --status-warning-subtle: rgba(180, 83, 9, 0.12);
   --status-danger-subtle: rgba(220, 38, 38, 0.08);
   --status-info-subtle: rgba(37, 99, 235, 0.08);
 }
@@ -135,6 +148,10 @@
   .badge-high { @apply bg-red-500/10 text-red-400 border-red-500/20; }
   .badge-med { @apply bg-yellow-500/10 text-yellow-500 border-yellow-500/20; }
   .badge-low { @apply bg-green-500/10 text-green-400 border-green-500/20; }
+
+  .animate-scan-line {
+    animation: scan-line 2s linear infinite;
+  }
 }
 
 /* Transitions */

@@ -11,6 +11,21 @@ export default defineConfig({
   define: {
     'process.env.NODE_ENV': JSON.stringify(process.env.NODE_ENV || 'development')
   },
+  optimizeDeps: {
+    exclude: [
+      'react',
+      'react-dom',
+      'react/jsx-dev-runtime',
+      'react/jsx-runtime',
+      'zustand',
+      'lucide-react',
+      'react-router-dom',
+      '@hello-pangea/dnd',
+      'peerjs',
+      'qrcode.react',
+      'jsqr'
+    ]
+  },
   resolve: {
     alias: [
       // React and its subpaths
@@ -37,7 +52,11 @@ export default defineConfig({
       { find: /^@hello-pangea\/dnd$/, replacement: 'https://esm.sh/@hello-pangea/dnd@16.5.0?deps=react@19.2.0,react-dom@19.2.0' },
       
       // PeerJS
-      { find: /^peerjs$/, replacement: 'https://esm.sh/peerjs@1.5.2' }
+      { find: /^peerjs$/, replacement: 'https://esm.sh/peerjs@1.5.2' },
+      
+      // QR Code and Scanning
+      { find: /^qrcode\.react$/, replacement: 'https://esm.sh/qrcode.react@3.1.0?deps=react@19.2.0' },
+      { find: /^jsqr$/, replacement: 'https://esm.sh/jsqr@1.4.0' }
     ]
   },
   build: {
@@ -53,7 +72,9 @@ export default defineConfig({
         'lucide-react',
         'react-router-dom',
         '@hello-pangea/dnd',
-        'peerjs'
+        'peerjs',
+        'qrcode.react',
+        'jsqr'
       ],
       output: {
         // THIS IS CRITICAL FOR BUILD MODE
@@ -69,7 +90,9 @@ export default defineConfig({
           'lucide-react': 'https://esm.sh/lucide-react@0.576.0?deps=react@19.2.0',
           'react-router-dom': 'https://esm.sh/react-router-dom@6.22.3?deps=react@19.2.0,react-dom@19.2.0',
           '@hello-pangea/dnd': 'https://esm.sh/@hello-pangea/dnd@16.5.0?deps=react@19.2.0,react-dom@19.2.0',
-          'peerjs': 'https://esm.sh/peerjs@1.5.2'
+          'peerjs': 'https://esm.sh/peerjs@1.5.2',
+          'qrcode.react': 'https://esm.sh/qrcode.react@3.1.0?deps=react@19.2.0',
+          'jsqr': 'https://esm.sh/jsqr@1.4.0'
         }
       }
     },

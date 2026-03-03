@@ -9,9 +9,13 @@ StudiKu is a high-performance productivity dashboard designed for students and a
     - **Draggable Kanban Board** for task management with deadline urgency tracking and weighted task priority.
     - **Dynamic Time-Block Grid** for weekly scheduling with optimization logic to organize your week.
 - **Focus Timer**: Log dedicated study sessions for specific courses with confidence-level tracking to measure learning efficiency.
-- **P2P Group Chat (Serverless)**: Real-time group chat using PeerJS. Host/Client architecture with dynamic admin promotion, message replies, and visible system events—all without storing any data on a central server.
-- **Premium Aesthetics**: Built with Tailwind CSS v4's architecture, utilizing glassmorphism, pulse animations, and custom gradients.
-- **Performance Optimized**: Built with lazy loading and skeleton screens for instantaneous sub-module transitions.
+- **P2P Group Chat (Serverless)**: 
+    - **Zero-Persistence**: Real-time communication using PeerJS with no central server storage.
+    - **Advanced File Sharing**: Supports both *Instant* (broadcast) and *On-Waiting* (request-based) transfer modes.
+    - **Room Management**: Dynamic Host/Client architecture with admin promotion, user kicking, and renaming.
+    - **Seamless Joining**: Join via copyable Invite Links or integrated QR Code scanning (Camera & Image upload).
+- **Premium Aesthetics**: Built with Tailwind CSS v4's architecture, utilizing glassmorphism, pulse animations, and curated accessible color palettes for both Light and Dark modes.
+- **Performance Optimized**: Features lazy loading, skeleton screens, and consolidated state management for extremely fast transitions and UI responsiveness.
 
 ## Technical Architecture
 

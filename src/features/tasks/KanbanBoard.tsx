@@ -7,7 +7,6 @@ import {
   AlertCircle,
   CheckCircle2,
   X,
-  Zap,
   Bolt
 } from 'lucide-react';
 import type { TaskType, TaskPriority } from '../../store/useTaskStore';
@@ -27,18 +26,21 @@ const COLUMNS: { id: TaskStatus; title: string; color: string }[] = [
 export function KanbanBoard() {
   const { moveTask, addTask, deleteTask, getSortedTasks } = useTaskStore();
   const tasks = getSortedTasks();
-  const [draggedTask, setDraggedTask] = useState<string | null>(null);
-  const [showAddModal, setShowAddModal] = useState(false);
+  const [ui, setUi] = useState({
+    showAddModal: false,
+    draggedTask: null as string | null,
+  });
 
-  // Form State
-  const [newTitle, setNewTitle] = useState('');
-  const [newType, setNewType] = useState<TaskType>('tugas');
-  const [newDeadline, setNewDeadline] = useState('');
-  const [newPriority, setNewPriority] = useState<TaskPriority>('med');
-  const [newWeight, setNewWeight] = useState(10);
+  const [form, setForm] = useState({
+    title: '',
+    type: 'tugas' as TaskType,
+    deadline: '',
+    priority: 'med' as TaskPriority,
+    weight: 10,
+  });
 
   const handleDragStart = (e: React.DragEvent, id: string) => {
-    setDraggedTask(id);
+    setUi(s => ({ ...s, draggedTask: id }));
     e.dataTransfer.effectAllowed = 'move';
     e.dataTransfer.setData('text/plain', id);
   };
@@ -54,23 +56,22 @@ export function KanbanBoard() {
     if (taskId) {
       moveTask(taskId, status);
     }
-    setDraggedTask(null);
+    setUi(s => ({ ...s, draggedTask: null }));
   };
 
   const handleAddTask = () => {
-    if (!newTitle || !newDeadline) return;
+    if (!form.title || !form.deadline) return;
     addTask({
-      title: newTitle,
-      type: newType,
-      deadline: new Date(newDeadline).toISOString(),
-      priority: newPriority,
-      weight: newWeight,
+      title: form.title,
+      type: form.type,
+      deadline: new Date(form.deadline).toISOString(),
+      priority: form.priority,
+      weight: form.weight,
       estHours: 2,
       links: []
     });
-    setShowAddModal(false);
-    setNewTitle('');
-    setNewDeadline('');
+    setUi(s => ({ ...s, showAddModal: false }));
+    setForm(s => ({ ...s, title: '', deadline: '' }));
   };
 
   const formatDate = (isoString: string) => {
@@ -101,7 +102,7 @@ export function KanbanBoard() {
           <h1 className="text-4xl font-extrabold tracking-tight mb-2 text-gradient">Pencatatan Tugas</h1>
           <p className="text-muted text-lg max-w-2xl">Kelola tugas kuliah Anda dengan sistem Kanban dan tracking progres mendetail.</p>
         </div>
-        <button className="btn btn-primary px-8" onClick={() => setShowAddModal(true)}>
+        <button className="btn btn-primary px-8" onClick={() => setUi(s => ({ ...s, showAddModal: true }))}>
           <Plus size={20} className="mr-1" />
           <span className="font-black uppercase tracking-widest text-[10px]">Tambah Tugas</span>
         </button>
@@ -129,7 +130,7 @@ export function KanbanBoard() {
                   key={task.id}
                   className={`
                     group/card bg-surface-panel p-5 rounded-2xl border border-border-main hover:border-indigo-500/50 hover:shadow-2xl hover:shadow-indigo-500/10 transition-all cursor-grab active:cursor-grabbing transform hover:-translate-y-1
-                    ${draggedTask === task.id ? 'opacity-40 scale-95' : 'opacity-100'}
+                    ${ui.draggedTask === task.id ? 'opacity-40 scale-95' : 'opacity-100'}
                   `}
                   draggable
                   onDragStart={(e) => handleDragStart(e, task.id)}
@@ -210,12 +211,12 @@ export function KanbanBoard() {
         ))}
       </div>
       {/* Add Task Modal */}
-      {showAddModal && (
+      {ui.showAddModal && (
         <div className="fixed inset-0 bg-black/80 backdrop-blur-xl z-100 flex items-center justify-center p-6 animate-in fade-in duration-300">
           <div className="glass-panel p-8 max-w-xl w-full flex flex-col gap-8 bg-slate-900/90 border border-white/10 rounded-[3rem] shadow-[0_0_100px_rgba(0,0,0,0.5)]">
             <div className="flex justify-between items-center">
               <h3 className="text-2xl font-black tracking-tight">Tambah Tugas Baru</h3>
-              <button onClick={() => setShowAddModal(false)} className="p-2 hover:bg-white/5 rounded-full text-white/40 hover:text-white transition-colors"><X size={24} /></button>
+              <button onClick={() => setUi(s => ({ ...s, showAddModal: false }))} className="p-2 hover:bg-white/5 rounded-full text-white/40 hover:text-white transition-colors"><X size={24} /></button>
             </div>
 
             <div className="flex flex-col gap-6">
@@ -225,8 +226,8 @@ export function KanbanBoard() {
                   type="text" 
                   className="w-full h-14 bg-white/5 border border-white/10 rounded-2xl px-5 font-bold outline-none focus:ring-2 focus:ring-indigo-500/50 transition-all" 
                   placeholder="Misal: Laporan Praktikum Jarkom"
-                  value={newTitle}
-                  onChange={(e) => setNewTitle(e.target.value)}
+                  value={form.title}
+                  onChange={(e) => setForm(s => ({ ...s, title: e.target.value }))}
                 />
               </div>
 
@@ -235,8 +236,8 @@ export function KanbanBoard() {
                   <label className="text-xs font-black uppercase tracking-widest text-white/40 px-1">Tipe</label>
                   <select 
                     className="w-full h-14 bg-white/5 border border-white/10 rounded-2xl px-5 font-bold outline-none focus:ring-2 focus:ring-indigo-500/50 transition-all appearance-none cursor-pointer"
-                    value={newType}
-                    onChange={(e) => setNewType(e.target.value as TaskType)}
+                    value={form.type}
+                    onChange={(e) => setForm(s => ({ ...s, type: e.target.value as TaskType }))}
                   >
                     <option value="tugas" className="bg-slate-900">Tugas</option>
                     <option value="quiz" className="bg-slate-900">Quiz</option>
@@ -247,8 +248,8 @@ export function KanbanBoard() {
                   <label className="text-xs font-black uppercase tracking-widest text-white/40 px-1">Prioritas</label>
                   <select 
                     className="w-full h-14 bg-white/5 border border-white/10 rounded-2xl px-5 font-bold outline-none focus:ring-2 focus:ring-indigo-500/50 transition-all appearance-none cursor-pointer"
-                    value={newPriority}
-                    onChange={(e) => setNewPriority(e.target.value as TaskPriority)}
+                    value={form.priority}
+                    onChange={(e) => setForm(s => ({ ...s, priority: e.target.value as TaskPriority }))}
                   >
                     <option value="high" className="bg-slate-900">Tinggi</option>
                     <option value="med" className="bg-slate-900">Sedang</option>
@@ -263,8 +264,8 @@ export function KanbanBoard() {
                   <input 
                     type="date" 
                     className="w-full h-14 bg-white/5 border border-white/10 rounded-2xl px-5 font-bold outline-none focus:ring-2 focus:ring-indigo-500/50 transition-all" 
-                    value={newDeadline}
-                    onChange={(e) => setNewDeadline(e.target.value)}
+                    value={form.deadline}
+                    onChange={(e) => setForm(s => ({ ...s, deadline: e.target.value }))}
                   />
                 </div>
                 <div className="flex flex-col gap-2">
@@ -273,8 +274,8 @@ export function KanbanBoard() {
                     type="number" 
                     className="w-full h-14 bg-white/5 border border-white/10 rounded-2xl px-5 font-bold outline-none focus:ring-2 focus:ring-indigo-500/50 transition-all" 
                     min="1" max="100"
-                    value={newWeight}
-                    onChange={(e) => setNewWeight(parseInt(e.target.value))}
+                    value={form.weight}
+                    onChange={(e) => setForm(s => ({ ...s, weight: parseInt(e.target.value) }))}
                   />
                 </div>
               </div>
@@ -282,7 +283,7 @@ export function KanbanBoard() {
 
             <button 
               className="btn btn-primary h-16 w-full text-lg mt-2"
-              disabled={!newTitle || !newDeadline}
+              disabled={!form.title || !form.deadline}
               onClick={handleAddTask}
             >
               Simpan Tugas

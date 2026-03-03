@@ -13,6 +13,14 @@ export interface ChatMessage {
     senderName: string;
     content: string;
   };
+  file?: {
+    name: string;
+    size: number;
+    type: string;
+    data?: string; // Base64 for instant, undefined for on-waiting
+    status: 'available' | 'transferring' | 'completed' | 'error';
+    id: string;
+  };
 }
 
 export interface ChatUser {
@@ -45,6 +53,11 @@ interface ChatState {
   leaveRoom: () => void;
   transferAdmin: (targetUserId: string) => void;
   clearMessages: () => void;
+  
+  // File Transfer Actions
+  sendFile: (file: File, mode: 'instant' | 'on-waiting') => void;
+  requestFile: (msgId: string) => void;
+  cancelFileTransfer: (msgId: string) => void;
 }
 
 let heartbeatInterval: any = null;
@@ -171,14 +184,92 @@ export const useChatStore = create<ChatState>((set, get) => ({
     broadcast({ type: 'chat', message: newMessage });
   },
 
+  sendFile: async (file: File, mode: 'instant' | 'on-waiting') => {
+    const state = get();
+    if (!state.currentUser || !state.peer) return;
+
+    const fileId = Math.random().toString(36).substr(2, 9);
+    const msgId = Math.random().toString(36).substr(2, 9);
+
+    let fileData: string | undefined = undefined;
+    if (mode === 'instant') {
+      const reader = new FileReader();
+      fileData = await new Promise((resolve) => {
+        reader.onload = (e) => resolve(e.target?.result as string);
+        reader.readAsDataURL(file);
+      });
+    }
+
+    const newMessage: ChatMessage = {
+      id: msgId,
+      senderId: state.currentUser.id,
+      senderName: state.currentUser.name,
+      content: `Mengirim file: ${file.name}`,
+      timestamp: Date.now(),
+      type: 'text',
+      file: {
+        id: fileId,
+        name: file.name,
+        size: file.size,
+        type: file.type,
+        data: fileData,
+        status: 'available'
+      }
+    };
+
+    set((state) => ({ messages: [...state.messages, newMessage] }));
+    broadcast({ type: 'chat', message: newMessage });
+
+    // Store the file object for on-waiting requests
+    if (mode === 'on-waiting') {
+      (window as any)._pendingFiles = (window as any)._pendingFiles || {};
+      (window as any)._pendingFiles[fileId] = file;
+    }
+  },
+
+  requestFile: (msgId: string) => {
+    const state = get();
+    const msg = state.messages.find(m => m.id === msgId);
+    if (!msg || !msg.file || !state.currentUser) return;
+
+    // Update local status to transferring
+    set(s => ({
+      messages: s.messages.map(m => m.id === msgId ? { ...m, file: { ...m.file!, status: 'transferring' } } : m)
+    }));
+
+    broadcast({ 
+      type: 'file_request', 
+      messageId: msgId, 
+      fileId: msg.file.id, 
+      requesterId: state.currentUser.id 
+    });
+  },
+
+  cancelFileTransfer: (msgId: string) => {
+    set(s => ({
+      messages: s.messages.map(m => m.id === msgId ? { ...m, file: m.file ? { ...m.file, status: 'available' } : undefined } : m)
+    }));
+  },
+
   setReplyingTo: (msg: ChatMessage | null) => set({ replyingTo: msg }),
 
   deleteMessage: (msgId: string) => {
     const state = get();
-    if (state.currentUser?.role !== 'admin') return;
+    const msg = state.messages.find(m => m.id === msgId);
+    if (!msg || !state.currentUser) return;
+
+    const isAdmin = state.currentUser.role === 'admin';
+    const isOwner = msg.senderId === state.currentUser.id;
+
+    if (!isAdmin && !isOwner) return;
 
     set(s => ({ messages: s.messages.filter(m => m.id !== msgId) }));
     broadcast({ type: 'delete_message', messageId: msgId });
+
+    // Cleanup local files if I was the sender
+    if (msg.file?.id && (window as any)._pendingFiles) {
+      delete (window as any)._pendingFiles[msg.file.id];
+    }
   },
 
   renameUser: (newName: string) => {
@@ -296,6 +387,29 @@ function setupConnection(conn: DataConnection) {
     } else if (type === 'kicked') {
       useChatStore.getState().leaveRoom();
       useChatStore.setState({ error: 'Anda telah dikeluarkan dari ruangan oleh Admin.', status: 'error' });
+    } else if (type === 'file_request') {
+      // Someone is requesting a file I have (on-waiting)
+      const file = (window as any)._pendingFiles?.[data.fileId];
+      if (file && state.connections[data.requesterId]) {
+        const reader = new FileReader();
+        reader.onload = (e) => {
+          state.connections[data.requesterId].send({
+            type: 'file_response',
+            messageId: data.messageId,
+            fileId: data.fileId,
+            data: e.target?.result as string
+          });
+        };
+        reader.readAsDataURL(file);
+      }
+    } else if (type === 'file_response') {
+      // Received the actual file data for an on-waiting request
+      useChatStore.setState((s) => ({
+        messages: s.messages.map(m => m.id === data.messageId ? { 
+          ...m, 
+          file: m.file ? { ...m.file, data: data.data, status: 'completed' } : undefined 
+        } : m)
+      }));
     } else if (type === 'pong') {
       // Heartbeat received
     }
@@ -379,9 +493,18 @@ function handleDisconnection(peerId: string) {
     return {
       users: updatedUsers,
       connections: remainingConnections,
-      messages: [...s.messages, systemMsg]
+      messages: [...s.messages, systemMsg].map(m => {
+        // "Off" files from the disconnected user if they were on-waiting
+        if (m.senderId === peerId && m.file && !m.file.data) {
+          return { ...m, file: { ...m.file, status: 'error' as const } };
+        }
+        return m;
+      })
     };
   });
+
+  // Cleanup pending files if I am the one who disconnected (though this runs on everyone's side)
+  // On everyone else's side, they just see the file is "offed" (error status)
 
   // Election Logic: If the host (admin) disconnected
   if (disconnectedUser?.role === 'admin') {

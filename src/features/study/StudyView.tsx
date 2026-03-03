@@ -5,60 +5,75 @@ import { Play, Square, Timer, Target, BrainCircuit, CheckCircle2, X, Plus } from
 
 export function StudyView() {
   const { courses, sessions, activeSession, startSession, endSession, addCourse, deleteCourse } = useStudyStore();
-  const [selectedCourse, setSelectedCourse] = useState<string>('');
-  const [topic, setTopic] = useState<string>('');
-  const [elapsed, setElapsed] = useState<number>(0);
-  const [showConfidenceModal, setShowConfidenceModal] = useState(false);
-  const [showCourseModal, setShowCourseModal] = useState(false);
-  
-  // New/Edit Course Form
-  const [editingCourseId, setEditingCourseId] = useState<string | null>(null);
-  const [courseName, setCourseName] = useState('');
-  const [targetHours, setTargetHours] = useState(20);
-  const [newTopicTitle, setNewTopicTitle] = useState('');
+  const [ui, setUi] = useState({
+    confidenceModal: false,
+    courseModal: false,
+  });
+
+  const [timer, setTimer] = useState({
+    selectedCourse: '',
+    topic: '',
+    elapsed: 0,
+  });
+
+  const [courseForm, setCourseForm] = useState({
+    editingId: null as string | null,
+    name: '',
+    targetHours: 20,
+    newTopicTitle: '',
+  });
 
   // Timer effect
   useEffect(() => {
     let interval: ReturnType<typeof setInterval>;
     if (activeSession.startTime) {
       interval = setInterval(() => {
-        setElapsed(Math.floor((Date.now() - (activeSession.startTime as number)) / 1000));
+        setTimer(s => ({ ...s, elapsed: Math.floor((Date.now() - (activeSession.startTime as number)) / 1000) }));
       }, 1000);
     } else {
-      setElapsed(0);
+      setTimer(s => ({ ...s, elapsed: 0 }));
     }
     return () => clearInterval(interval);
   }, [activeSession.startTime]);
 
   const handleStart = () => {
-    if (!selectedCourse || !topic) return;
-    startSession(selectedCourse, topic);
+    if (!timer.selectedCourse || !timer.topic) return;
+    startSession(timer.selectedCourse, timer.topic);
   };
 
   const handleEnd = (confidence: number) => {
     endSession(confidence);
-    setShowConfidenceModal(false);
-    setTopic('');
+    setUi(s => ({ ...s, confidenceModal: false }));
+    setTimer(s => ({ ...s, topic: '' }));
   };
 
   const handleSaveCourse = () => {
-    if (!courseName) return;
-    if (editingCourseId) {
-      useStudyStore.getState().updateCourse(editingCourseId, { name: courseName, targetHours });
+    if (!courseForm.name) return;
+    if (courseForm.editingId) {
+      useStudyStore.getState().updateCourse(courseForm.editingId, { 
+        name: courseForm.name, 
+        targetHours: courseForm.targetHours 
+      });
     } else {
-      addCourse(courseName, targetHours);
+      addCourse(courseForm.name, courseForm.targetHours);
     }
-    setCourseName('');
-    setTargetHours(20);
-    setEditingCourseId(null);
-    setShowCourseModal(false);
+    setCourseForm({
+      editingId: null,
+      name: '',
+      targetHours: 20,
+      newTopicTitle: '',
+    });
+    setUi(s => ({ ...s, courseModal: false }));
   };
 
   const openEditCourse = (course: CourseData) => {
-    setEditingCourseId(course.id);
-    setCourseName(course.name);
-    setTargetHours(course.targetHours);
-    setShowCourseModal(true);
+    setCourseForm({
+      editingId: course.id,
+      name: course.name,
+      targetHours: course.targetHours,
+      newTopicTitle: '',
+    });
+    setUi(s => ({ ...s, courseModal: true }));
   };
 
   const formatTime = (seconds: number) => {
@@ -85,7 +100,7 @@ export function StudyView() {
         </div>
         <button 
           className="btn btn-glass px-6 border-indigo-500/10 hover:border-indigo-500/30"
-          onClick={() => setShowCourseModal(true)}
+          onClick={() => setUi(s => ({ ...s, courseModal: true }))}
         >
           <Target size={20} className="text-indigo-400" />
           <span className="font-black uppercase tracking-widest text-[10px]">Kelola Mata Kuliah</span>
@@ -104,7 +119,7 @@ export function StudyView() {
           {activeSession.startTime ? (
             <div className="flex flex-col items-center justify-center gap-8 w-full relative z-10">
               <div className="text-7xl font-black font-mono tracking-tighter text-gradient tabular-nums">
-                {formatTime(elapsed)}
+                {formatTime(timer.elapsed)}
               </div>
               
               <div className="flex flex-col items-center text-center gap-2">
@@ -116,7 +131,7 @@ export function StudyView() {
 
               <button 
                 className="btn bg-red-500 hover:bg-red-600 text-white px-10 py-4 rounded-2xl font-black flex items-center gap-3 transition-all duration-300 transform hover:scale-105 active:scale-95 shadow-xl shadow-red-500/20"
-                onClick={() => setShowConfidenceModal(true)}
+                onClick={() => setUi(s => ({ ...s, confidenceModal: true }))}
               >
                 <Square size={20} fill="currentColor" /> Akhiri Sesi
               </button>
@@ -128,8 +143,8 @@ export function StudyView() {
                   <label className="text-xs font-black uppercase tracking-widest text-text-muted/60 px-1">Mata Kuliah</label>
                   <select 
                     className="w-full h-14 bg-surface-2 border border-border-main rounded-2xl px-5 font-bold focus:ring-2 focus:ring-indigo-500/50 outline-none transition-all appearance-none cursor-pointer"
-                    value={selectedCourse} 
-                    onChange={(e) => setSelectedCourse(e.target.value)}
+                    value={timer.selectedCourse} 
+                    onChange={(e) => setTimer(s => ({ ...s, selectedCourse: e.target.value }))}
                   >
                     <option value="" className="bg-bg-main">-- Pilih Mata Kuliah --</option>
                     {courses.map((c: CourseData) => (
@@ -143,18 +158,18 @@ export function StudyView() {
                     type="text" 
                     className="w-full h-14 bg-surface-2 border border-border-main rounded-2xl px-5 font-bold focus:ring-2 focus:ring-indigo-500/50 outline-none transition-all placeholder:text-text-muted/30"
                     placeholder="Misal: Latihan Integral Partisi" 
-                    value={topic}
-                    onChange={(e) => setTopic(e.target.value)}
+                    value={timer.topic}
+                    onChange={(e) => setTimer(s => ({ ...s, topic: e.target.value }))}
                   />
                 </div>
               </div>
               <button 
                 className={`btn h-14 rounded-2xl font-black flex items-center justify-center gap-3 transition-all duration-300 transform active:scale-95 shadow-xl 
-                  ${(!selectedCourse || !topic) 
+                  ${(!timer.selectedCourse || !timer.topic) 
                     ? 'bg-surface-2 text-text-muted/20 cursor-not-allowed border border-border-main' 
                     : 'btn-primary'}`}
                 onClick={handleStart}
-                disabled={!selectedCourse || !topic}
+                disabled={!timer.selectedCourse || !timer.topic}
               >
                 <Play size={20} fill="currentColor" /> Mulai Sesi Fokus
               </button>
@@ -246,7 +261,7 @@ export function StudyView() {
       </div>
 
       {/* Confidence Modal */}
-      {showConfidenceModal && (
+      {ui.confidenceModal && (
         <div className="fixed inset-0 bg-black/80 backdrop-blur-xl z-100 flex items-center justify-center p-6 animate-in fade-in duration-500">
           <div className="glass-panel p-10 flex flex-col items-center gap-10 max-w-lg w-full bg-surface-subtle border border-border-main rounded-[3rem] shadow-[0_0_100px_rgba(0,0,0,0.5)]">
             <div className="text-center">
@@ -275,16 +290,19 @@ export function StudyView() {
       )}
 
       {/* Manual Course Management Modal */}
-      {showCourseModal && (
+      {ui.courseModal && (
         <div className="fixed inset-0 bg-bg-main/80 backdrop-blur-xl z-100 flex items-center justify-center p-6 animate-in zoom-in duration-300">
           <div className="glass-panel p-8 max-w-2xl w-full bg-bg-main border border-border-main rounded-[2.5rem] shadow-2xl overflow-y-auto max-h-[90vh]">
             <div className="flex justify-between items-center mb-8">
               <h3 className="text-2xl font-black tracking-tight">
-                {editingCourseId ? 'Edit Mata Kuliah' : 'Tambah Mata Kuliah'}
+                {courseForm.editingId ? 'Edit Mata Kuliah' : 'Tambah Mata Kuliah'}
               </h3>
               <button 
                 className="p-2 hover:bg-surface-2 rounded-full transition-colors"
-                onClick={() => { setShowCourseModal(false); setEditingCourseId(null); setCourseName(''); }}
+                onClick={() => { 
+                  setUi(s => ({ ...s, courseModal: false })); 
+                  setCourseForm({ editingId: null, name: '', targetHours: 20, newTopicTitle: '' });
+                }}
               >
                 <X size={24} className="text-text-muted" />
               </button>
@@ -298,8 +316,8 @@ export function StudyView() {
                     type="text" 
                     className="w-full h-14 bg-surface-2 border border-border-main rounded-2xl px-5 font-bold focus:ring-2 focus:ring-indigo-500/50 outline-none transition-all"
                     placeholder="Misal: Kecerdasan Buatan"
-                    value={courseName}
-                    onChange={(e) => setCourseName(e.target.value)}
+                    value={courseForm.name}
+                    onChange={(e) => setCourseForm(s => ({ ...s, name: e.target.value }))}
                   />
                 </div>
 
@@ -308,13 +326,13 @@ export function StudyView() {
                   <input 
                     type="number" 
                     className="w-full h-14 bg-surface-2 border border-border-main rounded-2xl px-5 font-bold focus:ring-2 focus:ring-indigo-500/50 outline-none transition-all"
-                    value={targetHours}
-                    onChange={(e) => setTargetHours(parseInt(e.target.value))}
+                    value={courseForm.targetHours}
+                    onChange={(e) => setCourseForm(s => ({ ...s, targetHours: parseInt(e.target.value) }))}
                   />
                 </div>
               </div>
 
-              {editingCourseId && (
+              {courseForm.editingId && (
                 <div className="flex flex-col gap-4 p-6 bg-surface-2/50 rounded-3xl border border-border-main">
                   <h4 className="text-sm font-black uppercase tracking-widest text-text-muted">Topik Pembelajaran</h4>
                   
@@ -323,15 +341,15 @@ export function StudyView() {
                       type="text"
                       className="flex-1 h-12 bg-surface-1 border border-border-main rounded-xl px-4 text-sm font-bold focus:ring-2 focus:ring-indigo-500/50 outline-none"
                       placeholder="Tambah topik baru..."
-                      value={newTopicTitle}
-                      onChange={(e) => setNewTopicTitle(e.target.value)}
+                      value={courseForm.newTopicTitle}
+                      onChange={(e) => setCourseForm(s => ({ ...s, newTopicTitle: e.target.value }))}
                     />
                     <button 
                       className="btn-primary w-12 h-12 p-0 flex items-center justify-center rounded-xl"
                       onClick={() => {
-                        if (newTopicTitle) {
-                          useStudyStore.getState().addTopic(editingCourseId, newTopicTitle);
-                          setNewTopicTitle('');
+                        if (courseForm.newTopicTitle) {
+                          useStudyStore.getState().addTopic(courseForm.editingId!, courseForm.newTopicTitle);
+                          setCourseForm(s => ({ ...s, newTopicTitle: '' }));
                         }
                       }}
                     >
@@ -340,12 +358,12 @@ export function StudyView() {
                   </div>
 
                   <div className="flex flex-col gap-2 max-h-[200px] overflow-y-auto pr-2">
-                    {courses.find(c => c.id === editingCourseId)?.topics.map(t => (
+                    {courses.find(c => c.id === courseForm.editingId)?.topics.map(t => (
                       <div key={t.id} className="flex items-center justify-between p-3 bg-surface-1 border border-border-main rounded-xl">
                         <span className="text-sm font-bold">{t.title}</span>
                         <button 
                           className="p-1.5 text-red-500/40 hover:text-red-500 hover:bg-red-500/10 rounded-lg transition-all"
-                          onClick={() => useStudyStore.getState().deleteTopic(editingCourseId, t.id)}
+                          onClick={() => useStudyStore.getState().deleteTopic(courseForm.editingId!, t.id)}
                         >
                           <X size={14} />
                         </button>
@@ -357,11 +375,11 @@ export function StudyView() {
 
               <button 
                 className={`btn h-14 rounded-2xl font-black flex items-center justify-center gap-3 transition-all duration-300 
-                  ${!courseName ? 'bg-surface-2 text-text-muted cursor-not-allowed' : 'btn-primary'}`}
+                  ${!courseForm.name ? 'bg-surface-2 text-text-muted cursor-not-allowed' : 'btn-primary'}`}
                 onClick={handleSaveCourse}
-                disabled={!courseName}
+                disabled={!courseForm.name}
               >
-                {editingCourseId ? 'Simpan Perubahan' : 'Tambahkan Mata Kuliah'}
+                {courseForm.editingId ? 'Simpan Perubahan' : 'Tambahkan Mata Kuliah'}
               </button>
             </div>
           </div>
