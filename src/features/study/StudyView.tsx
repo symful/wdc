@@ -99,10 +99,10 @@ export function StudyView() {
           <p className="text-muted text-lg max-w-2xl">Atur target belajar dan pantau progres mata kuliah Anda secara detail.</p>
         </div>
         <button 
-          className="btn btn-glass px-6 border-indigo-500/10 hover:border-indigo-500/30"
+          className="btn btn-glass px-6 border-indigo-500/10 hover:border-indigo-500/30 hover:scale-105 active:scale-95 transition-all group"
           onClick={() => setUi(s => ({ ...s, courseModal: true }))}
         >
-          <Target size={20} className="text-indigo-400" />
+          <Target size={20} className="text-indigo-400 group-hover:scale-110 transition-transform" />
           <span className="font-black uppercase tracking-widest text-[10px]">Kelola Mata Kuliah</span>
         </button>
       </div>
@@ -164,14 +164,14 @@ export function StudyView() {
                 </div>
               </div>
               <button 
-                className={`btn h-14 rounded-2xl font-black flex items-center justify-center gap-3 transition-all duration-300 transform active:scale-95 shadow-xl 
+                className={`btn h-14 rounded-2xl font-black flex items-center justify-center gap-3 transition-all duration-300 transform active:scale-95 shadow-xl group
                   ${(!timer.selectedCourse || !timer.topic) 
                     ? 'bg-surface-2 text-text-muted/20 cursor-not-allowed border border-border-main' 
-                    : 'btn-primary'}`}
+                    : 'btn-primary hover:scale-105'}`}
                 onClick={handleStart}
                 disabled={!timer.selectedCourse || !timer.topic}
               >
-                <Play size={20} fill="currentColor" /> Mulai Sesi Fokus
+                <Play size={20} fill="currentColor" className="group-hover:scale-110 transition-transform" /> Mulai Sesi Fokus
               </button>
             </div>
           )}
@@ -276,7 +276,7 @@ export function StudyView() {
               {[1, 2, 3, 4, 5].map(rating => (
                 <button 
                   key={rating}
-                  className="w-16 h-16 rounded-2xl bg-surface-2 hover:bg-indigo-500 text-xl font-black transition-all duration-300 transform hover:scale-110 active:scale-90 hover:shadow-xl hover:shadow-indigo-500/30 border border-border-main hover:border-indigo-400 group"
+                  className="w-16 h-16 rounded-2xl bg-surface-2 hover:bg-indigo-500 text-xl font-black transition-all duration-300 transform hover:scale-110 active:scale-95 hover:shadow-xl hover:shadow-indigo-500/30 border border-border-main hover:border-indigo-400 group cursor-pointer"
                   onClick={() => handleEnd(rating)}
                 >
                   <span className="group-hover:scale-125 transition-transform inline-block">{rating}</span>
@@ -298,7 +298,7 @@ export function StudyView() {
                 {courseForm.editingId ? 'Edit Mata Kuliah' : 'Tambah Mata Kuliah'}
               </h3>
               <button 
-                className="p-2 hover:bg-surface-2 rounded-full transition-colors"
+                className="p-2 hover:bg-surface-2 rounded-full transition-all hover:scale-110 active:scale-95 cursor-pointer"
                 onClick={() => { 
                   setUi(s => ({ ...s, courseModal: false })); 
                   setCourseForm({ editingId: null, name: '', targetHours: 20, newTopicTitle: '' });
@@ -345,7 +345,7 @@ export function StudyView() {
                       onChange={(e) => setCourseForm(s => ({ ...s, newTopicTitle: e.target.value }))}
                     />
                     <button 
-                      className="btn-primary w-12 h-12 p-0 flex items-center justify-center rounded-xl"
+                      className="btn-primary w-12 h-12 p-0 flex items-center justify-center rounded-xl hover:scale-110 active:scale-95 transition-all cursor-pointer"
                       onClick={() => {
                         if (courseForm.newTopicTitle) {
                           useStudyStore.getState().addTopic(courseForm.editingId!, courseForm.newTopicTitle);
@@ -375,7 +375,7 @@ export function StudyView() {
 
               <button 
                 className={`btn h-14 rounded-2xl font-black flex items-center justify-center gap-3 transition-all duration-300 
-                  ${!courseForm.name ? 'bg-surface-2 text-text-muted cursor-not-allowed' : 'btn-primary'}`}
+                  ${!courseForm.name ? 'bg-surface-2 text-text-muted cursor-not-allowed' : 'btn-primary hover:scale-105 active:scale-95'}`}
                 onClick={handleSaveCourse}
                 disabled={!courseForm.name}
               >

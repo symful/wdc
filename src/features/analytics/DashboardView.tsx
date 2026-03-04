@@ -107,9 +107,9 @@ export function DashboardView() {
           <h1 className="text-4xl font-extrabold tracking-tight mb-2 text-gradient">Selamat Datang Kembali</h1>
           <p className="text-muted text-lg max-w-2xl">Ringkasan produktivitas dan target akademik berdasarkan data Anda.</p>
         </div>
-        <div className="glass-panel px-6 py-4 flex items-center gap-4 bg-surface-2 border border-border-main rounded-3xl shadow-xl hover:scale-105 transition-transform duration-300">
+        <div className="glass-panel px-6 py-4 flex items-center gap-4 bg-surface-2 border border-border-main rounded-3xl shadow-xl hover:scale-105 active:scale-[0.98] transition-all duration-300 group cursor-pointer">
           <div className="p-3 bg-indigo-500/10 rounded-2xl group-hover:scale-110 transition-transform">
-            <Target className="text-indigo-400 cursor-pointer" size={24} />
+            <Target className="text-indigo-400" size={24} />
           </div>
           <div>
             <div className="text-[10px] text-text-muted/60 font-black uppercase tracking-widest">Weekly Focus</div>
@@ -245,10 +245,10 @@ export function DashboardView() {
           </div>
           
           <button 
-            className="btn btn-glass mt-auto w-full h-14 justify-center rounded-2xl text-[10px] font-black uppercase tracking-[0.2em] gap-3"
+            className="btn btn-glass mt-auto w-full h-14 justify-center rounded-2xl text-[10px] font-black uppercase tracking-[0.2em] gap-3 hover:scale-105 active:scale-95 transition-all cursor-pointer group"
             onClick={handleDownloadReport}
           >
-            <FileDown size={18} /> Unduh Laporan Semester
+            <FileDown size={18} className="group-hover:scale-110 transition-transform" /> Unduh Laporan Semester
           </button>
         </div>
       </div>

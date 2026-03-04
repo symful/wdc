@@ -100,16 +100,16 @@ export function ScheduleView() {
           <p className="text-muted text-lg max-w-2xl">Atur jadwal belajar Anda dengan drag & drop. Gunakan fitur optimasi untuk menyesuaikan waktu secara otomatis.</p>
         </div>
         <div className="flex gap-4">
-          <button className="btn btn-glass px-6" onClick={() => setUi(s => ({ ...s, showAddModal: true }))}>
-            <Plus size={20} className="text-indigo-400" />
+          <button className="btn btn-glass px-6 hover:scale-105 active:scale-95 transition-all group" onClick={() => setUi(s => ({ ...s, showAddModal: true }))}>
+            <Plus size={20} className="text-indigo-400 group-hover:scale-110 transition-transform" />
             <span className="font-black uppercase tracking-widest text-[10px]">Tambah Blok</span>
           </button>
           <button 
-            className="btn btn-primary px-8" 
+            className="btn btn-primary px-8 hover:scale-105 active:scale-95 transition-all group" 
             onClick={() => optimizeSchedule()} 
             title="Pindahkan tugas kritis ke waktu kosong lebih awal"
           >
-            <Bolt size={20} fill="currentColor" />
+            <Bolt size={20} fill="currentColor" className="group-hover:scale-110 transition-transform" />
             <span className="font-black uppercase tracking-widest text-[10px]">Optimalkan Jadwal</span>
           </button>
         </div>
@@ -195,8 +195,8 @@ export function ScheduleView() {
           <div className="glass-panel p-8 max-w-xl w-full flex flex-col gap-8 bg-bg-main border border-border-main rounded-[3rem] shadow-[0_0_100px_rgba(0,0,0,0.5)]">
             <div className="flex justify-between items-center">
               <h3 className="text-2xl font-black tracking-tight">Tambah Jadwal Baru</h3>
-              <button onClick={() => setUi(s => ({ ...s, showAddModal: false }))} className="p-2 hover:bg-surface-2 rounded-full text-text-muted/40 hover:text-text-main transition-all hover:scale-110 active:scale-90">
-                <X size={24} className="cursor-pointer" />
+              <button onClick={() => setUi(s => ({ ...s, showAddModal: false }))} className="p-2 hover:bg-surface-2 rounded-full text-text-muted/40 hover:text-text-main transition-all hover:scale-110 active:scale-95 cursor-pointer">
+                <X size={24} />
               </button>
             </div>
 

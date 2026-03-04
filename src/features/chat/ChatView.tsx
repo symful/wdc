@@ -324,8 +324,8 @@ export function ChatView() {
 
           <div className="grid grid-cols-1 gap-4 mt-2">
             <button 
-              className={`btn h-12 md:h-14 rounded-xl md:rounded-2xl font-black flex items-center justify-center gap-3 transition-all transform active:scale-95 shadow-xl
-                ${!form.userName.trim() ? 'bg-surface-2 text-text-muted cursor-not-allowed' : 'btn-primary'}`}
+              className={`btn h-12 md:h-14 rounded-xl md:rounded-2xl font-black flex items-center justify-center gap-3 transition-all transform active:scale-95 shadow-xl group
+                ${!form.userName.trim() ? 'bg-surface-2 text-text-muted cursor-not-allowed' : 'btn-primary hover:scale-105'}`}
               onClick={() => {
                 const params = new URLSearchParams(window.location.search);
                 const joinKey = params.get('join');
@@ -338,9 +338,9 @@ export function ChatView() {
               disabled={!form.userName.trim()}
             >
               {new URLSearchParams(window.location.search).get('join') ? (
-                <><Link size={20} /> Gabung ke Ruangan</>
+                <><Link size={20} className="group-hover:scale-110 transition-transform" /> Gabung ke Ruangan</>
               ) : (
-                <><ShieldCheck size={20} /> Buat Ruangan Baru</>
+                <><ShieldCheck size={20} className="group-hover:scale-110 transition-transform" /> Buat Ruangan Baru</>
               )}
             </button>
             
@@ -350,9 +350,9 @@ export function ChatView() {
               <div className="grow border-t border-border-main"></div>
             </div>
 
-            <label className={`btn h-12 md:h-14 rounded-xl md:rounded-2xl font-black flex items-center justify-center gap-3 transition-all cursor-pointer transform active:scale-95 shadow-xl border border-border-main hover:border-indigo-500/30
-               ${!form.userName.trim() ? 'bg-surface-2 text-text-muted opacity-50 cursor-not-allowed' : 'bg-surface-1 hover:bg-surface-2'}`}>
-              <Upload size={20} /> Gabung via Keyroom
+            <label className={`btn h-12 md:h-14 rounded-xl md:rounded-2xl font-black flex items-center justify-center gap-3 transition-all cursor-pointer transform active:scale-95 shadow-xl border border-border-main hover:border-indigo-500/30 group
+               ${!form.userName.trim() ? 'bg-surface-2 text-text-muted opacity-50 cursor-not-allowed' : 'bg-surface-1 hover:bg-surface-2 hover:scale-105'}`}>
+              <Upload size={20} className="group-hover:scale-110 transition-transform" /> Gabung via Keyroom
               <input 
                 type="file" 
                 className="hidden" 
@@ -363,12 +363,12 @@ export function ChatView() {
             </label>
 
             <button 
-              className={`btn h-12 md:h-14 rounded-xl md:rounded-2xl font-black flex items-center justify-center gap-3 transition-all transform active:scale-95 shadow-xl border border-border-main hover:border-indigo-500/30
-                ${!form.userName.trim() ? 'bg-surface-2 text-text-muted opacity-50 cursor-not-allowed' : 'bg-surface-1 hover:bg-surface-2'}`}
+              className={`btn h-12 md:h-14 rounded-xl md:rounded-2xl font-black flex items-center justify-center gap-3 transition-all transform active:scale-95 shadow-xl border border-border-main hover:border-indigo-500/30 group
+                ${!form.userName.trim() ? 'bg-surface-2 text-text-muted opacity-50 cursor-not-allowed' : 'bg-surface-1 hover:bg-surface-2 hover:scale-105'}`}
               onClick={() => form.userName.trim() && setUi(s => ({ ...s, scanModal: true }))}
               disabled={!form.userName.trim()}
             >
-              <QrCode size={20} /> Scan QR Ruangan
+              <QrCode size={20} className="group-hover:scale-110 transition-transform" /> Scan QR Ruangan
             </button>
           </div>
         </div>
@@ -439,11 +439,11 @@ export function ChatView() {
           </button>
           
           <button 
-            className="btn btn-glass h-9 px-3 border-indigo-500/20 text-indigo-400 hover:scale-110 active:scale-90 transition-all"
+            className="btn btn-glass h-9 px-3 border-indigo-500/20 text-indigo-400 hover:scale-125 active:scale-90 transition-all cursor-pointer"
             onClick={() => setUi(s => ({ ...s, inviteModal: true }))}
             title="Invite Friends"
           >
-            <Share2 size={16} className="cursor-pointer hover:scale-110 transition-all" />
+            <Share2 size={16} />
           </button>
         </div>
       </div>
@@ -660,7 +660,7 @@ export function ChatView() {
                 </div>
                 <button 
                   onClick={() => setReplyingTo(null)}
-                  className="p-1.5 md:p-2 text-text-muted/40 hover:text-white transition-colors"
+                  className="p-1.5 md:p-2 text-text-muted/40 hover:text-white transition-all hover:scale-125 active:scale-90 cursor-pointer"
                 >
                   <X size={14} />
                 </button>
@@ -750,8 +750,8 @@ export function ChatView() {
             </div>
 
             <div className="flex gap-4">
-              <button onClick={() => setUi(s => ({ ...s, shareModal: false }))} className="flex-1 btn btn-glass text-xs font-black py-4">Batal</button>
-              <button onClick={confirmFileShare} className="flex-1 btn btn-primary text-xs font-black py-4">Bagikan</button>
+              <button onClick={() => setUi(s => ({ ...s, shareModal: false }))} className="flex-1 btn btn-glass text-xs font-black py-4 hover:scale-105 active:scale-95 transition-all cursor-pointer">Batal</button>
+              <button onClick={confirmFileShare} className="flex-1 btn btn-primary text-xs font-black py-4 hover:scale-105 active:scale-95 transition-all cursor-pointer">Bagikan</button>
             </div>
           </div>
         </div>
@@ -779,13 +779,13 @@ export function ChatView() {
               </div>
               <button 
                 onClick={copyJoinLink}
-                className="w-full btn btn-primary h-12 rounded-xl text-xs font-black uppercase tracking-widest"
+                className="w-full btn btn-primary h-12 rounded-xl text-xs font-black uppercase tracking-widest hover:scale-105 active:scale-95 transition-all cursor-pointer group"
               >
-                <Link size={16} className="mr-2" /> Copy Invite Link
+                <Link size={16} className="mr-2 group-hover:scale-110 transition-transform" /> Copy Invite Link
               </button>
             </div>
 
-            <button onClick={() => setUi(s => ({ ...s, inviteModal: false }))} className="w-full btn btn-glass h-12 rounded-xl text-xs font-black">Tutup</button>
+            <button onClick={() => setUi(s => ({ ...s, inviteModal: false }))} className="w-full btn btn-glass h-12 rounded-xl text-xs font-black hover:scale-105 active:scale-95 transition-all cursor-pointer">Tutup</button>
           </div>
         </div>
       )}
@@ -801,7 +801,7 @@ export function ChatView() {
         <div className="glass-panel w-full max-w-md p-6 bg-surface-1 border border-border-main rounded-4xl shadow-2xl flex flex-col gap-6">
           <div className="flex items-center justify-between">
             <h3 className="text-xl font-black">Scan QR Ruangan</h3>
-            <button onClick={() => setUi(s => ({ ...s, scanning: false, scanModal: false }))} className="p-2 text-text-muted hover:text-white transition-colors">
+            <button onClick={() => setUi(s => ({ ...s, scanning: false, scanModal: false }))} className="p-2 text-text-muted hover:text-white transition-all hover:scale-125 active:scale-90 cursor-pointer">
               <X size={20} />
             </button>
           </div>
@@ -824,7 +824,7 @@ export function ChatView() {
                       setUi(s => ({ ...s, scanning: true }));
                       setForm(s => ({ ...s, scanError: null }));
                     }}
-                    className="btn btn-primary px-6 h-11 rounded-xl text-xs font-black"
+                    className="btn btn-primary px-6 h-11 rounded-xl text-xs font-black hover:scale-105 active:scale-95 transition-all cursor-pointer"
                   >
                     Mulai Kamera
                   </button>
@@ -833,8 +833,8 @@ export function ChatView() {
                     <span className="shrink mx-4 text-[10px] font-black uppercase tracking-widest text-text-muted/40">atau</span>
                     <div className="grow border-t border-border-main"></div>
                   </div>
-                  <label className="btn btn-glass w-full h-11 rounded-xl text-xs font-black flex items-center justify-center gap-3 cursor-pointer">
-                    <ImageIcon size={18} /> Pilih Gambar QR
+                  <label className="btn btn-glass w-full h-11 rounded-xl text-xs font-black flex items-center justify-center gap-3 cursor-pointer hover:scale-105 active:scale-95 transition-all group">
+                    <ImageIcon size={18} className="group-hover:scale-110 transition-transform" /> Pilih Gambar QR
                     <input type="file" className="hidden" accept="image/*" onChange={handleImageScan} />
                   </label>
                 </div>
