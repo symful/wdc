@@ -163,10 +163,10 @@ export function ScheduleView() {
                             </div>
                           </div>
                           <button 
-                            className="text-text-muted/30 hover:text-red-400 transition-colors"
+                            className="text-text-muted/30 hover:text-red-400 transition-all hover:scale-125 active:scale-90"
                             onClick={(e) => { e.stopPropagation(); deleteBlock(block.id); }}
                           >
-                            <X size={14} />
+                            <X size={14} className="cursor-pointer" />
                           </button>
                         </div>
                         
@@ -195,7 +195,9 @@ export function ScheduleView() {
           <div className="glass-panel p-8 max-w-xl w-full flex flex-col gap-8 bg-bg-main border border-border-main rounded-[3rem] shadow-[0_0_100px_rgba(0,0,0,0.5)]">
             <div className="flex justify-between items-center">
               <h3 className="text-2xl font-black tracking-tight">Tambah Jadwal Baru</h3>
-              <button onClick={() => setUi(s => ({ ...s, showAddModal: false }))} className="p-2 hover:bg-surface-2 rounded-full text-text-muted/40 hover:text-text-main transition-colors"><X size={24} /></button>
+              <button onClick={() => setUi(s => ({ ...s, showAddModal: false }))} className="p-2 hover:bg-surface-2 rounded-full text-text-muted/40 hover:text-text-main transition-all hover:scale-110 active:scale-90">
+                <X size={24} className="cursor-pointer" />
+              </button>
             </div>
 
             <div className="flex flex-col gap-6">

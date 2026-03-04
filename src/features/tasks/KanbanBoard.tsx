@@ -146,10 +146,10 @@ export function KanbanBoard() {
                       <h4 className="font-bold text-text-main group-hover/card:text-indigo-400 transition-colors line-clamp-1">{task.title}</h4>
                     </div>
                     <button
-                      className="p-2 text-text-muted hover:text-red-400 transition-colors rounded-xl hover:bg-red-500/10"
+                      className="p-2 text-text-muted hover:text-red-400 transition-all rounded-xl hover:bg-red-500/10 hover:scale-110 active:scale-95"
                       onClick={(e) => { e.stopPropagation(); deleteTask(task.id); }}
                     >
-                      <X size={18} />
+                      <X size={18} className="cursor-pointer" />
                     </button>
                   </div>
 
@@ -216,7 +216,9 @@ export function KanbanBoard() {
           <div className="glass-panel p-8 max-w-xl w-full flex flex-col gap-8 bg-slate-900/90 border border-white/10 rounded-[3rem] shadow-[0_0_100px_rgba(0,0,0,0.5)]">
             <div className="flex justify-between items-center">
               <h3 className="text-2xl font-black tracking-tight">Tambah Tugas Baru</h3>
-              <button onClick={() => setUi(s => ({ ...s, showAddModal: false }))} className="p-2 hover:bg-white/5 rounded-full text-white/40 hover:text-white transition-colors"><X size={24} /></button>
+              <button onClick={() => setUi(s => ({ ...s, showAddModal: false }))} className="p-2 hover:bg-white/5 rounded-full text-white/40 hover:text-white transition-all hover:scale-110 active:scale-90">
+                <X size={24} className="cursor-pointer" />
+              </button>
             </div>
 
             <div className="flex flex-col gap-6">

@@ -55,8 +55,8 @@ export function DashboardView() {
           <p className="text-muted text-lg max-w-2xl">Ringkasan produktivitas dan target akademik berdasarkan data Anda.</p>
         </div>
         <div className="glass-panel px-6 py-4 flex items-center gap-4 bg-surface-2 border border-border-main rounded-3xl shadow-xl hover:scale-105 transition-transform duration-300">
-          <div className="p-3 bg-indigo-500/10 rounded-2xl">
-            <Target className="text-indigo-400" size={24} />
+          <div className="p-3 bg-indigo-500/10 rounded-2xl group-hover:scale-110 transition-transform">
+            <Target className="text-indigo-400 cursor-pointer" size={24} />
           </div>
           <div>
             <div className="text-[10px] text-text-muted/60 font-black uppercase tracking-widest">Weekly Focus</div>

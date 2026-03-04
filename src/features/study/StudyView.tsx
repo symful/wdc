@@ -194,18 +194,18 @@ export function StudyView() {
                         <h4 className="text-lg font-bold group-hover:text-indigo-400 transition-colors uppercase tracking-tight">{c.name}</h4>
                         <div className="flex items-center gap-1 opacity-0 group-hover/item:opacity-100 transition-opacity">
                           <button 
-                            className="p-1.5 rounded-lg text-indigo-400/40 hover:text-indigo-400 hover:bg-indigo-500/10 transition-all"
+                            className="p-1.5 rounded-lg text-indigo-400/40 hover:text-indigo-400 hover:bg-indigo-500/10 transition-all hover:scale-110 active:scale-90"
                             onClick={() => openEditCourse(c)}
                             title="Edit Mata Kuliah"
                           >
-                            <BrainCircuit size={14} />
+                            <BrainCircuit size={14} className="cursor-pointer" />
                           </button>
                           <button 
-                            className="p-1.5 rounded-lg text-red-500/20 hover:text-red-500 hover:bg-red-500/10 transition-all"
+                            className="p-1.5 rounded-lg text-red-500/20 hover:text-red-500 hover:bg-red-500/10 transition-all hover:scale-110 active:scale-90"
                             onClick={() => deleteCourse(c.id)}
                             title="Hapus Mata Kuliah"
                           >
-                            <X size={14} />
+                            <X size={14} className="cursor-pointer" />
                           </button>
                         </div>
                       </div>

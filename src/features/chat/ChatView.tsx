@@ -413,21 +413,21 @@ export function ChatView() {
 
         <div className="flex items-center gap-2 md:gap-3 shrink-0">
           <button 
-            className="btn btn-glass h-9 md:h-11 px-3 md:px-4 text-[9px] md:text-[10px] font-black uppercase tracking-widest border border-indigo-500/10 hover:border-indigo-500/30"
+            className="btn btn-glass h-9 md:h-11 px-3 md:px-4 text-[9px] md:text-[10px] font-black uppercase tracking-widest border border-indigo-500/10 hover:border-indigo-500/30 hover:scale-105 active:scale-95 transition-all"
             onClick={handleExportKey}
             title="Export Keyroom"
           >
-            <Download size={14} className="text-indigo-400 md:hidden" />
-            <Download size={16} className="text-indigo-400 hidden md:block" />
+            <Download size={14} className="text-indigo-400 md:hidden cursor-pointer hover:scale-110 active:scale-90 transition-all" />
+            <Download size={16} className="text-indigo-400 hidden md:block cursor-pointer hover:scale-110 active:scale-90 transition-all" />
             <span className="hidden sm:inline ml-1.5">Export</span>
           </button>
           <button 
-            className="btn h-9 md:h-11 px-3 md:px-4 text-[9px] md:text-[10px] font-black uppercase tracking-widest bg-status-danger-subtle text-status-danger border border-status-danger/20 hover:bg-status-danger/20"
+            className="btn h-9 md:h-11 px-3 md:px-4 text-[9px] md:text-[10px] font-black uppercase tracking-widest bg-status-danger-subtle text-status-danger border border-status-danger/20 hover:bg-status-danger/20 hover:scale-105 active:scale-95 transition-all"
             onClick={leaveRoom}
             title="Keluar"
           >
-            <LogOut size={14} className="md:hidden" />
-            <LogOut size={16} className="hidden md:block" />
+            <LogOut size={14} className="md:hidden cursor-pointer hover:scale-110 active:scale-90 transition-all" />
+            <LogOut size={16} className="hidden md:block cursor-pointer hover:scale-110 active:scale-90 transition-all" />
             <span className="hidden sm:inline ml-1.5">Keluar</span>
           </button>
           
@@ -435,7 +435,7 @@ export function ChatView() {
             className="lg:hidden btn btn-glass h-9 px-3 border-indigo-500/20 text-indigo-400 hover:scale-110 active:scale-90 transition-all"
             onClick={() => setUi(s => ({ ...s, sidebar: !s.sidebar }))}
           >
-            <Users size={16} />
+            <Users size={16} className="cursor-pointer hover:scale-110 transition-all" />
           </button>
           
           <button 
@@ -443,7 +443,7 @@ export function ChatView() {
             onClick={() => setUi(s => ({ ...s, inviteModal: true }))}
             title="Invite Friends"
           >
-            <Share2 size={16} />
+            <Share2 size={16} className="cursor-pointer hover:scale-110 transition-all" />
           </button>
         </div>
       </div>
@@ -475,19 +475,19 @@ export function ChatView() {
                       onChange={e => setForm(s => ({ ...s, newName: e.target.value }))}
                       onKeyDown={e => e.key === 'Enter' && handleRename()}
                     />
-                    <button onClick={handleRename} className="text-status-success"><Check size={14} /></button>
+                    <button onClick={handleRename} className="text-status-success hover:scale-125 active:scale-90 transition-all"><Check size={14} className="cursor-pointer transition-all" /></button>
                   </div>
                 ) : (
                   <div className="flex items-center justify-between group/name">
                     <div className="text-sm font-bold truncate">{currentUser?.name}</div>
-                    <button 
+                     <button 
                       onClick={() => { 
                         setUi(s => ({ ...s, renaming: true })); 
                         setForm(s => ({ ...s, newName: currentUser?.name || '' })); 
                       }}
-                      className="opacity-0 group-hover/name:opacity-100 p-1 text-text-muted/40 hover:text-indigo-400 transition-all"
+                      className="opacity-0 group-hover/name:opacity-100 p-1 text-text-muted/40 hover:text-indigo-400 transition-all hover:scale-110 active:scale-90"
                     >
-                      <Edit2 size={12} />
+                      <Edit2 size={12} className="cursor-pointer transition-all" />
                     </button>
                   </div>
                 )}
@@ -532,7 +532,7 @@ export function ChatView() {
                           onClick={() => kickUser(user.id)}
                           title="Kick User"
                         >
-                          <Ban size={12} />
+                          <Ban size={12} className="cursor-pointer transition-all" />
                         </button>
                       </>
                     )}
@@ -607,7 +607,7 @@ export function ChatView() {
                                 }`}
                                 disabled={msg.file.status === 'transferring'}
                               >
-                                {msg.file.status === 'transferring' ? <Clock size={16} /> : <Download size={16} />}
+                                {msg.file.status === 'transferring' ? <Clock size={16} className="animate-spin-slow" /> : <Download size={16} className="cursor-pointer hover:scale-110 active:scale-90 transition-all" />}
                               </button>
                             )}
                           </div>
@@ -621,20 +621,20 @@ export function ChatView() {
                           {msg.content}
 
                           <div className={`absolute top-0 flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-all ${msg.senderId === currentUser?.id ? 'right-full mr-2' : 'left-full ml-2'}`}>
-                            <button 
-                              onClick={() => setReplyingTo(msg)}
-                              className="p-1.5 md:p-2 bg-surface-2 border border-border-main rounded-lg md:rounded-xl text-text-muted hover:text-indigo-400 hover:scale-110 active:scale-95 transition-all shadow-xl"
-                              title="Balas"
-                            >
-                              <Reply size={12} className="md:w-[14px] md:h-[14px]" />
-                            </button>
+                              <button 
+                                onClick={() => setReplyingTo(msg)}
+                                className="p-1.5 md:p-2 bg-surface-2 border border-border-main rounded-lg md:rounded-xl text-text-muted hover:text-indigo-400 hover:scale-125 active:scale-90 transition-all shadow-xl group/reply"
+                                title="Balas"
+                              >
+                                <Reply size={12} className="md:w-[14px] md:h-[14px] cursor-pointer transition-all" />
+                              </button>
                             {(currentUser?.role === 'admin' || msg.senderId === currentUser?.id) && (
                               <button 
                                 onClick={() => deleteMessage(msg.id)}
-                                className="p-1.5 md:p-2 bg-surface-2 border border-border-main rounded-lg md:rounded-xl text-status-danger/60 hover:text-status-danger hover:scale-110 active:scale-95 transition-all shadow-xl"
+                                className="p-1.5 md:p-2 bg-surface-2 border border-border-main rounded-lg md:rounded-xl text-status-danger/60 hover:text-status-danger hover:scale-125 active:scale-90 transition-all shadow-xl"
                                 title="Hapus"
                               >
-                                <Trash2 size={12} className="md:w-[14px] md:h-[14px]" />
+                                <Trash2 size={12} className="md:w-[14px] md:h-[14px] cursor-pointer" />
                               </button>
                             )}
                           </div>
