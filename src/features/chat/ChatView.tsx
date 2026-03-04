@@ -284,11 +284,11 @@ export function ChatView() {
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
     const joinKey = params.get('join');
-    if (joinKey && status === 'idle') {
-       // We can't join without a name, but we can pre-set the join flow
-       // For now, if we have a key, we'll try to use it when user enters name
+    if (joinKey && status === 'idle' && form.userName.trim()) {
+       // If we have a name and a key, we can auto-join if the user clicks the "Join" button
+       // which we'll update below.
     }
-  }, [status]);
+  }, [status, form.userName]);
 
 
   // Setup Screen
@@ -326,10 +326,22 @@ export function ChatView() {
             <button 
               className={`btn h-12 md:h-14 rounded-xl md:rounded-2xl font-black flex items-center justify-center gap-3 transition-all transform active:scale-95 shadow-xl
                 ${!form.userName.trim() ? 'bg-surface-2 text-text-muted cursor-not-allowed' : 'btn-primary'}`}
-              onClick={handleHost}
+              onClick={() => {
+                const params = new URLSearchParams(window.location.search);
+                const joinKey = params.get('join');
+                if (joinKey) {
+                  joinRoom(form.userName.trim(), joinKey);
+                } else {
+                  handleHost();
+                }
+              }}
               disabled={!form.userName.trim()}
             >
-              <ShieldCheck size={20} /> Buat Ruangan Baru
+              {new URLSearchParams(window.location.search).get('join') ? (
+                <><Link size={20} /> Gabung ke Ruangan</>
+              ) : (
+                <><ShieldCheck size={20} /> Buat Ruangan Baru</>
+              )}
             </button>
             
             <div className="relative flex items-center py-2">
@@ -360,6 +372,9 @@ export function ChatView() {
             </button>
           </div>
         </div>
+
+        {/* Setup Screen Modals */}
+        {ui.scanModal && renderScanModal()}
       </div>
     );
   }
@@ -775,29 +790,35 @@ export function ChatView() {
         </div>
       )}
 
-      {/* Scan Modal */}
-      {ui.scanModal && (
-        <div className="fixed inset-0 z-120 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-in fade-in duration-300">
-          <div className="glass-panel w-full max-w-md p-6 bg-surface-1 border border-border-main rounded-4xl shadow-2xl flex flex-col gap-6">
-            <div className="flex items-center justify-between">
-              <h3 className="text-xl font-black">Scan QR Ruangan</h3>
-              <button onClick={() => setUi(s => ({ ...s, scanning: false, scanModal: false }))} className="p-2 text-text-muted hover:text-white transition-colors">
-                <X size={20} />
-              </button>
-            </div>
+      {/* Note: Scan Modal is rendered conditionally in setup screen or room if needed */}
+      {/* But for this app, we only scan to JOIN, so it belongs in Setup. */}
+    </div>
+  );
 
-            <div className="relative aspect-square bg-black rounded-3xl overflow-hidden border border-border-main group">
-              {ui.scanning ? (
-                <>
-                  <video ref={scanVideoRef} className="w-full h-full object-cover" />
-                  <canvas ref={scanCanvasRef} className="hidden" />
-                  <div className="absolute inset-0 border-2 border-indigo-500/50 rounded-3xl pointer-events-none">
-                    <div className="absolute top-1/2 left-0 w-full h-0.5 bg-indigo-500 shadow-[0_0_15px_rgba(99,102,241,0.8)] animate-scan-line"></div>
-                  </div>
-                </>
-              ) : (
-                <div className="w-full h-full flex flex-col items-center justify-center gap-4 text-text-muted">
-                  <Camera size={48} className="opacity-20" />
+  function renderScanModal() {
+    return (
+      <div className="fixed inset-0 z-120 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-in fade-in duration-300">
+        <div className="glass-panel w-full max-w-md p-6 bg-surface-1 border border-border-main rounded-4xl shadow-2xl flex flex-col gap-6">
+          <div className="flex items-center justify-between">
+            <h3 className="text-xl font-black">Scan QR Ruangan</h3>
+            <button onClick={() => setUi(s => ({ ...s, scanning: false, scanModal: false }))} className="p-2 text-text-muted hover:text-white transition-colors">
+              <X size={20} />
+            </button>
+          </div>
+
+          <div className="relative aspect-square bg-black rounded-3xl overflow-hidden border border-border-main group">
+            {ui.scanning ? (
+              <>
+                <video ref={scanVideoRef} className="w-full h-full object-cover" />
+                <canvas ref={scanCanvasRef} className="hidden" />
+                <div className="absolute inset-0 border-2 border-indigo-500/50 rounded-3xl pointer-events-none">
+                  <div className="absolute top-1/2 left-0 w-full h-0.5 bg-indigo-500 shadow-[0_0_15px_rgba(99,102,241,0.8)] animate-scan-line"></div>
+                </div>
+              </>
+            ) : (
+              <div className="w-full h-full flex flex-col items-center justify-center gap-4 text-text-muted">
+                <Camera size={48} className="opacity-20" />
+                <div className="flex flex-col items-center gap-2">
                   <button 
                     onClick={() => {
                       setUi(s => ({ ...s, scanning: true }));
@@ -807,29 +828,29 @@ export function ChatView() {
                   >
                     Mulai Kamera
                   </button>
+                  <div className="relative flex items-center w-full py-2">
+                    <div className="grow border-t border-border-main"></div>
+                    <span className="shrink mx-4 text-[10px] font-black uppercase tracking-widest text-text-muted/40">atau</span>
+                    <div className="grow border-t border-border-main"></div>
+                  </div>
+                  <label className="btn btn-glass w-full h-11 rounded-xl text-xs font-black flex items-center justify-center gap-3 cursor-pointer">
+                    <ImageIcon size={18} /> Pilih Gambar QR
+                    <input type="file" className="hidden" accept="image/*" onChange={handleImageScan} />
+                  </label>
                 </div>
-              )}
-            </div>
-
-            {form.scanError && (
-              <div className="p-3 bg-status-danger-subtle border border-status-danger/20 rounded-xl text-status-danger text-[10px] font-bold text-center">
-                {form.scanError}
               </div>
             )}
-
-            <div className="relative flex items-center">
-              <div className="grow border-t border-border-main"></div>
-              <span className="shrink mx-4 text-[10px] font-black uppercase tracking-widest text-text-muted/40">atau</span>
-              <div className="grow border-t border-border-main"></div>
-            </div>
-
-            <label className="btn btn-glass w-full h-12 rounded-xl text-xs font-black flex items-center justify-center gap-3 cursor-pointer">
-              <ImageIcon size={18} /> Pilih Gambar QR
-              <input type="file" className="hidden" accept="image/*" onChange={handleImageScan} />
-            </label>
           </div>
+
+          {form.scanError && (
+            <div className="p-3 bg-status-danger-subtle border border-status-danger/20 rounded-xl text-status-danger text-[10px] font-bold text-center">
+              {form.scanError}
+            </div>
+          )}
+
+          <p className="text-center text-[10px] text-text-muted/60 px-4">Arahkan kamera ke QR Code atau unggah gambar yang berisi QR Code ruangan.</p>
         </div>
-      )}
-    </div>
-  );
+      </div>
+    );
+  }
 }
