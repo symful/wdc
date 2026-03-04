@@ -4,7 +4,9 @@ StudiKu is a high-performance productivity dashboard designed for students and a
 
 ## Features
 
-- **Advanced Analytics Dashboard**: Real-time summary of study hours, task completion, and academic focus intensity via a dynamic heatmap.
+- **Advanced Analytics Dashboard**: 
+    - Real-time summary of study hours, task completion, and academic focus intensity via a dynamic heatmap.
+    - **PDF Laporan Semester**: Generate a professionally formatted PDF report containing semester summaries, task audits, and study history.
 - **Project Scheduling (Kanban & Grid)**:
     - **Draggable Kanban Board** for task management with deadline urgency tracking and weighted task priority.
     - **Dynamic Time-Block Grid** for weekly scheduling with optimization logic to organize your week.
@@ -15,7 +17,10 @@ StudiKu is a high-performance productivity dashboard designed for students and a
     - **Room Management**: Dynamic Host/Client architecture with admin promotion, user kicking, and renaming.
     - **Seamless Joining**: Join via copyable Invite Links or integrated QR Code scanning (Camera & Image upload).
 - **Premium Aesthetics**: Built with Tailwind CSS v4's architecture, utilizing glassmorphism, pulse animations, and curated accessible color palettes for both Light and Dark modes.
-- **Performance Optimized**: Features lazy loading, skeleton screens, and consolidated state management for extremely fast transitions and UI responsiveness.
+- **Advanced Interactivity**: Standardized hover effects, scale animations, and intuitive cursor feedback across all interactive elements.
+- **Performance Optimized**: 
+    - Features lazy loading, skeleton screens, and consolidated state management.
+    - **SPA Routing**: Production-ready routing via `vercel.json` to prevent 404s on sub-routes.
 
 ## Technical Architecture
 
@@ -23,7 +28,7 @@ This project follows a pure frontend philosophy:
 
 1. **Frontend Only**: No backend server or traditional database is required. State is persisted client-side using Zustand with persistence middleware.
 2. **CDN-First Strategy**: 
-    - Almost all runtime libraries (React, React Router, Lucide, Zustand, etc.) are served via CDNs (esm.sh) to ensure minimum bundle size.
+    - Almost all runtime libraries (React, React Router, Lucide, Zustand, PeerJS, jspdf, etc.) are served via CDNs (esm.sh) to ensure minimum bundle size and maximum delivery speed.
     - Vite is configured with `resolve.alias` to map standard imports directly to their respective CDN URLs during both development and build.
 3. **Optimized Build**:
     - **TypeScript**: Full type safety across all components and stores.
