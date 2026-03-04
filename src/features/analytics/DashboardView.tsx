@@ -2,7 +2,9 @@ import type { Task } from '../../store/useTaskStore';
 import type { StudySession, CourseData } from '../../store/useStudyStore';
 import { useTaskStore } from '../../store/useTaskStore';
 import { useStudyStore } from '../../store/useStudyStore';
-import { AlertCircle, CalendarDays, Bolt, TrendingUp, BookOpen, Lightbulb, Target } from 'lucide-react';
+import { AlertCircle, CalendarDays, Bolt, TrendingUp, BookOpen, Lightbulb, Target, FileDown } from 'lucide-react';
+import jsPDF from 'jspdf';
+import autoTable from 'jspdf-autotable';
 
 export function DashboardView() {
   const { tasks } = useTaskStore();
@@ -31,20 +33,71 @@ export function DashboardView() {
   };
 
   const handleDownloadReport = () => {
-    const csvContent = [
-      ["Tipe", "Judul", "Status/Durasi", "Deadline/Tanggal"],
-      ...tasks.map(t => ["Tugas", t.title, t.status, t.deadline]),
-      ...sessions.map(s => ["Sesi Belajar", s.topic, `${s.durationMinutes}m`, s.date])
-    ].map(e => e.join(",")).join("\n");
+    const doc = new jsPDF();
+    const now = new Date();
+    const dateStr = now.toLocaleDateString('id-ID', { 
+      year: 'numeric', 
+      month: 'long', 
+      day: 'numeric' 
+    });
 
-    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
-    const url = URL.createObjectURL(blob);
-    const link = document.createElement("a");
-    link.setAttribute("href", url);
-    link.setAttribute("download", `Laporan_Produktivitas_${new Date().toISOString().split('T')[0]}.csv`);
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
+    // Header
+    doc.setFontSize(22);
+    doc.setTextColor(63, 81, 181); // Indigo-500
+    doc.text('Laporan Semester - StudiKu', 14, 22);
+    
+    doc.setFontSize(10);
+    doc.setTextColor(100);
+    doc.text(`Dicetak pada: ${dateStr}`, 14, 30);
+
+    // Summary Section
+    doc.setFontSize(16);
+    doc.setTextColor(40);
+    doc.text('Ringkasan Target', 14, 45);
+
+    autoTable(doc, {
+      startY: 50,
+      head: [['Kategori', 'Pencapaian']],
+      body: [
+        ['Tugas Selesai', `${tasks.filter(t => t.status === 'done').length}/${tasks.length}`],
+        ['Total Waktu Belajar', `${(totalStudyTime / 60).toFixed(1)} Jam`],
+        ['Jumlah Mata Kuliah', `${courses.length}`],
+        ['Total Sesi Fokus', `${sessions.length}`],
+      ],
+      theme: 'striped',
+      headStyles: { fillColor: [79, 70, 229] }, // Indigo-600
+    });
+
+    // Tasks Section
+    doc.setFontSize(16);
+    doc.text('Daftar Tugas', 14, (doc as any).lastAutoTable.finalY + 15);
+
+    autoTable(doc, {
+      startY: (doc as any).lastAutoTable.finalY + 20,
+      head: [['Judul Tugas', 'Status', 'Deadline']],
+      body: tasks.map(t => [t.title, t.status.toUpperCase(), new Date(t.deadline).toLocaleDateString('id-ID')]),
+      theme: 'grid',
+      headStyles: { fillColor: [79, 70, 229] },
+    });
+
+    // Study Sessions Section
+    doc.setFontSize(16);
+    doc.text('Riwayat Sesi Belajar', 14, (doc as any).lastAutoTable.finalY + 15);
+
+    autoTable(doc, {
+      startY: (doc as any).lastAutoTable.finalY + 20,
+      head: [['Topik', 'Mata Kuliah', 'Durasi', 'Tanggal']],
+      body: sessions.map(s => [
+        s.topic, 
+        courses.find(c => c.id === s.courseId)?.name || 'N/A',
+        `${s.durationMinutes}m`,
+        new Date(s.date).toLocaleDateString('id-ID')
+      ]),
+      theme: 'striped',
+      headStyles: { fillColor: [79, 70, 229] },
+    });
+
+    doc.save(`Laporan_Semester_${now.toISOString().split('T')[0]}.pdf`);
   };
 
   return (
@@ -192,10 +245,10 @@ export function DashboardView() {
           </div>
           
           <button 
-            className="btn btn-glass mt-auto w-full h-14 justify-center rounded-2xl text-[10px] font-black uppercase tracking-[0.2em]"
+            className="btn btn-glass mt-auto w-full h-14 justify-center rounded-2xl text-[10px] font-black uppercase tracking-[0.2em] gap-3"
             onClick={handleDownloadReport}
           >
-            Unduh Laporan Semester
+            <FileDown size={18} /> Unduh Laporan Semester
           </button>
         </div>
       </div>

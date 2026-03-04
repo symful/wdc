@@ -26,6 +26,8 @@ export default defineConfig({
       "peerjs",
       "qrcode.react",
       "jsqr",
+      "jspdf",
+      "jspdf-autotable",
     ],
   },
   resolve: {
@@ -91,6 +93,8 @@ export default defineConfig({
         replacement: "https://esm.sh/qrcode.react@3.1.0?deps=react@18.0.0",
       },
       { find: /^jsqr$/, replacement: "https://esm.sh/jsqr@1.4.0" },
+      { find: /^jspdf$/, replacement: "https://esm.sh/jspdf@2.5.1" },
+      { find: /^jspdf-autotable$/, replacement: "https://esm.sh/jspdf-autotable@3.8.2?deps=jspdf@2.5.1" },
     ],
   },
   build: {
@@ -109,6 +113,8 @@ export default defineConfig({
         "peerjs",
         "qrcode.react",
         "jsqr",
+        "jspdf",
+        "jspdf-autotable",
       ],
       output: {
         // THIS IS CRITICAL FOR BUILD MODE
@@ -132,6 +138,8 @@ export default defineConfig({
           "peerjs": "https://esm.sh/peerjs@1.5.2",
           "qrcode.react": "https://esm.sh/qrcode.react@3.1.0?deps=react@18.0.0",
           "jsqr": "https://esm.sh/jsqr@1.4.0",
+          "jspdf": "https://esm.sh/jspdf@2.5.1",
+          "jspdf-autotable": "https://esm.sh/jspdf-autotable@3.8.2?deps=jspdf@2.5.1",
         },
       },
     },
