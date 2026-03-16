@@ -144,13 +144,13 @@ export function DashboardView() {
   return (
     <div className="flex flex-col gap-8">
       {/* Header Section */}
-      <div className="flex items-center justify-between flex-wrap gap-6 shrink-0">
+      <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-6 shrink-0 w-full">
         <div>
           <h1 className="text-4xl font-extrabold tracking-tight mb-2 neon-glow-text font-display uppercase">{t.dashboard.title}</h1>
           <p className="text-text-muted text-lg max-w-2xl">{t.dashboard.subtitle}</p>
         </div>
-        <div className="flex gap-4 items-stretch">
-          <div className="game-panel px-6 py-4 flex items-center gap-4 hover:scale-105 active:scale-[0.98] transition-all duration-300 group cursor-pointer h-14 min-w-45">
+        <div className="flex flex-col sm:flex-row gap-4 items-stretch w-full lg:w-auto shrink-0">
+          <div className="game-panel px-6 py-4 flex items-center justify-center sm:justify-start gap-4 hover:scale-105 active:scale-[0.98] transition-all duration-300 group cursor-pointer h-14 min-w-45">
             <div className="p-2 bg-neon-cyan/10 rounded-xl group-hover:scale-110 transition-transform border border-neon-cyan/20">
               <Zap className="text-neon-cyan" size={20} />
             </div>
@@ -160,12 +160,12 @@ export function DashboardView() {
             </div>
           </div>
           <button 
-            className="btn btn-glass px-8 h-14 rounded-2xl font-black uppercase tracking-widest gap-3 hover:scale-105 active:scale-95 transition-all group disabled:opacity-50 whitespace-nowrap"
+            className="btn btn-glass px-4 sm:px-8 h-14 rounded-2xl font-black uppercase tracking-widest gap-2 sm:gap-3 hover:scale-105 active:scale-95 transition-all group disabled:opacity-50 whitespace-nowrap flex-1 sm:flex-none justify-center overflow-hidden"
             onClick={handleGenerate}
             disabled={generationState.isActive}
           >
-            <Sparkles size={20} className="text-neon-cyan group-hover:animate-pulse" />
-            {t.dashboard.generateStudyPlan}
+            <Sparkles size={20} className="text-neon-cyan group-hover:animate-pulse shrink-0" />
+            <span className="text-xs sm:text-sm truncate">{t.dashboard.generateStudyPlan}</span>
           </button>
         </div>
       </div>
