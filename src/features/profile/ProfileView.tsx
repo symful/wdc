@@ -4,6 +4,7 @@ import { useTaskStore } from '../../store/useTaskStore';
 import { useStudyStore, StudySession } from '../../store/useStudyStore';
 import { Timer } from 'lucide-react';
 import { useLanguageStore, translations } from '../../store/useLanguageStore';
+import mockActivityData from '../../data/mockActivityData.json';
 import { 
   User, 
   Settings, 
@@ -47,7 +48,7 @@ export function ProfileView() {
     type: 'ganjil' as SemesterType,
     totalSks: 0
   });
-  const [chartView, setChartView] = useState<'sessions' | 'tasks' | 'both'>('both');
+  const [chartView, setChartView] = useState<'sessions' | 'tasks'>('sessions');
 
   const activeSemester = semesters.find(s => s.id === activeSemesterId);
 
@@ -416,14 +417,15 @@ function TrendChart({ sessions, tasks, view, setView, language }: any) {
   });
 
   const data = last7Days.map(day => {
-    const daySessions = sessions.filter((s: any) => s.date.startsWith(day.dateStr)).length;
-    const dayTasks = tasks.filter((t: any) => 
+    const dummyDay = mockActivityData.find(d => d.date === day.dateStr);
+    const daySessions = (sessions.filter((s: any) => s.date.startsWith(day.dateStr)).length) + (dummyDay?.sessions || 0);
+    const dayTasks = (tasks.filter((t: any) => 
       (t.completedAt || t.deadline).startsWith(day.dateStr) && t.status === 'done'
-    ).length;
+    ).length) + (dummyDay?.tasks || 0);
     return { ...day, sessions: daySessions, tasks: dayTasks };
   });
 
-  const maxVal = Math.max(...data.map(d => Math.max(d.sessions, d.tasks)), 1) + 1;
+  const maxVal = Math.max(...data.map(d => d[view]), 1) + 2;
   
   const getPath = (key: 'sessions' | 'tasks') => {
     const points = data.map((d, i) => {
@@ -435,7 +437,7 @@ function TrendChart({ sessions, tasks, view, setView, language }: any) {
   };
 
   return (
-    <div className="game-panel p-8 flex flex-col gap-6 h-full min-h-[300px]">
+    <div className="game-panel p-8 flex flex-col gap-6 h-full min-h-75">
       <div className="flex items-center justify-between flex-wrap gap-4">
         <h3 className="text-lg font-black flex items-center gap-3 tracking-tight font-display">
           <div className="p-2 bg-neon-purple/10 rounded-xl border border-neon-purple/20">
@@ -444,11 +446,11 @@ function TrendChart({ sessions, tasks, view, setView, language }: any) {
           <span className="neon-purple-text uppercase tracking-widest">Activity Trend</span>
         </h3>
         <div className="flex bg-surface-2 p-1 rounded-xl border border-white/5">
-          {(['sessions', 'tasks', 'both'] as const).map(v => (
+          {(['sessions', 'tasks'] as const).map(v => (
             <button
               key={v}
               onClick={() => setView(v)}
-              className={`px-4 py-1.5 rounded-lg text-[10px] font-black uppercase tracking-wider transition-all ${view === v ? 'bg-neon-purple text-white shadow-lg shadow-neon-purple/20' : 'text-text-muted/40 hover:text-text-main'}`}
+              className={`px-6 py-1.5 rounded-lg text-[10px] font-black uppercase tracking-wider transition-all ${view === v ? 'bg-neon-purple text-white shadow-lg shadow-neon-purple/20' : 'text-text-muted/40 hover:text-text-main'}`}
             >
               {v}
             </button>
@@ -456,86 +458,79 @@ function TrendChart({ sessions, tasks, view, setView, language }: any) {
         </div>
       </div>
 
-      <div className="flex-1 relative mt-8 h-40">
-        {/* SVG Chart */}
-        <svg viewBox="0 0 100 100" className="w-full h-full preserve-3d overflow-visible" preserveAspectRatio="none">
-          {/* Grid lines */}
-          {[0, 25, 50, 75, 100].map(val => (
-            <line key={val} x1="0" y1={val} x2="100" y2={val} stroke="rgba(255,255,255,0.05)" strokeWidth="0.5" />
-          ))}
-          
-          {/* Sessions Path */}
-          {(view === 'sessions' || view === 'both') && (
-            <>
-              <polyline
-                fill="none"
-                stroke="var(--color-neon-green)"
-                strokeWidth="2"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                points={getPath('sessions')}
-                className="drop-shadow-[0_0_8px_rgba(57,255,20,0.5)]"
-              />
-              {data.map((d, i) => (
-                <circle 
-                  key={i} 
-                  cx={(i / 6) * 100} 
-                  cy={100 - (d.sessions / maxVal) * 100} 
-                  r="1.5" 
-                  fill="var(--color-neon-green)" 
-                  className="shadow-lg shadow-neon-green/40"
-                />
-              ))}
-            </>
-          )}
+      <div className="flex-1 relative mt-8 h-48 flex gap-4">
+        {/* Y-Axis Labels */}
+        <div className="flex flex-col justify-between text-[8px] font-black text-text-muted/40 py-1 font-display">
+          <span>{maxVal}</span>
+          <span>{Math.round(maxVal * 0.75)}</span>
+          <span>{Math.round(maxVal * 0.5)}</span>
+          <span>{Math.round(maxVal * 0.25)}</span>
+          <span>0</span>
+        </div>
 
-          {/* Tasks Path */}
-          {(view === 'tasks' || view === 'both') && (
-            <>
-              <polyline
-                fill="none"
-                stroke="var(--color-neon-cyan)"
-                strokeWidth="2"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                points={getPath('tasks')}
-                className="drop-shadow-[0_0_8px_rgba(0,240,255,0.5)]"
+        <div className="flex-1 relative">
+          {/* SVG Chart */}
+          <svg viewBox="0 0 100 100" className="w-full h-full preserve-3d overflow-visible" preserveAspectRatio="none">
+            {/* Grid lines */}
+            {[0, 25, 50, 75, 100].map(val => (
+              <line key={val} x1="0" y1={val} x2="100" y2={val} stroke="rgba(255,255,255,0.05)" strokeWidth="0.5" />
+            ))}
+            
+            {/* Sessions Path */}
+            <polyline
+              fill="none"
+              stroke="var(--color-neon-green)"
+              strokeWidth="2"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              points={getPath('sessions')}
+              style={{ opacity: view === 'sessions' ? 1 : 0.1 }}
+              className={view === 'sessions' ? 'drop-shadow-[0_0_8px_rgba(57,255,20,0.5)]' : ''}
+            />
+
+            {/* Tasks Path */}
+            <polyline
+              fill="none"
+              stroke="var(--color-neon-cyan)"
+              strokeWidth="2"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              points={getPath('tasks')}
+              style={{ opacity: view === 'tasks' ? 1 : 0.1 }}
+              className={view === 'tasks' ? 'drop-shadow-[0_0_8px_rgba(0,240,255,0.5)]' : ''}
+            />
+
+            {/* Selected Data Points */}
+            {data.map((d, i) => (
+              <circle 
+                key={i} 
+                cx={(i / 6) * 100} 
+                cy={100 - (d[view] / maxVal) * 100} 
+                r="2" 
+                fill={view === 'sessions' ? 'var(--color-neon-green)' : 'var(--color-neon-cyan)'} 
+                className="shadow-lg"
               />
-              {data.map((d, i) => (
-                <circle 
-                  key={i} 
-                  cx={(i / 6) * 100} 
-                  cy={100 - (d.tasks / maxVal) * 100} 
-                  r="1.5" 
-                  fill="var(--color-neon-cyan)" 
-                  className="shadow-lg shadow-neon-cyan/40"
-                />
-              ))}
-            </>
-          )}
-        </svg>
-        
-        {/* X-Axis Labels */}
-        <div className="flex justify-between mt-4">
-          {data.map((d, i) => (
-            <span key={i} className="text-[10px] font-black text-text-muted/40 uppercase tracking-widest font-display">{d.dayName}</span>
-          ))}
+            ))}
+          </svg>
         </div>
       </div>
       
-      <div className="flex gap-6 mt-4 pt-4 border-t border-white/5">
-        {(view === 'sessions' || view === 'both') && (
-          <div className="flex items-center gap-2">
-            <div className="w-2 h-2 rounded-full bg-neon-green"></div>
-            <span className="text-[10px] font-bold text-text-muted/60 uppercase">Sessions</span>
-          </div>
-        )}
-        {(view === 'tasks' || view === 'both') && (
-          <div className="flex items-center gap-2">
-            <div className="w-2 h-2 rounded-full bg-neon-cyan"></div>
-            <span className="text-[10px] font-bold text-text-muted/60 uppercase">Tasks</span>
-          </div>
-        )}
+      {/* X-Axis Labels */}
+      <div className="flex justify-between pl-8 pr-0">
+        {data.map((d, i) => (
+          <span key={i} className="text-[10px] font-black text-text-muted/40 uppercase tracking-widest font-display">{d.dayName}</span>
+        ))}
+      </div>
+      
+      <div className="flex gap-6 mt-4 pt-4 border-t border-white/5 justify-center">
+        <div className={`flex items-center gap-2 transition-opacity ${view === 'sessions' ? 'opacity-100' : 'opacity-20'}`}>
+          <div className="w-2 h-2 rounded-full bg-neon-green"></div>
+          <span className="text-[10px] font-bold text-text-muted/60 uppercase">Sessions</span>
+        </div>
+        <div className={`flex items-center gap-2 transition-opacity ${view === 'tasks' ? 'opacity-100' : 'opacity-20'}`}>
+          <div className="w-2 h-2 rounded-full bg-neon-cyan"></div>
+          <span className="text-[10px] font-bold text-text-muted/60 uppercase">Tasks</span>
+        </div>
       </div>
     </div>
   );
