@@ -204,7 +204,7 @@ export function SplashScreen({ onComplete }: SplashScreenProps) {
 
   // Typewriter texts
   const bootText = useTypewriter(language === 'id' ? '> INITIALIZING SYSTEM...' : '> INITIALIZING SYSTEM...', phase >= 1 ? 0 : 99999, 40);
-  const titleText = useTypewriter('ontime! Quest', phase >= 2 ? 0 : 99999, 80);
+  const titleText = useTypewriter('ontime!', phase >= 2 ? 0 : 99999, 80);
 
   if (phase === 6) return null;
 
@@ -330,7 +330,7 @@ export function SplashScreen({ onComplete }: SplashScreenProps) {
             </div>
             <div className="splash-loading-text">
               {loadingProgress < 100
-                ? `${language === 'id' ? 'LOADING QUEST DATA...' : 'LOADING QUEST DATA...'} ${Math.floor(loadingProgress)}%`
+                ? `${language === 'id' ? 'LOADING TASK DATA...' : 'LOADING TASK DATA...'} ${Math.floor(loadingProgress)}%`
                 : (language === 'id' ? 'SYSTEM READY' : 'SYSTEM READY')}
             </div>
           </div>
