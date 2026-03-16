@@ -407,13 +407,13 @@ export function ProfileView() {
   );
 }
 
-function TrendChart({ sessions, tasks, view, setView, language }: any) {
+function TrendChart({ sessions, tasks, view, setView, language }: { sessions: any[], tasks: any[], view: 'sessions' | 'tasks', setView: any, language: string }) {
   const last7Days = Array.from({ length: 7 }).map((_, i) => {
     const d = new Date();
     d.setDate(d.getDate() - (6 - i));
     const dateStr = d.toISOString().split('T')[0];
-    const dayName = d.toLocaleDateString(language === 'id' ? 'id-ID' : 'en-US', { weekday: 'short' });
-    return { dateStr, dayName };
+    const dateLabel = `${d.getDate().toString().padStart(2, '0')}/${(d.getMonth() + 1).toString().padStart(2, '0')}`;
+    return { dateStr, dateLabel };
   });
 
   const data = last7Days.map(day => {
@@ -425,7 +425,7 @@ function TrendChart({ sessions, tasks, view, setView, language }: any) {
     return { ...day, sessions: daySessions, tasks: dayTasks };
   });
 
-  const maxVal = Math.max(...data.map(d => d[view]), 1) + 2;
+  const maxVal = Math.max(...data.map(d => d[view] as number), 1) + 2;
   
   const getPath = (key: 'sessions' | 'tasks') => {
     const points = data.map((d, i) => {
@@ -505,7 +505,7 @@ function TrendChart({ sessions, tasks, view, setView, language }: any) {
               <circle 
                 key={i} 
                 cx={(i / 6) * 100} 
-                cy={100 - (d[view] / maxVal) * 100} 
+                cy={100 - ((d[view] as number) / maxVal) * 100} 
                 r="2" 
                 fill={view === 'sessions' ? 'var(--color-neon-green)' : 'var(--color-neon-cyan)'} 
                 className="shadow-lg"
@@ -518,7 +518,7 @@ function TrendChart({ sessions, tasks, view, setView, language }: any) {
       {/* X-Axis Labels */}
       <div className="flex justify-between pl-8 pr-0">
         {data.map((d, i) => (
-          <span key={i} className="text-[10px] font-black text-text-muted/40 uppercase tracking-widest font-display">{d.dayName}</span>
+          <span key={i} className="text-[10px] font-black text-text-muted/40 uppercase tracking-widest font-display">{d.dateLabel}</span>
         ))}
       </div>
       
