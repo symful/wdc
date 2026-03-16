@@ -35,60 +35,111 @@
 
   /* Shadows */
   --shadow-glow: 0 0 20px rgba(0, 240, 255, 0.4);
-  --shadow-neon-cyan: 0 0 15px rgba(0, 240, 255, 0.3), 0 0 40px rgba(0, 240, 255, 0.1);
-  --shadow-neon-gold: 0 0 15px rgba(255, 215, 0, 0.3), 0 0 40px rgba(255, 215, 0, 0.1);
-  --shadow-neon-magenta: 0 0 15px rgba(255, 0, 255, 0.3), 0 0 40px rgba(255, 0, 255, 0.1);
+  --shadow-neon-cyan:
+    0 0 15px rgba(0, 240, 255, 0.3), 0 0 40px rgba(0, 240, 255, 0.1);
+  --shadow-neon-gold:
+    0 0 15px rgba(255, 215, 0, 0.3), 0 0 40px rgba(255, 215, 0, 0.1);
+  --shadow-neon-magenta:
+    0 0 15px rgba(255, 0, 255, 0.3), 0 0 40px rgba(255, 0, 255, 0.1);
 
   /* Animations */
   @keyframes float {
-    0%, 100% { transform: translate(0, 0) scale(1); }
-    33% { transform: translate(30px, -50px) scale(1.1); }
-    66% { transform: translate(-20px, 20px) scale(0.9); }
+    0%, 100% {
+      transform: translate(0, 0) scale(1);
+    }
+    33% {
+      transform: translate(30px, -50px) scale(1.1);
+    }
+    66% {
+      transform: translate(-20px, 20px) scale(0.9);
+    }
   }
 
   @keyframes scan-line {
-    0% { top: 0%; }
-    50% { top: 100%; }
-    100% { top: 0%; }
+    0% {
+      top: 0%;
+    }
+    50% {
+      top: 100%;
+    }
+    100% {
+      top: 0%;
+    }
   }
 
   @keyframes neon-pulse {
-    0%, 100% { opacity: 1; filter: brightness(1); }
-    50% { opacity: 0.8; filter: brightness(1.3); }
+    0%, 100% {
+      opacity: 1;
+      filter: brightness(1);
+    }
+    50% {
+      opacity: 0.8;
+      filter: brightness(1.3);
+    }
   }
 
   @keyframes glow-breathe {
-    0%, 100% { box-shadow: 0 0 10px rgba(0, 240, 255, 0.2), 0 0 20px rgba(0, 240, 255, 0.1); }
-    50% { box-shadow: 0 0 20px rgba(0, 240, 255, 0.4), 0 0 40px rgba(0, 240, 255, 0.2); }
+    0%, 100% {
+      box-shadow:
+        0 0 10px rgba(0, 240, 255, 0.2),
+        0 0 20px rgba(0, 240, 255, 0.1);
+    }
+    50% {
+      box-shadow:
+        0 0 20px rgba(0, 240, 255, 0.4),
+        0 0 40px rgba(0, 240, 255, 0.2);
+    }
   }
 
   @keyframes pixel-shimmer {
-    0% { background-position: -200% 0; }
-    100% { background-position: 200% 0; }
+    0% {
+      background-position: -200% 0;
+    }
+    100% {
+      background-position: 200% 0;
+    }
   }
 
   @keyframes xp-fill {
-    from { width: 0%; }
+    from {
+      width: 0%;
+    }
   }
 
   @keyframes float-idle {
-    0%, 100% { transform: translateY(0px); }
-    50% { transform: translateY(-6px); }
+    0%, 100% {
+      transform: translateY(0px);
+    }
+    50% {
+      transform: translateY(-6px);
+    }
   }
 
   @keyframes hex-rotate {
-    from { transform: rotate(0deg); }
-    to { transform: rotate(360deg); }
+    from {
+      transform: rotate(0deg);
+    }
+    to {
+      transform: rotate(360deg);
+    }
   }
 
   @keyframes border-glow {
-    0%, 100% { border-color: rgba(0, 240, 255, 0.3); }
-    50% { border-color: rgba(0, 240, 255, 0.6); }
+    0%, 100% {
+      border-color: rgba(0, 240, 255, 0.3);
+    }
+    50% {
+      border-color: rgba(0, 240, 255, 0.6);
+    }
   }
 
   @keyframes radar-sweep {
-    from { transform: rotate(0deg); }
-    to { transform: rotate(360deg); }
+    from {
+      transform: rotate(0deg);
+    }
+    to {
+      transform: rotate(360deg);
+    }
   }
 }
 
@@ -130,9 +181,21 @@
     @apply bg-bg-main text-text-main antialiased font-sans;
     font-family: var(--font-sans);
     background-image:
-      radial-gradient(circle at 20% 50%, rgba(0, 240, 255, 0.03) 0%, transparent 50%),
-      radial-gradient(circle at 80% 20%, rgba(255, 0, 255, 0.02) 0%, transparent 50%),
-      radial-gradient(circle at 50% 80%, rgba(255, 215, 0, 0.02) 0%, transparent 50%);
+      radial-gradient(
+        circle at 20% 50%,
+        rgba(0, 240, 255, 0.03) 0%,
+        transparent 50%
+      ),
+      radial-gradient(
+      circle at 80% 20%,
+      rgba(255, 0, 255, 0.02) 0%,
+      transparent 50%
+    ),
+      radial-gradient(
+      circle at 50% 80%,
+      rgba(255, 215, 0, 0.02) 0%,
+      transparent 50%
+    );
   }
 
   h1, h2, h3, h4, h5, h6 {
@@ -161,14 +224,26 @@
 @layer components {
   /* === GAME PANELS === */
   .glass-panel {
-    @apply bg-surface-1 backdrop-blur-xl border border-border-main rounded-2xl shadow-xl transition-all duration-300;
-    background-image: linear-gradient(135deg, rgba(0, 240, 255, 0.03) 0%, transparent 50%, rgba(255, 0, 255, 0.02) 100%);
+    @apply bg-surface-1 backdrop-blur-xl border border-border-main rounded-2xl
+      shadow-xl transition-all duration-300;
+    background-image: linear-gradient(
+      135deg,
+      rgba(0, 240, 255, 0.03) 0%,
+      transparent 50%,
+      rgba(255, 0, 255, 0.02) 100%
+    );
   }
 
   .game-panel {
-    @apply bg-surface-1 backdrop-blur-xl border rounded-2xl shadow-xl transition-all duration-300;
+    @apply bg-surface-1 backdrop-blur-xl border rounded-2xl shadow-xl
+      transition-all duration-300;
     border-color: rgba(0, 240, 255, 0.15);
-    background-image: linear-gradient(135deg, rgba(0, 240, 255, 0.03) 0%, transparent 50%, rgba(255, 0, 255, 0.02) 100%);
+    background-image: linear-gradient(
+      135deg,
+      rgba(0, 240, 255, 0.03) 0%,
+      transparent 50%,
+      rgba(255, 0, 255, 0.02) 100%
+    );
   }
 
   .game-panel:hover {
@@ -179,7 +254,12 @@
   /* === TEXT EFFECTS === */
   .text-gradient {
     @apply bg-clip-text text-transparent;
-    background-image: linear-gradient(135deg, #00f0ff 0%, #a855f7 50%, #ff00ff 100%);
+    background-image: linear-gradient(
+      135deg,
+      #00f0ff 0%,
+      #a855f7 50%,
+      #ff00ff 100%
+    );
   }
 
   .neon-glow-text {
@@ -190,17 +270,22 @@
 
   .neon-cyan-text {
     color: #00f0ff;
-    text-shadow: 0 0 10px rgba(0, 240, 255, 0.5), 0 0 20px rgba(0, 240, 255, 0.2);
+    text-shadow:
+      0 0 10px rgba(0, 240, 255, 0.5),
+      0 0 20px rgba(0, 240, 255, 0.2);
   }
 
   .neon-gold-text {
     color: #ffd700;
-    text-shadow: 0 0 10px rgba(255, 215, 0, 0.5), 0 0 20px rgba(255, 215, 0, 0.2);
+    text-shadow:
+      0 0 10px rgba(255, 215, 0, 0.5),
+      0 0 20px rgba(255, 215, 0, 0.2);
   }
 
   /* === BUTTONS === */
   .btn {
-    @apply inline-flex items-center justify-center gap-2 px-6 py-3 rounded-xl font-bold transition-all duration-300 active:scale-95 cursor-pointer;
+    @apply inline-flex items-center justify-center gap-2 px-6 py-3 rounded-xl
+      font-bold transition-all duration-300 active:scale-95 cursor-pointer;
     font-family: var(--font-display);
     letter-spacing: 0.05em;
   }
@@ -220,12 +305,16 @@
   .btn-neon {
     @apply text-neon-cyan border border-neon-cyan/30 shadow-lg;
     background: rgba(0, 240, 255, 0.05);
-    box-shadow: 0 0 15px rgba(0, 240, 255, 0.1), inset 0 0 15px rgba(0, 240, 255, 0.05);
+    box-shadow:
+      0 0 15px rgba(0, 240, 255, 0.1),
+      inset 0 0 15px rgba(0, 240, 255, 0.05);
   }
 
   .btn-neon:hover {
     background: rgba(0, 240, 255, 0.1);
-    box-shadow: 0 0 25px rgba(0, 240, 255, 0.2), inset 0 0 25px rgba(0, 240, 255, 0.08);
+    box-shadow:
+      0 0 25px rgba(0, 240, 255, 0.2),
+      inset 0 0 25px rgba(0, 240, 255, 0.08);
     border-color: rgba(0, 240, 255, 0.5);
   }
 
@@ -250,13 +339,16 @@
   .xp-bar-fill {
     @apply h-full rounded-full transition-all duration-1000;
     background: linear-gradient(90deg, #00f0ff, #a855f7, #ff00ff);
-    box-shadow: 0 0 10px rgba(0, 240, 255, 0.4), 0 0 20px rgba(0, 240, 255, 0.2);
+    box-shadow:
+      0 0 10px rgba(0, 240, 255, 0.4),
+      0 0 20px rgba(0, 240, 255, 0.2);
     animation: xp-fill 1.5s ease-out;
   }
 
   /* === QUEST / RARITY BADGES === */
   .badge {
-    @apply inline-flex items-center px-3 py-1 rounded-lg text-[10px] font-black uppercase tracking-widest border;
+    @apply inline-flex items-center px-3 py-1 rounded-lg text-[10px] font-black
+      uppercase tracking-widest border;
     font-family: var(--font-display);
   }
 
@@ -277,15 +369,31 @@
   }
 
   /* Legacy badge compat */
-  .badge-high { @apply border-neon-gold/30 text-neon-gold; background: rgba(255, 215, 0, 0.08); }
-  .badge-med { @apply border-neon-blue/30 text-neon-blue; background: rgba(77, 124, 255, 0.08); }
-  .badge-low { @apply border-neon-green/30 text-neon-green; background: rgba(57, 255, 20, 0.08); }
+  .badge-high {
+    @apply border-neon-gold/30 text-neon-gold;
+    background: rgba(255, 215, 0, 0.08);
+  }
+  .badge-med {
+    @apply border-neon-blue/30 text-neon-blue;
+    background: rgba(77, 124, 255, 0.08);
+  }
+  .badge-low {
+    @apply border-neon-green/30 text-neon-green;
+    background: rgba(57, 255, 20, 0.08);
+  }
 
   /* === SIDEBAR === */
   .app-sidebar {
-    @apply w-[280px] h-screen border-r bg-sidebar-bg backdrop-blur-3xl transition-transform duration-300 lg:translate-x-0 z-50;
+    @apply fixed left-0 top-0 w-[280px] h-screen border-r bg-sidebar-bg
+      backdrop-blur-3xl transition-transform duration-300 -translate-x-full
+      lg:static lg:translate-x-0 z-50;
     border-color: rgba(0, 240, 255, 0.1);
-    background-image: linear-gradient(180deg, rgba(0, 240, 255, 0.02) 0%, transparent 30%, rgba(255, 0, 255, 0.01) 100%);
+    background-image: linear-gradient(
+      180deg,
+      rgba(0, 240, 255, 0.02) 0%,
+      transparent 30%,
+      rgba(255, 0, 255, 0.01) 100%
+    );
   }
 
   .app-sidebar.open {
@@ -298,7 +406,8 @@
   }
 
   .mesh-blob {
-    @apply absolute rounded-full blur-[120px] animate-[float_25s_infinite_ease-in-out];
+    @apply absolute rounded-full blur-[120px]
+      animate-[float_25s_infinite_ease-in-out];
   }
 
   /* === ANIMATED SCAN LINE === */
@@ -313,7 +422,7 @@
 
   /* === SCANLINE OVERLAY === */
   .scanline-overlay::after {
-    content: '';
+    content: "";
     position: absolute;
     inset: 0;
     background: repeating-linear-gradient(
@@ -334,7 +443,8 @@
 
   /* === GAME STAT CARD === */
   .stat-card {
-    @apply flex flex-col gap-1 p-4 rounded-xl border transition-all duration-300;
+    @apply flex flex-col gap-1 p-4 rounded-xl border transition-all
+      duration-300;
     border-color: rgba(0, 240, 255, 0.1);
     background: rgba(0, 240, 255, 0.03);
   }
@@ -345,20 +455,24 @@
   }
 
   /* === QUEST CARD === */
-  .quest-card {
+  .task-card {
     @apply p-5 rounded-xl border transition-all duration-300 cursor-grab;
     border-color: rgba(0, 240, 255, 0.1);
     background: rgba(10, 14, 26, 0.9);
-    background-image: linear-gradient(135deg, rgba(0, 240, 255, 0.02) 0%, transparent 100%);
+    background-image: linear-gradient(
+      135deg,
+      rgba(0, 240, 255, 0.02) 0%,
+      transparent 100%
+    );
   }
 
-  .quest-card:hover {
+  .task-card:hover {
     border-color: rgba(0, 240, 255, 0.3);
     box-shadow: 0 0 20px rgba(0, 240, 255, 0.08);
     transform: translateY(-2px);
   }
 
-  .quest-card:active {
+  .task-card:active {
     cursor: grabbing;
   }
 }
@@ -379,7 +493,7 @@
 /* ======== Grid / HUD Decorators ======== */
 .hud-corner-tl::before,
 .hud-corner-br::after {
-  content: '';
+  content: "";
   position: absolute;
   width: 20px;
   height: 20px;
@@ -445,7 +559,9 @@ option {
 }
 
 .splash-overlay.splash-exiting {
-  animation: splash-glitch 0.3s steps(4) forwards, splash-slide-up 0.6s 0.3s ease-in forwards;
+  animation:
+    splash-glitch 0.3s steps(4) forwards,
+    splash-slide-up 0.6s 0.3s ease-in forwards;
   pointer-events: none;
 }
 
@@ -473,7 +589,7 @@ option {
 }
 
 .splash-scanline::after {
-  content: '';
+  content: "";
   position: absolute;
   left: 0;
   right: 0;
@@ -530,7 +646,7 @@ option {
   background: none;
   border: 1px solid rgba(0, 240, 255, 0.15);
   color: rgba(224, 240, 255, 0.3);
-  font-family: 'Orbitron', monospace;
+  font-family: "Orbitron", monospace;
   font-size: 10px;
   font-weight: 700;
   letter-spacing: 0.15em;
@@ -562,7 +678,7 @@ option {
 
 /* --- Boot Text --- */
 .splash-boot-text {
-  font-family: 'Press Start 2P', monospace;
+  font-family: "Press Start 2P", monospace;
   font-size: 10px;
   color: rgba(0, 240, 255, 0.6);
   letter-spacing: 0.05em;
@@ -592,7 +708,7 @@ option {
 
 /* --- Title --- */
 .splash-title {
-  font-family: 'Orbitron', sans-serif;
+  font-family: "Orbitron", sans-serif;
   font-size: clamp(28px, 6vw, 56px);
   font-weight: 900;
   color: #00f0ff;
@@ -607,7 +723,7 @@ option {
 
 /* --- Tagline --- */
 .splash-tagline {
-  font-family: 'Rajdhani', sans-serif;
+  font-family: "Rajdhani", sans-serif;
   font-size: clamp(14px, 2.5vw, 20px);
   font-weight: 600;
   color: rgba(224, 240, 255, 0.5);
@@ -644,7 +760,7 @@ option {
 }
 
 .splash-loading-text {
-  font-family: 'Press Start 2P', monospace;
+  font-family: "Press Start 2P", monospace;
   font-size: 8px;
   color: rgba(0, 240, 255, 0.4);
   letter-spacing: 0.08em;
@@ -652,7 +768,7 @@ option {
 
 /* --- Start Button --- */
 .splash-start-btn {
-  font-family: 'Press Start 2P', monospace;
+  font-family: "Press Start 2P", monospace;
   font-size: clamp(11px, 2vw, 14px);
   color: #00f0ff;
   background: rgba(0, 240, 255, 0.06);
@@ -662,14 +778,16 @@ option {
   cursor: pointer;
   letter-spacing: 0.12em;
   transition: all 0.3s;
-  animation: splash-start-pulse 1.8s ease-in-out infinite, splash-fade-in 0.5s ease-out;
+  animation:
+    splash-start-pulse 1.8s ease-in-out infinite,
+    splash-fade-in 0.5s ease-out;
   text-shadow: 0 0 10px rgba(0, 240, 255, 0.5);
   position: relative;
   overflow: hidden;
 }
 
 .splash-start-btn::before {
-  content: '';
+  content: "";
   position: absolute;
   inset: 0;
   background: linear-gradient(
@@ -698,7 +816,7 @@ option {
 
 /* --- Hint Text --- */
 .splash-hint {
-  font-family: 'Rajdhani', sans-serif;
+  font-family: "Rajdhani", sans-serif;
   font-size: 12px;
   color: rgba(90, 122, 154, 0.4);
   margin-top: 14px;
@@ -745,13 +863,23 @@ option {
 
 /* ======== Splash Keyframes ======== */
 @keyframes splash-fade-in {
-  from { opacity: 0; transform: translateY(8px); }
-  to { opacity: 1; transform: translateY(0); }
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 @keyframes splash-cursor-blink {
-  0%, 100% { opacity: 1; }
-  50% { opacity: 0; }
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0;
+  }
 }
 
 @keyframes splash-particle-float {
@@ -778,8 +906,12 @@ option {
 }
 
 @keyframes splash-scan-sweep {
-  0% { top: -80px; }
-  100% { top: calc(100% + 80px); }
+  0% {
+    top: -80px;
+  }
+  100% {
+    top: calc(100% + 80px);
+  }
 }
 
 @keyframes splash-emblem-in {
@@ -806,16 +938,25 @@ option {
 
 @keyframes splash-start-pulse {
   0%, 100% {
-    box-shadow: 0 0 10px rgba(0, 240, 255, 0.15), 0 0 20px rgba(0, 240, 255, 0.08);
+    box-shadow:
+      0 0 10px rgba(0, 240, 255, 0.15),
+      0 0 20px rgba(0, 240, 255, 0.08);
   }
   50% {
-    box-shadow: 0 0 20px rgba(0, 240, 255, 0.3), 0 0 40px rgba(0, 240, 255, 0.15), 0 0 60px rgba(0, 240, 255, 0.08);
+    box-shadow:
+      0 0 20px rgba(0, 240, 255, 0.3),
+      0 0 40px rgba(0, 240, 255, 0.15),
+      0 0 60px rgba(0, 240, 255, 0.08);
   }
 }
 
 @keyframes splash-btn-shimmer {
-  0% { transform: translateX(-200%); }
-  100% { transform: translateX(200%); }
+  0% {
+    transform: translateX(-200%);
+  }
+  100% {
+    transform: translateX(200%);
+  }
 }
 
 @keyframes splash-glitch {
@@ -884,4 +1025,3 @@ option {
     max-width: 280px;
   }
 }
-

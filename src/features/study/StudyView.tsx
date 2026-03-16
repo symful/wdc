@@ -1,79 +1,156 @@
-import { useState, useEffect } from 'react';
-import type { CourseData, StudySession } from '../../store/useStudyStore';
-import { useStudyStore } from '../../store/useStudyStore';
-import { Play, Square, Timer, Target, BrainCircuit, CheckCircle2, X, Plus, Swords, Zap, Shield } from 'lucide-react';
+import { useState, useEffect, useMemo } from 'react';
+import { useStudyStore, StudySession } from '../../store/useStudyStore';
+import { useAcademicStore, AcademicCourse, StudyTopic } from '../../store/useAcademicStore';
+import { useLanguageStore, translations } from '../../store/useLanguageStore';
+import { 
+  Play, 
+  Square, 
+  Timer as TimerIcon, 
+  Target, 
+  BrainCircuit, 
+  CheckCircle2, 
+  X, 
+  Plus, 
+  Swords, 
+  Zap, 
+  ChevronRight, 
+  ArrowRight,
+  GraduationCap,
+  ChevronDown,
+  Sparkles,
+  ClipboardList,
+  Pause,
+  FastForward,
+  Info,
+  CalendarRange,
+  BarChart3,
+  Search
+} from 'lucide-react';
 
 export function StudyView() {
-  const { courses, sessions, activeSession, startSession, endSession, addCourse, deleteCourse } = useStudyStore();
+  const { sessions, activeSession, startSession, pauseSession, resumeSession, endSession, cancelSession } = useStudyStore();
+  const { semesters, courses, activeSemesterId, studyPlan, updateTopic, skipTask, addXp, generateStudyPlan } = useAcademicStore();
+  const { language } = useLanguageStore();
+  const t = translations[language];
+
+  const activeSemester = semesters.find(s => s.id === activeSemesterId);
+  const filteredCourses = courses.filter(c => c.semesterId === activeSemesterId);
+
   const [ui, setUi] = useState({
     confidenceModal: false,
-    courseModal: false,
+    showTreeModal: false,
+    showSuggestions: false
   });
 
-  const [timer, setTimer] = useState({
-    selectedCourse: '',
-    topic: '',
+  const [generationState, setGenerationState] = useState<{
+    isActive: boolean;
+    isExiting: boolean;
+    step: number;
+    completed: boolean;
+  }>({ isActive: false, isExiting: false, step: 0, completed: false });
+
+  const steps = [
+    { title: language === 'id' ? 'Analisis jadwal minggu ini' : 'Analyzing weekly schedule', icon: <CalendarRange size={20} /> },
+    { title: language === 'id' ? 'Membuat prioritas' : 'Creating priority mapping', icon: <BarChart3 size={20} /> },
+    { title: language === 'id' ? 'Menyusun jadwal' : 'Developing schedule', icon: <Search size={20} /> },
+  ];
+
+  const handleGenerate = () => {
+    setGenerationState({ isActive: true, isExiting: false, step: 0, completed: false });
+    
+    // Simulate steps
+    const timers = [
+      setTimeout(() => setGenerationState(s => ({ ...s, step: 1 })), 1000),
+      setTimeout(() => setGenerationState(s => ({ ...s, step: 2 })), 2000),
+      setTimeout(() => setGenerationState(s => ({ ...s, step: 3, completed: true })), 3000),
+      setTimeout(() => {
+        setGenerationState(s => ({ ...s, isExiting: true }));
+        generateStudyPlan(sessions);
+        setTimeout(() => {
+          setGenerationState({ isActive: false, isExiting: false, step: 0, completed: false });
+        }, 600); // Time for fade out
+      }, 4500),
+    ];
+
+    return () => timers.forEach(clearTimeout);
+  };
+
+  const [timerState, setTimerState] = useState({
+    courseId: '',
+    topicTitle: '',
+    isCustomTopic: false,
     elapsed: 0,
   });
 
-  const [courseForm, setCourseForm] = useState({
-    editingId: null as string | null,
-    name: '',
-    targetHours: 20,
-    newTopicTitle: '',
-  });
+  const [suggestions, setSuggestions] = useState<string[]>([]);
 
   // Timer effect
   useEffect(() => {
     let interval: ReturnType<typeof setInterval>;
-    if (activeSession.startTime) {
+    if (activeSession.startTime && !activeSession.pauseTime) {
       interval = setInterval(() => {
-        setTimer(s => ({ ...s, elapsed: Math.floor((Date.now() - (activeSession.startTime as number)) / 1000) }));
+        const totalElapsed = Math.floor((Date.now() - activeSession.startTime! - activeSession.totalPausedTime) / 1000);
+        setTimerState(s => ({ ...s, elapsed: totalElapsed }));
       }, 1000);
+    } else if (activeSession.pauseTime) {
+      // Keep showing the elapsed time at the moment of pause
+      const totalElapsed = Math.floor((activeSession.pauseTime - activeSession.startTime! - activeSession.totalPausedTime) / 1000);
+      setTimerState(s => ({ ...s, elapsed: totalElapsed }));
     } else {
-      setTimer(s => ({ ...s, elapsed: 0 }));
+      setTimerState(s => ({ ...s, elapsed: 0 }));
     }
     return () => clearInterval(interval);
-  }, [activeSession.startTime]);
+  }, [activeSession.startTime, activeSession.pauseTime, activeSession.totalPausedTime]);
 
   const handleStart = () => {
-    if (!timer.selectedCourse || !timer.topic) return;
-    startSession(timer.selectedCourse, timer.topic);
+    if (!timerState.courseId || !timerState.topicTitle) return;
+    startSession(timerState.courseId, timerState.topicTitle);
   };
 
   const handleEnd = (confidence: number) => {
+    const course = courses.find(c => c.id === activeSession.courseId);
+    if (course) {
+      const topic = course.topics.find(t => t.title === activeSession.topic);
+      if (topic) {
+        updateTopic(course.id, topic.id, {
+          confidence: Math.round((topic.confidence + confidence) / 2),
+          repetitionCount: topic.repetitionCount + 1,
+          completed: confidence >= 4
+        });
+        
+        // Add XP based on confidence
+        const xpAmount = confidence * 20;
+        addXp(xpAmount, `Mastery Level: ${confidence}/5`);
+      } else {
+         // Custom topic XP
+         addXp(confidence * 15, `Custom Training: ${activeSession.topic}`);
+      }
+    }
+    
     endSession(confidence);
     setUi(s => ({ ...s, confidenceModal: false }));
-    setTimer(s => ({ ...s, topic: '' }));
+    setTimerState(s => ({ ...s, topicTitle: '', isCustomTopic: false }));
   };
 
-  const handleSaveCourse = () => {
-    if (!courseForm.name) return;
-    if (courseForm.editingId) {
-      useStudyStore.getState().updateCourse(courseForm.editingId, { 
-        name: courseForm.name, 
-        targetHours: courseForm.targetHours 
-      });
-    } else {
-      addCourse(courseForm.name, courseForm.targetHours);
+  const handleSkipSession = () => {
+    if (!activeSession.courseId || !activeSession.topic) return;
+    
+    const currentCourseId = activeSession.courseId;
+    const currentTopic = activeSession.topic;
+
+    // 1. Cancel session in store
+    cancelSession();
+    
+    // 2. Remove from plan
+    skipTask(currentCourseId, currentTopic);
+    
+    // 3. Proactively start next one if it was a plan mission
+    const remainingPlan = studyPlan.filter(p => !(p.courseId === currentCourseId && p.topicTitle === currentTopic));
+    if (remainingPlan.length > 0) {
+      const nextPlan = remainingPlan[0];
+      setTimerState(s => ({ ...s, courseId: nextPlan.courseId, topicTitle: nextPlan.topicTitle }));
+      startSession(nextPlan.courseId, nextPlan.topicTitle);
     }
-    setCourseForm({
-      editingId: null,
-      name: '',
-      targetHours: 20,
-      newTopicTitle: '',
-    });
-    setUi(s => ({ ...s, courseModal: false }));
-  };
-
-  const openEditCourse = (course: CourseData) => {
-    setCourseForm({
-      editingId: course.id,
-      name: course.name,
-      targetHours: course.targetHours,
-      newTopicTitle: '',
-    });
-    setUi(s => ({ ...s, courseModal: true }));
   };
 
   const formatTime = (seconds: number) => {
@@ -83,315 +160,459 @@ export function StudyView() {
     return `${h > 0 ? h + ':' : ''}${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`;
   };
 
-  const calculateProgress = (courseId: string) => {
-    const course = courses.find((c: CourseData) => c.id === courseId);
-    if (!course) return 0;
-    const totalMinutes = sessions.filter((s: StudySession) => s.courseId === courseId).reduce((acc: number, curr: StudySession) => acc + curr.durationMinutes, 0);
-    const progress = (totalMinutes / (course.targetHours * 60)) * 100;
-    return Math.min(Math.round(progress), 100);
+  const selectedCourse = courses.find(c => c.id === timerState.courseId);
+
+  // Tree gradient logic
+  const getCourseIntensity = (course: AcademicCourse) => {
+    const studyMins = sessions
+      .filter(s => s.courseId === course.id)
+      .reduce((sum, s) => sum + s.durationMinutes, 0);
+    const targetMins = course.sks * 60; // 1 SKS = 1h independent/week as a baseline
+    return studyMins / (targetMins || 60);
+  };
+
+  const getTopicIntensity = (topic: StudyTopic) => {
+    return topic.repetitionCount / 5; // Target 5 repetitions for mastery
   };
 
   return (
     <div className="flex flex-col gap-8">
       <div className="flex items-center justify-between flex-wrap gap-6">
         <div>
-          <h1 className="text-4xl font-extrabold tracking-tight mb-2 neon-glow-text font-display">TRAINING ARENA</h1>
-          <p className="text-text-muted text-lg max-w-2xl">Level up skill Anda. Mulai training session dan pantau skill tree progress.</p>
+          <h1 className="text-4xl font-extrabold tracking-tight mb-2 neon-glow-text font-display uppercase">{t.study.title}</h1>
+          <p className="text-text-muted text-lg max-w-2xl">{t.study.subtitle}</p>
         </div>
         <button 
-          className="btn btn-glass px-6 border-neon-cyan/10 hover:border-neon-cyan/30 hover:scale-105 active:scale-95 transition-all group"
-          onClick={() => setUi(s => ({ ...s, courseModal: true }))}
+          className="btn btn-glass px-8 h-14 rounded-2xl font-black uppercase tracking-widest gap-3 hover:scale-105 active:scale-95 transition-all group"
+          onClick={() => setUi(s => ({ ...s, showTreeModal: true }))}
         >
-          <Target size={20} className="text-neon-cyan group-hover:scale-110 transition-transform" />
-          <span className="font-black uppercase tracking-widest text-[10px]">Manage Skill Trees</span>
+          <BrainCircuit size={20} className="text-neon-cyan group-hover:rotate-12 transition-transform" />
+          {t.study.viewSkillTree}
         </button>
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-5 gap-8">
-        {/* Timer Panel — Power-Up Charging Station */}
-        <div className="lg:col-span-2 game-panel flex flex-col items-center justify-center p-10 relative overflow-hidden group min-h-[500px]">
-          <div className="absolute inset-0 bg-gradient-to-br from-neon-cyan/[0.03] to-neon-purple/[0.03] opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
-          
-          {/* Animated ring effect when active */}
-          <div className={`p-8 rounded-full mb-8 transition-all duration-700 relative z-10 ${activeSession.startTime ? 'bg-neon-cyan/10 shadow-[0_0_50px_rgba(0,240,255,0.2)] border border-neon-cyan/20' : 'bg-surface-2 border border-neon-cyan/10'}`}>
-            <Swords size={64} className={activeSession.startTime ? "text-neon-cyan animate-pulse" : "text-text-muted"} />
+        {/* Study Plan Status & Mission Start */}
+        <div className="lg:col-span-3 game-panel p-8 border-neon-cyan/20 flex flex-col gap-6 bg-linear-to-br from-neon-cyan/5 to-transparent relative overflow-hidden group">
+          <div className="absolute top-0 right-0 p-8 opacity-5 pointer-events-none group-hover:opacity-10 transition-opacity">
+            <Target size={120} />
           </div>
           
-          {activeSession.startTime ? (
-            <div className="flex flex-col items-center justify-center gap-8 w-full relative z-10">
-              {/* Training in Progress HUD */}
-              <div className="px-4 py-1.5 bg-neon-cyan/10 rounded-full border border-neon-cyan/20 text-neon-cyan text-[10px] font-black uppercase tracking-[0.3em] animate-pulse font-display">
-                ⚡ TRAINING IN PROGRESS
-              </div>
-              
-              <div className="text-7xl font-black font-mono tracking-tighter neon-cyan-text tabular-nums">
-                {formatTime(timer.elapsed)}
-              </div>
-              
-              <div className="flex flex-col items-center text-center gap-2">
-                <div className="text-2xl font-black tracking-tight">{activeSession.topic}</div>
-                <div className="px-4 py-1.5 bg-neon-purple/10 rounded-full border border-neon-purple/20 text-neon-purple text-sm font-bold uppercase tracking-widest">
-                  {courses.find(c => c.id === activeSession.courseId)?.name}
-                </div>
-              </div>
-
-              <button 
-                className="btn bg-neon-red hover:bg-neon-red/80 text-white px-10 py-4 rounded-2xl font-black flex items-center gap-3 transition-all duration-300 transform hover:scale-105 active:scale-95 shadow-[0_0_20px_rgba(255,49,49,0.2)] border border-neon-red/30"
-                onClick={() => setUi(s => ({ ...s, confidenceModal: true }))}
-              >
-                <Square size={20} fill="currentColor" /> End Training
-              </button>
+          <div className="flex items-center justify-between">
+            <h3 className="text-lg font-black font-display uppercase tracking-widest text-neon-cyan flex items-center gap-3">
+              <Sparkles size={20} />
+              {t.dashboard.todayStudyPlan}
+            </h3>
+            <div className="px-3 py-1 rounded-lg bg-neon-cyan/10 border border-neon-cyan/30 text-[10px] font-black text-neon-cyan uppercase">
+              {studyPlan.length} Missions Pending
             </div>
-          ) : (
-            <div className="flex flex-col gap-8 w-full relative z-10">
-              <div className="grid grid-cols-1 gap-6">
-                <div className="flex flex-col gap-2">
-                  <label className="text-xs font-black uppercase tracking-widest text-text-muted/60 px-1 font-display">Skill Tree</label>
-                  <select 
-                    className="w-full h-14 bg-surface-2 border border-neon-cyan/10 rounded-2xl px-5 font-bold focus:ring-2 focus:ring-neon-cyan/30 outline-none transition-all appearance-none cursor-pointer"
-                    value={timer.selectedCourse} 
-                    onChange={(e) => setTimer(s => ({ ...s, selectedCourse: e.target.value }))}
-                  >
-                    <option value="" className="bg-bg-main">-- Select Skill Tree --</option>
-                    {courses.map((c: CourseData) => (
-                      <option key={c.id} value={c.id} className="bg-bg-main">{c.name}</option>
-                    ))}
-                  </select>
+          </div>
+
+          <div className="flex flex-col gap-4">
+            {studyPlan.length === 0 ? (
+              <div className="py-12 flex flex-col items-center justify-center gap-6 text-text-muted/20 italic text-center">
+                <div className="flex flex-col items-center gap-4">
+                  <ClipboardList size={40} />
+                  <p className="font-bold tracking-widest uppercase text-xs">No study plan generated today</p>
                 </div>
-                <div className="flex flex-col gap-2">
-                  <label className="text-xs font-black uppercase tracking-widest text-text-muted/60 px-1 font-display">Training Topic</label>
-                  <input 
-                    type="text" 
-                    className="w-full h-14 bg-surface-2 border border-neon-cyan/10 rounded-2xl px-5 font-bold focus:ring-2 focus:ring-neon-cyan/30 outline-none transition-all placeholder:text-text-muted/30"
-                    placeholder="Misal: Latihan Integral Partisi" 
-                    value={timer.topic}
-                    onChange={(e) => setTimer(s => ({ ...s, topic: e.target.value }))}
-                  />
-                </div>
+                
+                <button 
+                  onClick={handleGenerate}
+                  className="btn btn-primary px-8 h-12 rounded-xl font-black uppercase tracking-widest flex items-center gap-3 shadow-[0_0_20px_rgba(0,240,255,0.2)] hover:scale-105 transition-all"
+                >
+                  <Sparkles size={16} />
+                  Generate Study Plan
+                </button>
+                
+                <div className="text-[9px] uppercase font-black opacity-50 max-w-45 mt-2">Generate a plan from the Watchlist to start training</div>
               </div>
-              <button 
-                className={`btn h-14 rounded-2xl font-black flex items-center justify-center gap-3 transition-all duration-300 transform active:scale-95 shadow-xl group font-display
-                  ${(!timer.selectedCourse || !timer.topic) 
-                    ? 'bg-surface-2 text-text-muted/20 cursor-not-allowed border border-neon-cyan/5' 
-                    : 'btn-primary hover:scale-105'}`}
-                onClick={handleStart}
-                disabled={!timer.selectedCourse || !timer.topic}
-              >
-                <Play size={20} fill="currentColor" className="group-hover:scale-110 transition-transform" /> Begin Training
-              </button>
+            ) : (
+              studyPlan.map((plan, idx) => {
+                const course = courses.find(c => c.id === plan.courseId);
+                return (
+                  <div key={idx} className="flex items-center justify-between p-5 bg-surface-2/60 border border-neon-cyan/10 rounded-2xl group/item hover:border-neon-cyan/30 transition-all duration-300">
+                    <div className="flex flex-col gap-1">
+                      <span className="text-[9px] font-black text-neon-cyan/50 uppercase tracking-widest">{course?.name}</span>
+                      <span className="font-bold text-sm text-text-main uppercase">{plan.topicTitle}</span>
+                    </div>
+                    <div className="flex items-center gap-4">
+                      {/* Duration Badge on the Right */}
+                      <div className="flex items-center gap-1.5 px-2 py-1 rounded bg-white/5 text-[10px] font-black text-text-muted/60 uppercase border border-white/5">
+                        <TimerIcon size={11} /> {plan.allocatedMinutes}m
+                      </div>
+
+                      {activeSession.startTime && activeSession.topic === plan.topicTitle && (
+                        <div className="flex items-center gap-2">
+                           <div className="flex gap-1">
+                              <div className="w-1 h-3 bg-neon-cyan animate-bounce [animation-delay:-0.2s]"></div>
+                              <div className="w-1 h-3 bg-neon-cyan animate-bounce [animation-delay:-0.1s]"></div>
+                              <div className="w-1 h-3 bg-neon-cyan animate-bounce"></div>
+                           </div>
+                           <span className="text-[9px] font-black text-neon-cyan animate-pulse uppercase">Active</span>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                );
+              })
+            )}
+          </div>
+
+          {studyPlan.length > 0 && !activeSession.startTime && (
+            <button 
+              className="mt-4 btn btn-primary h-16 rounded-2xl font-black uppercase tracking-widest flex items-center justify-center gap-3 shadow-[0_0_30px_rgba(0,240,255,0.2)] hover:scale-105 transition-all"
+              onClick={() => {
+                const firstPlan = studyPlan[0];
+                setTimerState(s => ({ ...s, courseId: firstPlan.courseId, topicTitle: firstPlan.topicTitle }));
+                startSession(firstPlan.courseId, firstPlan.topicTitle);
+              }}
+            >
+              <Play size={20} fill="currentColor" />
+              Mulai Plan Study Session
+            </button>
+          )}
+
+          {activeSession.startTime && (
+            <div className="mt-4 game-panel p-6 bg-neon-cyan/10 border-neon-cyan/30 flex flex-col items-center gap-6 animate-in zoom-in duration-500">
+              <div className="flex flex-col items-center gap-2">
+                <div className="text-5xl font-black font-mono tracking-tighter neon-cyan-text tabular-nums">
+                  {formatTime(timerState.elapsed)}
+                </div>
+                {activeSession.pauseTime && (
+                  <div className="px-3 py-1 rounded bg-neon-gold/20 text-neon-gold text-[10px] font-black uppercase tracking-widest animate-pulse font-display">
+                    Paused
+                  </div>
+                )}
+              </div>
+              
+              <div className="flex items-center gap-4 flex-wrap justify-center">
+                {activeSession.pauseTime ? (
+                  <button 
+                    className="btn btn-primary px-8 h-12 rounded-xl font-black flex items-center gap-3 transition-all uppercase text-[10px] tracking-widest shadow-[0_0_20px_rgba(0,240,255,0.2)]"
+                    onClick={resumeSession}
+                  >
+                    <Play size={14} fill="currentColor" /> Resume
+                  </button>
+                ) : (
+                  <button 
+                    className="btn btn-glass px-8 h-12 rounded-xl font-black flex items-center gap-3 transition-all uppercase text-[10px] tracking-widest hover:border-neon-gold/50"
+                    onClick={pauseSession}
+                  >
+                    <Pause size={14} fill="currentColor" /> Pause
+                  </button>
+                )}
+                
+                {studyPlan.some(p => p.courseId === activeSession.courseId && p.topicTitle === activeSession.topic) && (
+                  <button 
+                    className="btn btn-glass px-6 h-12 rounded-xl font-black flex items-center gap-3 transition-all uppercase text-[10px] tracking-widest hover:border-neon-red/50 hover:text-neon-red shadow-[0_0_15px_rgba(255,49,49,0.1)]"
+                    onClick={handleSkipSession}
+                    title="Next Topic"
+                  >
+                    <FastForward size={14} fill="currentColor" /> Skip
+                  </button>
+                )}
+                
+                <button 
+                  className="btn bg-neon-red/80 hover:bg-neon-red text-white px-8 h-12 rounded-xl font-black flex items-center gap-3 transition-all duration-300 shadow-[0_0_20px_rgba(255,49,49,0.2)] uppercase text-[10px] tracking-widest"
+                  onClick={() => setUi(s => ({ ...s, confidenceModal: true }))}
+                >
+                  <Square size={14} fill="currentColor" /> Finish
+                </button>
+              </div>
             </div>
           )}
         </div>
 
-        {/* Skill Trees Panel */}
-        <div className="lg:col-span-3 flex flex-col gap-6">
-          <div className="game-panel p-8">
-            <h3 className="text-xl font-black mb-8 flex items-center gap-3 font-display">
-              <div className="p-2 bg-neon-cyan/10 rounded-xl border border-neon-cyan/20">
-                <Zap size={24} className="text-neon-cyan" />
-              </div>
-              <span className="neon-cyan-text">Skill Trees</span>
-            </h3>
-            
-            <div className="flex flex-col gap-8">
-              {courses.map((c: CourseData) => (
-                <div key={c.id} className="flex flex-col gap-3 group/item">
-                  <div className="flex justify-between items-end">
-                    <div className="flex flex-col gap-1">
-                      <div className="flex items-center gap-3">
-                        <h4 className="text-lg font-bold group-hover/item:text-neon-cyan transition-colors uppercase tracking-tight">{c.name}</h4>
-                        <div className="flex items-center gap-1 opacity-0 group-hover/item:opacity-100 transition-opacity">
-                          <button 
-                            className="p-1.5 rounded-lg text-neon-cyan/40 hover:text-neon-cyan hover:bg-neon-cyan/10 transition-all hover:scale-110 active:scale-90"
-                            onClick={() => openEditCourse(c)}
-                            title="Edit Skill Tree"
-                          >
-                            <BrainCircuit size={14} className="cursor-pointer" />
-                          </button>
-                          <button 
-                            className="p-1.5 rounded-lg text-neon-red/20 hover:text-neon-red hover:bg-neon-red/10 transition-all hover:scale-110 active:scale-90"
-                            onClick={() => deleteCourse(c.id)}
-                            title="Delete Skill Tree"
-                          >
-                            <X size={14} className="cursor-pointer" />
-                          </button>
-                        </div>
-                      </div>
-                      <div className="text-xs font-bold text-text-muted/60 tracking-tight uppercase font-display">
-                        {Math.floor(sessions.filter((s: StudySession) => s.courseId === c.id).reduce((sum: number, curr: StudySession) => sum + curr.durationMinutes, 0) / 60)}h {sessions.filter((s: StudySession) => s.courseId === c.id).reduce((sum: number, curr: StudySession) => sum + curr.durationMinutes, 0) % 60}m / {c.targetHours} Hours
-                      </div>
-                    </div>
-                    <div className="text-2xl font-black neon-cyan-text tabular-nums">{calculateProgress(c.id)}%</div>
-                  </div>
-                  <div className="xp-bar">
-                    <div 
-                      className="xp-bar-fill"
-                      style={{ width: `${calculateProgress(c.id)}%` }}
-                    ></div>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
-          
-          {/* Training Log */}
-          <div className="game-panel p-8 flex-1">
-            <h4 className="text-lg font-black mb-6 flex items-center gap-3 font-display">
-              <div className="p-2 bg-neon-gold/10 rounded-xl border border-neon-gold/20">
-                <Shield size={22} className="text-neon-gold" />
-              </div>
-              <span className="neon-gold-text">Training Log</span>
+        {/* Manual Entrance Card */}
+        <div className="lg:col-span-2 flex flex-col gap-6">
+          <div className="game-panel p-8 border-neon-gold/20 flex flex-col gap-8 bg-linear-to-br from-neon-gold/5 to-transparent">
+            <h4 className="text-sm font-black uppercase tracking-[0.2em] text-neon-gold font-display flex items-center gap-3">
+              <Zap size={18} className="animate-pulse" />
+              Manual Training Start
             </h4>
-            {sessions.length === 0 ? (
-              <div className="flex flex-col items-center justify-center py-12 gap-4 text-text-muted/40 text-center">
-                <div className="w-16 h-16 rounded-full border-4 border-dashed border-neon-cyan/10 flex items-center justify-center">
-                  <Play size={24} className="opacity-20" />
-                </div>
-                <p className="font-bold uppercase tracking-widest text-xs font-display">No training recorded yet.<br/>Begin your first session!</p>
-              </div>
-            ) : (
-                <div className="flex flex-col gap-4">
-                  {sessions.slice(-3).reverse().map((s: StudySession) => (
-                    <div key={s.id} className="group/session flex justify-between items-center p-5 bg-surface-2 hover:bg-surface-2/80 rounded-2xl border border-neon-cyan/10 hover:border-neon-cyan/20 transition-all duration-300">
-                      <div className="flex flex-col gap-1 text-left">
-                        <div className="font-bold text-sm group-hover/session:text-neon-cyan transition-colors uppercase tracking-tight">{s.topic}</div>
-                        <div className="text-xs font-bold text-text-muted/60">{courses.find((c: CourseData) => c.id === s.courseId)?.name}</div>
+            
+            <div className="flex flex-col gap-6">
+               <div className="flex flex-col gap-4">
+                  <div className="flex flex-col gap-2">
+                    <label className="text-[10px] font-black text-text-muted/40 uppercase tracking-widest px-1">Select Course</label>
+                    <select 
+                      className="w-full h-14 bg-surface-2 border border-neon-cyan/20 rounded-2xl px-5 text-sm font-bold appearance-none cursor-pointer focus:border-neon-cyan transition-colors"
+                      value={timerState.courseId} 
+                      onChange={(e) => {
+                        setTimerState(s => ({ ...s, courseId: e.target.value, topicTitle: '', isCustomTopic: false }));
+                        setSuggestions([]);
+                      }}
+                      disabled={!!activeSession.startTime}
+                    >
+                      <option value="">-- COURSE ARCHIVES --</option>
+                      {filteredCourses.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}
+                    </select>
+                  </div>
+
+                  <div className="flex flex-col gap-2 relative">
+                    <label className="text-[10px] font-black text-text-muted/40 uppercase tracking-widest px-1">Training Objective</label>
+                    <input 
+                      type="text" 
+                      className="w-full h-14 bg-surface-2 border border-neon-cyan/20 rounded-2xl px-5 text-sm font-bold placeholder:text-text-muted/20 focus:border-neon-cyan transition-colors outline-none"
+                      placeholder="Enter topic..." 
+                      value={timerState.topicTitle}
+                      onChange={(e) => {
+                        const val = e.target.value;
+                        setTimerState(s => ({ ...s, topicTitle: val }));
+                        
+                        if (timerState.courseId) {
+                          const course = courses.find(c => c.id === timerState.courseId);
+                          if (course) {
+                            const filtered = val.length > 0
+                              ? course.topics.map(t => t.title).filter(t => t.toLowerCase().includes(val.toLowerCase()))
+                              : course.topics.map(t => t.title);
+                            setSuggestions(filtered);
+                            setUi(s => ({ ...s, showSuggestions: filtered.length > 0 }));
+                          }
+                        }
+                      }}
+                      onBlur={() => {
+                        // Delay to allow clicking a suggestion
+                        setTimeout(() => setUi(s => ({ ...s, showSuggestions: false })), 200);
+                      }}
+                      onFocus={() => {
+                        if (timerState.courseId) {
+                          const course = courses.find(c => c.id === timerState.courseId);
+                          if (course) {
+                            const val = timerState.topicTitle;
+                            const filtered = val.length > 0
+                              ? course.topics.map(t => t.title).filter(t => t.toLowerCase().includes(val.toLowerCase()))
+                              : course.topics.map(t => t.title);
+                            setSuggestions(filtered);
+                            setUi(s => ({ ...s, showSuggestions: filtered.length > 0 }));
+                          }
+                        }
+                      }}
+                      disabled={!timerState.courseId || !!activeSession.startTime}
+                    />
+
+                    {/* Suggestions Dropdown */}
+                    {ui.showSuggestions && suggestions.length > 0 && (
+                      <div className="absolute top-[calc(100%+8px)] left-0 right-0 z-50 bg-bg-main border border-neon-cyan/30 rounded-2xl shadow-[0_10px_30px_rgba(0,0,0,0.5)] overflow-hidden animate-in fade-in slide-in-from-top-2 duration-300">
+                        {suggestions.map((s, i) => (
+                          <div 
+                            key={i} 
+                            className="px-5 py-4 text-xs font-bold text-text-muted hover:text-neon-cyan hover:bg-neon-cyan/10 cursor-pointer border-b border-white/5 last:border-0 transition-colors"
+                            onClick={() => {
+                              setTimerState(prev => ({ ...prev, topicTitle: s }));
+                              setUi(prev => ({ ...prev, showSuggestions: false }));
+                            }}
+                          >
+                            {s}
+                          </div>
+                        ))}
                       </div>
-                      <div className="flex items-center gap-6">
-                        <div className="text-lg font-black tabular-nums text-neon-cyan">{s.durationMinutes}m</div>
-                        <div className="flex items-center gap-2 px-3 py-1 bg-neon-gold/[0.08] border border-neon-gold/15 rounded-lg text-[10px] font-black uppercase text-neon-gold tracking-widest font-display">
-                          PWR {s.confidence}/5
-                        </div>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-            )}
+                    )}
+                  </div>
+                  
+                  {!activeSession.startTime ? (
+                    <button 
+                      className={`btn h-16 rounded-2xl font-black uppercase tracking-widest transition-all duration-300 flex items-center justify-center gap-3 mt-4
+                        ${(!timerState.courseId || !timerState.topicTitle) ? 'bg-surface-2 text-text-muted/20 border border-white/5' : 'btn-primary shadow-[0_0_20px_rgba(0,240,255,0.2)] hover:scale-[1.02]'}`}
+                      onClick={handleStart}
+                      disabled={!timerState.courseId || !timerState.topicTitle}
+                    >
+                      <Play size={20} fill="currentColor" /> Start Manual Session
+                    </button>
+                  ) : (
+                    <button 
+                      className="btn h-16 rounded-2xl font-black uppercase tracking-widest bg-surface-2/50 text-neon-cyan/50 cursor-not-allowed mt-4 flex items-center justify-center gap-3 border border-neon-cyan/10 transition-all duration-300"
+                      disabled
+                    >
+                      <div className="w-2 h-2 rounded-full bg-neon-cyan animate-pulse"></div>
+                      Session in Progress
+                    </button>
+                  )}
+               </div>
+            </div>
           </div>
         </div>
       </div>
 
       {/* Power Level Assessment Modal */}
       {ui.confidenceModal && (
-        <div className="fixed inset-0 bg-black/80 backdrop-blur-xl z-100 flex items-center justify-center p-6 animate-in fade-in duration-500">
-          <div className="game-panel p-10 flex flex-col items-center gap-10 max-w-lg w-full border-neon-cyan/20 shadow-[0_0_50px_rgba(0,240,255,0.05)]">
+        <div className="fixed inset-0 bg-black/80 backdrop-blur-xl z-200 flex items-center justify-center p-6 animate-in fade-in duration-500">
+          <div className="game-panel p-10 flex flex-col items-center gap-10 max-w-lg w-full border-neon-cyan/20 shadow-[0_0_50px_rgba(0,240,255,0.1)]">
             <div className="text-center">
-              <div className="w-20 h-20 bg-neon-cyan/10 rounded-full flex items-center justify-center mx-auto mb-6 border border-neon-cyan/20 shadow-[0_0_30px_rgba(0,240,255,0.15)]">
-                <CheckCircle2 size={40} className="text-neon-cyan" />
+              <div className="w-24 h-24 bg-neon-cyan/10 rounded-full flex items-center justify-center mx-auto mb-6 border border-neon-cyan/20 shadow-[0_0_30px_rgba(0,240,255,0.2)]">
+                <CheckCircle2 size={48} className="text-neon-cyan" />
               </div>
-              <h3 className="text-3xl font-black mb-3 tracking-tight font-display neon-cyan-text">Training Complete!</h3>
-              <p className="text-text-muted text-lg font-medium opacity-80">Rate your power level for this material:</p>
+              <h3 className="text-3xl font-black mb-3 tracking-tight font-display neon-cyan-text uppercase">{t.study.trainingComplete}</h3>
+              <p className="text-text-muted text-lg font-medium opacity-80">{t.study.ratePowerLevel}</p>
             </div>
             
-            <div className="flex flex-wrap justify-center gap-4 text-text-main">
+            <div className="flex flex-wrap justify-center gap-4">
               {[1, 2, 3, 4, 5].map(rating => (
                 <button 
                   key={rating}
-                  className="w-16 h-16 rounded-2xl bg-surface-2 hover:bg-neon-cyan text-xl font-black transition-all duration-300 transform hover:scale-110 active:scale-95 hover:shadow-[0_0_20px_rgba(0,240,255,0.3)] border border-neon-cyan/10 hover:border-neon-cyan group cursor-pointer font-display"
+                  className="w-16 h-16 rounded-2xl bg-surface-2 hover:bg-neon-cyan text-xl font-black transition-all duration-300 transform hover:scale-110 active:scale-95 hover:shadow-glow border border-neon-cyan/10 hover:border-neon-cyan group cursor-pointer font-display"
                   onClick={() => handleEnd(rating)}
                 >
-                  <span className="group-hover:scale-125 transition-transform inline-block">{rating}</span>
+                  <span className="group-hover:scale-125 transition-transform inline-block group-hover:text-bg-main">{rating}</span>
                 </button>
               ))}
             </div>
 
-            <p className="text-[10px] uppercase font-black tracking-widest text-text-muted/40 font-display">Level 1 (Weak) — Level 5 (Mastered)</p>
+            <p className="text-[10px] uppercase font-black tracking-widest text-text-muted/40 font-display">Level 1 ({t.study.weak}) — Level 5 ({t.study.mastered})</p>
           </div>
         </div>
       )}
 
-      {/* Skill Tree Management Modal */}
-      {ui.courseModal && (
-        <div className="fixed inset-0 bg-black/80 backdrop-blur-xl z-100 flex items-center justify-center p-6 animate-in zoom-in duration-300">
-          <div className="game-panel p-8 max-w-2xl w-full border-neon-cyan/20 overflow-y-auto max-h-[90vh] shadow-[0_0_50px_rgba(0,240,255,0.05)]">
-            <div className="flex justify-between items-center mb-8">
-              <h3 className="text-2xl font-black tracking-tight font-display neon-cyan-text">
-                {courseForm.editingId ? '⚙ Edit Skill Tree' : '➕ New Skill Tree'}
-              </h3>
-              <button 
-                className="p-2 hover:bg-neon-cyan/10 rounded-full transition-all hover:scale-110 active:scale-95 cursor-pointer"
-                onClick={() => { 
-                  setUi(s => ({ ...s, courseModal: false })); 
-                  setCourseForm({ editingId: null, name: '', targetHours: 20, newTopicTitle: '' });
-                }}
-              >
-                <X size={24} className="text-text-muted hover:text-neon-cyan transition-colors" />
-              </button>
+      {/* Skill Tree Visualizer Modal */}
+      {ui.showTreeModal && (
+        <div className="fixed inset-0 bg-black/95 backdrop-blur-2xl z-200 flex items-center justify-center p-6 animate-in fade-in slide-in-from-bottom-8 duration-500">
+          <div className="game-panel p-10 max-w-6xl w-full border-neon-cyan/20 overflow-y-auto max-h-[90vh] shadow-[0_0_100px_rgba(0,240,255,0.05)] relative">
+            <button 
+              className="absolute top-8 right-8 p-3 hover:bg-neon-cyan/10 rounded-full border border-transparent hover:border-neon-cyan/20 transition-all hover:scale-110 active:scale-90 cursor-pointer text-text-muted/40 hover:text-neon-cyan"
+              onClick={() => setUi(s => ({ ...s, showTreeModal: false }))}
+            >
+              <X size={24} />
+            </button>
+
+            <div className="flex flex-col items-center gap-12 text-center mb-16">
+              <div className="flex flex-col items-center">
+                <div className="w-16 h-16 bg-neon-cyan/10 rounded-3xl border border-neon-cyan/20 flex items-center justify-center mb-4 shadow-[0_0_20px_rgba(0,240,255,0.1)]">
+                   <GraduationCap size={32} className="text-neon-cyan" />
+                </div>
+                <h3 className="text-4xl font-black tracking-tighter font-display uppercase neon-glow-text mb-2">
+                  {activeSemester ? `${t.profile.semester} ${activeSemester.number}` : 'No Active Semester'}
+                </h3>
+                <p className="text-xs font-black tracking-[0.3em] text-text-muted/40 uppercase font-display">{activeSemester?.year} • {activeSemester?.type}</p>
+              </div>
             </div>
 
-            <div className="flex flex-col gap-8">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div className="flex flex-col gap-2">
-                  <label className="text-xs font-black uppercase tracking-widest text-text-muted/60 px-1 font-display">Skill Tree Name</label>
-                  <input 
-                    type="text" 
-                    className="w-full h-14 bg-surface-2 border border-neon-cyan/10 rounded-2xl px-5 font-bold focus:ring-2 focus:ring-neon-cyan/30 outline-none transition-all"
-                    placeholder="Misal: Kecerdasan Buatan"
-                    value={courseForm.name}
-                    onChange={(e) => setCourseForm(s => ({ ...s, name: e.target.value }))}
-                  />
-                </div>
+            {/* Tree Visualization */}
+            <div className="flex flex-col gap-16 relative">
+              {filteredCourses.length === 0 ? (
+                <div className="py-20 text-center text-text-muted/30 font-bold italic">No academic courses found for this semester.</div>
+              ) : (
+                <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-12 items-start">
+                  {filteredCourses.map(course => {
+                    const intensity = getCourseIntensity(course);
+                    return (
+                      <div key={course.id} className="flex flex-col gap-6 group">
+                        {/* Course Node */}
+                        <div className="relative flex flex-col items-center">
+                          <div 
+                            className="w-full p-6 rounded-3xl border transition-all duration-700 relative z-10 overflow-hidden"
+                            style={{ 
+                              borderColor: `rgba(0, 240, 255, ${0.1 + intensity * 0.4})`,
+                              background: `linear-gradient(135deg, rgba(10, 10, 15, 0.9), rgba(0, 240, 255, ${intensity * 0.15}))`,
+                              boxShadow: intensity > 0.5 ? `0 0 ${intensity * 40}px rgba(0, 240, 255, ${intensity * 0.2})` : 'none'
+                            }}
+                          >
+                            <div className="flex justify-between items-start mb-4">
+                              <span className="text-[10px] font-black text-neon-cyan/60 font-mono tracking-widest">{course.code}</span>
+                              <div className="flex flex-col items-end gap-1">
+                                <div className="px-2 py-0.5 rounded bg-neon-cyan/10 text-[8px] font-black text-neon-cyan border border-neon-cyan/20">{course.sks} SKS</div>
+                                <div className={`text-[10px] font-bold ${intensity >= 1 ? 'text-neon-cyan' : 'text-text-muted/40'}`}>
+                                  {Math.round(intensity * 100)}%
+                                </div>
+                              </div>
+                            </div>
+                            <h4 className="text-xl font-black tracking-tight mb-2 group-hover:text-neon-cyan transition-colors">{course.name}</h4>
+                            <div className="w-full h-1 bg-white/5 rounded-full overflow-hidden mt-4">
+                              <div className="h-full bg-neon-cyan transition-all duration-1000" style={{ width: `${Math.min(intensity * 100, 100)}%` }}></div>
+                            </div>
+                          </div>
+                          
+                          {/* Branch Line */}
+                          {course.topics.length > 0 && (
+                            <div className="w-0.5 h-12 bg-linear-to-b from-neon-cyan/20 to-transparent"></div>
+                          )}
+                        </div>
 
-                <div className="flex flex-col gap-2">
-                  <label className="text-xs font-black uppercase tracking-widest text-text-muted/60 px-1 font-display">Target Hours (Season)</label>
-                  <input 
-                    type="number" 
-                    className="w-full h-14 bg-surface-2 border border-neon-cyan/10 rounded-2xl px-5 font-bold focus:ring-2 focus:ring-neon-cyan/30 outline-none transition-all"
-                    value={courseForm.targetHours}
-                    onChange={(e) => setCourseForm(s => ({ ...s, targetHours: parseInt(e.target.value) }))}
-                  />
-                </div>
-              </div>
-
-              {courseForm.editingId && (
-                <div className="flex flex-col gap-4 p-6 bg-surface-2/50 rounded-3xl border border-neon-cyan/10">
-                  <h4 className="text-sm font-black uppercase tracking-widest text-text-muted font-display">Skill Nodes</h4>
-                  
-                  <div className="flex gap-2">
-                    <input 
-                      type="text"
-                      className="flex-1 h-12 bg-surface-1 border border-neon-cyan/10 rounded-xl px-4 text-sm font-bold focus:ring-2 focus:ring-neon-cyan/30 outline-none"
-                      placeholder="Add new skill node..."
-                      value={courseForm.newTopicTitle}
-                      onChange={(e) => setCourseForm(s => ({ ...s, newTopicTitle: e.target.value }))}
-                    />
-                    <button 
-                      className="btn-primary w-12 h-12 p-0 flex items-center justify-center rounded-xl hover:scale-110 active:scale-95 transition-all cursor-pointer"
-                      onClick={() => {
-                        if (courseForm.newTopicTitle) {
-                          useStudyStore.getState().addTopic(courseForm.editingId!, courseForm.newTopicTitle);
-                          setCourseForm(s => ({ ...s, newTopicTitle: '' }));
-                        }
-                      }}
-                    >
-                      <Plus size={20} />
-                    </button>
-                  </div>
-
-                  <div className="flex flex-col gap-2 max-h-[200px] overflow-y-auto pr-2">
-                    {courses.find(c => c.id === courseForm.editingId)?.topics.map(t => (
-                      <div key={t.id} className="flex items-center justify-between p-3 bg-surface-1 border border-neon-cyan/10 rounded-xl">
-                        <span className="text-sm font-bold">{t.title}</span>
-                        <button 
-                          className="p-1.5 text-neon-red/40 hover:text-neon-red hover:bg-neon-red/10 rounded-lg transition-all"
-                          onClick={() => useStudyStore.getState().deleteTopic(courseForm.editingId!, t.id)}
-                        >
-                          <X size={14} />
-                        </button>
+                        {/* Topic Leaves */}
+                        <div className="flex flex-wrap justify-center gap-3">
+                          {course.topics.map(topic => {
+                            const tIntensity = getTopicIntensity(topic);
+                            const tPercent = Math.round(tIntensity * 100);
+                            return (
+                              <div 
+                                key={topic.id}
+                                className="px-4 py-2 rounded-xl border text-[11px] font-bold transition-all duration-500 hover:scale-110 cursor-default flex items-center gap-2"
+                                style={{
+                                  borderColor: `rgba(168, 85, 247, ${0.1 + Math.min(tIntensity, 1) * 0.5})`,
+                                  background: `rgba(168, 85, 247, ${Math.min(tIntensity, 1) * 0.1})`,
+                                  color: tIntensity > 0.5 ? '#fff' : 'rgba(255,255,255,0.6)',
+                                  boxShadow: tIntensity > 0.7 ? `0 0 15px rgba(168, 85, 247, ${Math.min(tIntensity, 1) * 0.3})` : 'none'
+                                }}
+                              >
+                                <span>{topic.title}</span>
+                                <span className={`text-[9px] px-1.5 py-0.5 rounded bg-white/5 ${tPercent >= 100 ? 'text-neon-cyan' : 'text-text-muted/40'}`}>
+                                  {tPercent}%
+                                </span>
+                              </div>
+                            );
+                          })}
+                        </div>
                       </div>
-                    ))}
-                  </div>
+                    );
+                  })}
                 </div>
               )}
+            </div>
+          </div>
+        </div>
+      )}
 
-              <button 
-                className={`btn h-14 rounded-2xl font-black flex items-center justify-center gap-3 transition-all duration-300 font-display
-                  ${!courseForm.name ? 'bg-surface-2 text-text-muted cursor-not-allowed' : 'btn-primary hover:scale-105 active:scale-95'}`}
-                onClick={handleSaveCourse}
-                disabled={!courseForm.name}
-              >
-                {courseForm.editingId ? 'Save Changes' : 'Add Skill Tree'}
-              </button>
+      {/* Generation Overlay */}
+      {generationState.isActive && (
+        <div className={`fixed inset-0 z-250 bg-bg-main/90 backdrop-blur-xl flex items-center justify-center p-6 transition-all duration-700 ease-in-out ${generationState.isExiting ? 'opacity-0 scale-105 pointer-events-none' : 'opacity-100 scale-100'}`}>
+          <div className={`game-panel p-10 max-w-md w-full border-neon-cyan/20 flex flex-col gap-8 shadow-[0_0_50px_rgba(0,240,255,0.1)] relative overflow-hidden transition-all duration-700 transform ${generationState.isExiting ? 'scale-90 opacity-0 blur-sm' : 'scale-100 opacity-100'}`}>
+            <div className="absolute inset-0 pointer-events-none opacity-20">
+              <div className="absolute inset-0 bg-linear-to-b from-neon-cyan/10 to-transparent animate-scan-line h-1/2"></div>
+            </div>
+
+            <div className="flex flex-col items-center gap-4 relative z-10">
+               <div className="w-16 h-16 rounded-2xl bg-neon-cyan/10 border border-neon-cyan/20 flex items-center justify-center mb-2 shadow-[0_0_20px_rgba(0,240,255,0.2)]">
+                  {generationState.completed ? (
+                    <CheckCircle2 size={32} className="text-neon-green animate-in zoom-in duration-500" />
+                  ) : (
+                    <Sparkles size={32} className="text-neon-cyan animate-pulse" />
+                  )}
+               </div>
+               <h3 className="text-2xl font-black tracking-tight font-display neon-glow-text uppercase">
+                 {generationState.completed ? (language === 'id' ? 'Selesai' : 'Completed') : (language === 'id' ? 'Generating Plan...' : 'Generating Plan...')}
+               </h3>
+            </div>
+
+            <div className="flex flex-col gap-6 relative z-10">
+              {steps.map((s, idx) => (
+                <div key={idx} className={`flex items-center gap-4 transition-all duration-500 ${generationState.step >= idx ? 'opacity-100 translate-x-0' : 'opacity-20 translate-x-4'}`}>
+                  <div className={`p-2 rounded-lg border transition-all duration-300 ${generationState.step > idx ? 'bg-neon-green/10 border-neon-green/30 text-neon-green' : generationState.step === idx ? 'bg-neon-cyan/10 border-neon-cyan/30 text-neon-cyan animate-pulse' : 'bg-surface-2 border-white/5 text-text-muted/40'}`}>
+                    {generationState.step > idx ? <CheckCircle2 size={20} /> : s.icon}
+                  </div>
+                  <div className="flex flex-col">
+                    <span className={`text-sm font-bold transition-colors ${generationState.step === idx ? 'text-text-main' : generationState.step > idx ? 'text-text-muted/60' : 'text-text-muted/20'}`}>
+                      {s.title}
+                    </span>
+                    {generationState.step === idx && !generationState.completed && (
+                      <div className="w-32 h-0.5 bg-neon-cyan/20 rounded-full mt-1 overflow-hidden">
+                        <div className="h-full bg-neon-cyan animate-pixel-shimmer w-full"></div>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              ))}
+              
+              <div className={`flex items-center gap-4 transition-all duration-500 ${generationState.completed ? 'opacity-100 translate-x-0' : 'opacity-0 translate-x-4'}`}>
+                <div className="p-2 rounded-lg border bg-neon-green/10 border-neon-green/30 text-neon-green">
+                  <CheckCircle2 size={20} />
+                </div>
+                <span className="text-sm font-black text-neon-green uppercase tracking-widest font-display">
+                  {language === 'id' ? 'Selesai' : 'Completed'}
+                </span>
+              </div>
+            </div>
+
+            <div className="mt-4 p-4 rounded-xl bg-surface-2/50 border border-neon-cyan/5 text-[9px] font-mono text-text-muted/40 uppercase tracking-[0.2em] relative z-10 text-center">
+              System initialization... 0x{Math.random().toString(16).substr(2, 6).toUpperCase()}
             </div>
           </div>
         </div>
