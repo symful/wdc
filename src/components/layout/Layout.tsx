@@ -128,7 +128,6 @@ export function Layout() {
     { to: "/academic", icon: <GraduationCap size={20} />, label: t.common.studyManager, badge: null },
     { to: "/tasks", icon: <ScrollText size={20} />, label: t.common.taskBoard, badge: tasks.filter(t => t.status !== 'done').length || null },
     { to: "/study", icon: <Swords size={20} />, label: t.common.trainingArena, badge: null },
-    { to: "/stats", icon: <BarChart3 size={20} />, label: language === 'id' ? 'STATISTIK' : 'STATISTICS', badge: null },
     { to: "/chat", icon: <MessageSquare size={20} />, label: t.common.guildHall, badge: null },
     { to: "/profile", icon: <User size={20} />, label: t.common.profile, badge: null },
   ];

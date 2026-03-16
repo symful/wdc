@@ -10,10 +10,9 @@ import semester2Data from './data/semesters/semester_2.json';
 const DashboardView = lazy(() => import('./features/analytics/DashboardView').then(m => ({ default: m.DashboardView })));
 const StudyManagerView = lazy(() => import('./features/study/StudyManagerView').then(m => ({ default: m.StudyManagerView })));
 const ProfileView = lazy(() => import('./features/profile/ProfileView').then(m => ({ default: m.ProfileView })));
-const KanbanBoard = lazy(() => import('./features/tasks/KanbanBoard').then(m => ({ default: m.KanbanBoard })));
+const MissionBoard = lazy(() => import('./features/tasks/MissionBoard').then(m => ({ default: m.MissionBoard })));
 const StudyView = lazy(() => import('./features/study/StudyView').then(m => ({ default: m.StudyView })));
 const ChatView = lazy(() => import('./features/chat/ChatView').then(m => ({ default: m.ChatView })));
-const StatsView = lazy(() => import('./features/analytics/StatsView').then(m => ({ default: m.StatsView })));
 
 const router = createBrowserRouter([
   {
@@ -40,7 +39,7 @@ const router = createBrowserRouter([
         path: "tasks",
         element: (
           <Suspense fallback={<KanbanSkeleton />}>
-            <KanbanBoard />
+            <MissionBoard />
           </Suspense>
         )
       },
@@ -49,14 +48,6 @@ const router = createBrowserRouter([
         element: (
           <Suspense fallback={<DashboardSkeleton />}>
             <StudyView />
-          </Suspense>
-        )
-      },
-      {
-        path: "stats",
-        element: (
-          <Suspense fallback={<DashboardSkeleton />}>
-            <StatsView />
           </Suspense>
         )
       },

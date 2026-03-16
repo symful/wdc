@@ -465,8 +465,8 @@ export function StudyView() {
 
       {/* Skill Tree Visualizer Modal */}
       {ui.showTreeModal && (
-        <div className="fixed inset-0 bg-black/95 backdrop-blur-2xl z-200 flex items-center justify-center p-6 animate-in fade-in slide-in-from-bottom-8 duration-500">
-          <div className="game-panel p-10 max-w-6xl w-full border-neon-cyan/20 overflow-y-auto max-h-[90vh] shadow-[0_0_100px_rgba(0,240,255,0.05)] relative">
+        <div className="fixed inset-0 bg-bg-main/95 backdrop-blur-2xl z-200 flex items-center justify-center p-6 animate-in fade-in slide-in-from-bottom-8 duration-500 overflow-hidden">
+          <div className="game-panel p-10 max-w-6xl w-full border-neon-cyan/20 overflow-y-auto max-h-[90vh] shadow-[0_40px_100px_rgba(0,0,0,0.1)] relative bg-surface-1/80 custom-scrollbar">
             <button 
               className="absolute top-8 right-8 p-3 hover:bg-neon-cyan/10 rounded-full border border-transparent hover:border-neon-cyan/20 transition-all hover:scale-110 active:scale-90 cursor-pointer text-text-muted/40 hover:text-neon-cyan"
               onClick={() => setUi(s => ({ ...s, showTreeModal: false }))}
@@ -499,11 +499,11 @@ export function StudyView() {
                         {/* Course Node */}
                         <div className="relative flex flex-col items-center">
                           <div 
-                            className="w-full p-6 rounded-3xl border transition-all duration-700 relative z-10 overflow-hidden"
+                            className="w-full p-6 rounded-3xl border transition-all duration-700 relative z-10 overflow-hidden bg-surface-2 group-hover:bg-surface-2/95"
                             style={{ 
-                              borderColor: `rgba(0, 240, 255, ${0.1 + intensity * 0.4})`,
-                              background: `linear-gradient(135deg, rgba(10, 10, 15, 0.9), rgba(0, 240, 255, ${intensity * 0.15}))`,
-                              boxShadow: intensity > 0.5 ? `0 0 ${intensity * 40}px rgba(0, 240, 255, ${intensity * 0.2})` : 'none'
+                              borderColor: `var(--color-neon-cyan)`,
+                              opacity: 0.2 + intensity * 0.8,
+                              boxShadow: intensity > 0.5 ? `0 10px 30px -10px var(--color-neon-cyan)` : 'none'
                             }}
                           >
                             <div className="flex justify-between items-start mb-4">
@@ -537,10 +537,11 @@ export function StudyView() {
                                 key={topic.id}
                                 className="px-4 py-2 rounded-xl border text-[11px] font-bold transition-all duration-500 hover:scale-110 cursor-default flex items-center gap-2"
                                 style={{
-                                  borderColor: `rgba(168, 85, 247, ${0.1 + Math.min(tIntensity, 1) * 0.5})`,
-                                  background: `rgba(168, 85, 247, ${Math.min(tIntensity, 1) * 0.1})`,
-                                  color: tIntensity > 0.5 ? '#fff' : 'rgba(255,255,255,0.6)',
-                                  boxShadow: tIntensity > 0.7 ? `0 0 15px rgba(168, 85, 247, ${Math.min(tIntensity, 1) * 0.3})` : 'none'
+                                  borderColor: `var(--color-neon-purple)`,
+                                  background: tIntensity > 0 ? 'var(--color-neon-purple)' : 'transparent',
+                                  backgroundColor: `rgba(147, 51, 234, ${0.1 + Math.min(tIntensity, 1) * 0.2})`,
+                                  color: 'var(--text-main)',
+                                  boxShadow: tIntensity > 0.7 ? `0 4px 12px rgba(147, 51, 234, 0.2)` : 'none'
                                 }}
                               >
                                 <span>{topic.title}</span>

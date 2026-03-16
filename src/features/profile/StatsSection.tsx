@@ -3,6 +3,7 @@ import { useTaskStore, Task } from '../../store/useTaskStore';
 import { useStudyStore, StudySession } from '../../store/useStudyStore';
 import { useAcademicStore } from '../../store/useAcademicStore';
 import { useLanguageStore, translations } from '../../store/useLanguageStore';
+import mockActivityData from '../../data/mockActivityData.json';
 import {
   BarChart3,
   TrendingUp,
@@ -18,7 +19,7 @@ import {
   Star,
 } from 'lucide-react';
 
-export function StatsView() {
+export function StatsSection() {
   const { tasks } = useTaskStore();
   const { sessions } = useStudyStore();
   const { courses } = useAcademicStore();
@@ -43,17 +44,6 @@ export function StatsView() {
   const lastWeekMinutes = lastWeekSessions.reduce((a: number, s: StudySession) => a + s.durationMinutes, 0);
   const minutesDiff = thisWeekMinutes - lastWeekMinutes;
   const minutesDiffPercent = lastWeekMinutes > 0 ? Math.round((minutesDiff / lastWeekMinutes) * 100) : (thisWeekMinutes > 0 ? 100 : 0);
-
-  const thisWeekTasksDone = tasks.filter(
-    (t: Task) => t.status === 'done' && t.completedAt && new Date(t.completedAt).getTime() > now - oneWeek
-  ).length;
-  const lastWeekTasksDone = tasks.filter(
-    (t: Task) => {
-      if (t.status !== 'done' || !t.completedAt) return false;
-      const time = new Date(t.completedAt).getTime();
-      return time > now - 2 * oneWeek && time <= now - oneWeek;
-    }
-  ).length;
 
   // Tasks by type
   const completedTasks = tasks.filter((t: Task) => t.status === 'done');
@@ -81,14 +71,17 @@ export function StatsView() {
       const dateStr = d.toISOString().split('T')[0];
       const dayName = d.toLocaleDateString(language === 'id' ? 'id-ID' : 'en-US', { weekday: 'short' });
       const dateNum = d.getDate();
-      const mins = sessions
+      
+      const dummyDay = mockActivityData.find(d => d.date === dateStr);
+      const realMins = sessions
         .filter((s: StudySession) => s.date.startsWith(dateStr))
         .reduce((a: number, s: StudySession) => a + s.durationMinutes, 0);
+      
+      const mins = realMins + (dummyDay?.durationMinutes || 0);
       return { dateStr, dayName, dateNum, mins };
     });
   }, [sessions, language]);
-
-  const maxMins = Math.max(...chartData.map((d) => d.mins), 30);
+  const maxMins = Math.max(...chartData.map((d) => d.mins), 30) + 10;
 
   // Current streak
   const streak = useMemo(() => {
@@ -180,15 +173,13 @@ export function StatsView() {
   return (
     <div className="flex flex-col gap-8">
       {/* Header */}
-      <div>
-        <h1 className="text-4xl font-extrabold tracking-tight mb-2 neon-glow-text font-display uppercase">
-          {language === 'id' ? 'STATISTIK' : 'STATISTICS'}
-        </h1>
-        <p className="text-text-muted text-lg max-w-2xl">
-          {language === 'id'
-            ? 'Analisis performa belajar & progres kamu secara mendalam.'
-            : 'Deep analysis of your study performance & progress.'}
-        </p>
+      <div className="border-b border-white/5 pb-4">
+        <h3 className="text-lg font-black font-display neon-glow-text uppercase tracking-widest flex items-center gap-3">
+          <div className="p-2 bg-neon-cyan/10 rounded-xl border border-neon-cyan/20">
+            <BarChart3 size={20} className="text-neon-cyan" />
+          </div>
+          {language === 'id' ? 'STATISTIK PLAYER' : 'PLAYER STATISTICS'}
+        </h3>
       </div>
 
       {/* Comparison Cards */}
@@ -286,44 +277,64 @@ export function StatsView() {
           <div className="p-2 bg-neon-purple/10 rounded-xl border border-neon-purple/20">
             <BarChart3 size={20} className="text-neon-purple" />
           </div>
-          <h3 className="text-lg font-black font-display neon-purple-text uppercase tracking-widest">
+          <h3 className="text-md font-black font-display neon-purple-text uppercase tracking-widest">
             {language === 'id' ? 'GRAFIK PROGRESS 14 HARI' : '14-DAY PROGRESS CHART'}
           </h3>
         </div>
 
-        <div className="flex items-end gap-2 h-48 px-2">
-          {chartData.map((d, i) => {
-            const h = d.mins > 0 ? Math.max(8, (d.mins / maxMins) * 100) : 4;
-            const isToday = i === 13;
-            return (
-              <div key={i} className="flex-1 flex flex-col items-center gap-2 group">
-                {d.mins > 0 && (
-                  <div className="text-[8px] font-black text-text-muted/40 opacity-0 group-hover:opacity-100 transition-opacity tabular-nums">
-                    {d.mins}m
-                  </div>
-                )}
-                <div
-                  className={`w-full rounded-t-lg transition-all duration-500 group-hover:opacity-100 ${
-                    isToday
-                      ? 'bg-neon-cyan shadow-[0_0_15px_rgba(0,240,255,0.3)]'
-                      : i >= 7
-                      ? 'bg-neon-purple/80'
-                      : 'bg-neon-purple/30'
-                  }`}
-                  style={{ height: `${h}%` }}
-                  title={`${d.dateStr}: ${d.mins} min`}
-                />
-                <div className="flex flex-col items-center">
-                  <span className={`text-[7px] font-black uppercase tracking-wider ${isToday ? 'text-neon-cyan' : 'text-text-muted/30'}`}>
-                    {d.dayName}
-                  </span>
-                  <span className={`text-[9px] font-black ${isToday ? 'text-neon-cyan' : 'text-text-muted/50'}`}>
-                    {d.dateNum}
-                  </span>
-                </div>
-              </div>
-            );
-          })}
+        <div className="relative h-64 w-full flex gap-4">
+          <div className="flex flex-col justify-between text-[8px] font-black text-text-muted/40 py-1 font-display">
+            <span>{maxMins}m</span>
+            <span>{Math.round(maxMins * 0.75)}m</span>
+            <span>{Math.round(maxMins * 0.5)}m</span>
+            <span>{Math.round(maxMins * 0.25)}m</span>
+            <span>0m</span>
+          </div>
+
+          <div className="flex-1 relative flex items-end">
+            <svg viewBox="0 0 100 100" className="w-full h-full overflow-visible" preserveAspectRatio="none">
+              {/* Grid lines */}
+              {[0, 25, 50, 75, 100].map(val => (
+                <line key={val} x1="0" y1={val} x2="100" y2={val} stroke="rgba(255,255,255,0.05)" strokeWidth="0.5" />
+              ))}
+              
+              {chartData.map((d, i) => {
+                const h = (d.mins / maxMins) * 100;
+                const x = (i / 13) * 100;
+                const isToday = i === 13;
+                return (
+                  <rect
+                    key={i}
+                    x={x - 2}
+                    y={100 - h}
+                    width="4"
+                    height={h}
+                    rx="1"
+                    className={`transition-all duration-500 ${
+                      isToday
+                        ? 'fill-neon-cyan drop-shadow-[0_0_8px_rgba(0,240,255,0.4)]'
+                        : i >= 7
+                        ? 'fill-neon-purple'
+                        : 'fill-neon-purple/40'
+                    }`}
+                  />
+                );
+              })}
+            </svg>
+          </div>
+        </div>
+
+        <div className="flex justify-between pl-8">
+          {chartData.map((d, i) => (
+            <div key={i} className="flex flex-col items-center">
+              <span className={`text-[7px] font-black uppercase tracking-wider ${i === 13 ? 'text-neon-cyan' : 'text-text-muted/30'}`}>
+                {d.dayName}
+              </span>
+              <span className={`text-[9px] font-black ${i === 13 ? 'text-neon-cyan' : 'text-text-muted/50'}`}>
+                {d.dateNum}
+              </span>
+            </div>
+          ))}
         </div>
 
         <div className="flex gap-6 justify-center text-[10px] font-bold text-text-muted/40 pt-2 border-t border-white/5">
@@ -348,7 +359,7 @@ export function StatsView() {
           <div className="p-2 bg-neon-gold/10 rounded-xl border border-neon-gold/20">
             <Lightbulb size={20} className="text-neon-gold" />
           </div>
-          <h3 className="text-lg font-black font-display neon-gold-text uppercase tracking-widest">
+          <h3 className="text-md font-black font-display neon-gold-text uppercase tracking-widest">
             {language === 'id' ? 'REKOMENDASI PERSONAL' : 'PERSONAL RECOMMENDATIONS'}
           </h3>
         </div>

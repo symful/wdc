@@ -169,19 +169,19 @@ export function StudyManagerView() {
                     }`}>
                       {course.type === 'Wajib' ? t.academic.wajib : course.type === 'Pilihan' ? t.academic.pilihan : t.academic.mengulang}
                     </span>
-                    <span className="text-[10px] font-bold text-text-muted/40 font-mono">{course.code}</span>
+                    <span className="text-[10px] font-bold text-text-muted/60 font-mono">{course.code}</span>
                   </div>
                   <h4 className="text-lg font-black tracking-tight group-hover:text-neon-cyan transition-colors">{course.name}</h4>
                 </div>
                 <div className="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
                   <button 
-                    className="p-2 rounded-lg bg-surface-2 hover:bg-neon-cyan/10 text-text-muted/40 hover:text-neon-cyan transition-all"
+                    className="p-2 rounded-lg bg-surface-2 hover:bg-neon-cyan/10 text-text-muted/60 hover:text-neon-cyan transition-all"
                     onClick={() => handleOpenEdit(course)}
                   >
                     <Edit3 size={14} />
                   </button>
                   <button 
-                    className="p-2 rounded-lg bg-surface-2 hover:bg-neon-red/10 text-text-muted/40 hover:text-neon-red transition-all"
+                    className="p-2 rounded-lg bg-surface-2 hover:bg-neon-red/10 text-text-muted/60 hover:text-neon-red transition-all"
                     onClick={() => deleteCourse(course.id)}
                   >
                     <Trash2 size={14} />
@@ -189,32 +189,32 @@ export function StudyManagerView() {
                 </div>
               </div>
 
-              <div className="flex items-center gap-6 py-3 border-y border-neon-cyan/5">
+              <div className="flex items-center gap-6 py-3 border-y border-neon-cyan/10">
                 <div className="flex flex-col">
-                  <span className="text-[9px] font-black text-text-muted/40 uppercase tracking-widest mb-1">{t.academic.sks}</span>
+                  <span className="text-[9px] font-black text-text-muted/60 uppercase tracking-widest mb-1">{t.academic.sks}</span>
                   <span className="text-sm font-bold">{course.sks} SKS</span>
                 </div>
-                <div className="w-px h-6 bg-neon-cyan/10"></div>
+                <div className="w-px h-6 bg-neon-cyan/20"></div>
                 <div className="flex flex-col">
-                  <span className="text-[9px] font-black text-text-muted/40 uppercase tracking-widest mb-1">{t.academic.schedule}</span>
+                  <span className="text-[9px] font-black text-text-muted/60 uppercase tracking-widest mb-1">{t.academic.schedule}</span>
                   <span className="text-sm font-bold">{course.schedules.length} Slot</span>
                 </div>
               </div>
 
               <div className="flex flex-col gap-3">
                 {course.schedules.map((sch, i) => (
-                  <div key={i} className="flex flex-col gap-2 p-3 bg-surface-2/50 rounded-xl border border-neon-cyan/5 text-[11px]">
+                  <div key={i} className="flex flex-col gap-2 p-3 bg-surface-2/60 rounded-xl border border-neon-cyan/10 text-[11px] shadow-sm">
                     <div className="flex justify-between items-center font-bold">
                       <div className="flex items-center gap-2 text-neon-cyan">
                         <Clock size={12} />
                         <span>{getDayName(sch.day)}, {sch.startTime} - {sch.endTime}</span>
                       </div>
-                      <div className="flex items-center gap-2 text-text-muted/60">
+                      <div className="flex items-center gap-2 text-text-muted/80">
                         <MapPin size={12} />
                         <span>{sch.room || 'TBA'}</span>
                       </div>
                     </div>
-                    <div className="flex items-center gap-2 text-text-muted/40">
+                    <div className="flex items-center gap-2 text-text-muted/60">
                       <UserIcon size={12} />
                       <span className="truncate">{sch.lecturer || 'N/A'}</span>
                     </div>
@@ -228,8 +228,8 @@ export function StudyManagerView() {
 
       {/* Modal Add/Edit */}
       {showModal && (
-        <div className="fixed inset-0 bg-black/80 backdrop-blur-xl z-100 flex items-center justify-center p-6 animate-in fade-in duration-300">
-          <div className="game-panel p-8 max-w-2xl w-full flex flex-col gap-8 border-neon-cyan/20 overflow-y-auto max-h-[90vh]">
+        <div className="fixed inset-0 bg-bg-main/80 backdrop-blur-xl z-100 flex items-center justify-center p-6 animate-in fade-in duration-300">
+          <div className="game-panel p-8 max-w-2xl w-full flex flex-col gap-8 border-neon-cyan/20 overflow-y-auto max-h-[90vh] shadow-[0_20px_60px_rgba(0,0,0,0.15)] bg-surface-1">
             <div className="flex justify-between items-center">
               <h3 className="text-2xl font-black tracking-tight font-display neon-cyan-text">
                 {editingId ? t.academic.editCourse : t.academic.addCourse}
@@ -248,10 +248,10 @@ export function StudyManagerView() {
                 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   <div className="flex flex-col gap-2 col-span-full">
-                    <label className="text-xs font-black uppercase tracking-widest text-text-muted/40 px-1 font-display">{t.academic.courseName}</label>
+                    <label className="text-xs font-black uppercase tracking-widest text-text-muted/60 px-1 font-display">{t.academic.courseName}</label>
                     <input 
                       type="text" 
-                      className="w-full h-14 bg-surface-2 border border-neon-cyan/10 rounded-2xl px-5 font-bold outline-none focus:ring-2 focus:ring-neon-cyan/30 transition-all"
+                      className="w-full h-14 bg-surface-2 border border-neon-cyan/20 rounded-2xl px-5 font-bold outline-none focus:ring-2 focus:ring-neon-cyan/30 transition-all placeholder:text-text-muted/30"
                       value={form.name}
                       onChange={(e) => setForm(s => ({ ...s, name: e.target.value }))}
                       placeholder="e.g. Pemrograman Web"
@@ -259,10 +259,10 @@ export function StudyManagerView() {
                   </div>
                   
                   <div className="flex flex-col gap-2">
-                    <label className="text-xs font-black uppercase tracking-widest text-text-muted/40 px-1 font-display">{t.academic.courseCode}</label>
+                    <label className="text-xs font-black uppercase tracking-widest text-text-muted/60 px-1 font-display">{t.academic.courseCode}</label>
                     <input 
                       type="text" 
-                      className="w-full h-14 bg-surface-2 border border-neon-cyan/10 rounded-2xl px-5 font-bold outline-none focus:ring-2 focus:ring-neon-cyan/30 transition-all font-mono"
+                      className="w-full h-14 bg-surface-2 border border-neon-cyan/20 rounded-2xl px-5 font-bold outline-none focus:ring-2 focus:ring-neon-cyan/30 transition-all font-mono placeholder:text-text-muted/30"
                       value={form.code}
                       onChange={(e) => setForm(s => ({ ...s, code: e.target.value }))}
                       placeholder="e.g. IF123"
@@ -270,19 +270,19 @@ export function StudyManagerView() {
                   </div>
 
                   <div className="flex flex-col gap-2">
-                    <label className="text-xs font-black uppercase tracking-widest text-text-muted/40 px-1 font-display">{t.academic.sks}</label>
+                    <label className="text-xs font-black uppercase tracking-widest text-text-muted/60 px-1 font-display">{t.academic.sks}</label>
                     <input 
                       type="number" 
-                      className="w-full h-14 bg-surface-2 border border-neon-cyan/10 rounded-2xl px-5 font-bold outline-none focus:ring-2 focus:ring-neon-cyan/30 transition-all"
+                      className="w-full h-14 bg-surface-2 border border-neon-cyan/20 rounded-2xl px-5 font-bold outline-none focus:ring-2 focus:ring-neon-cyan/30 transition-all placeholder:text-text-muted/30"
                       value={form.sks}
                       onChange={(e) => setForm(s => ({ ...s, sks: parseInt(e.target.value) || 0 }))}
                     />
                   </div>
 
                   <div className="flex flex-col gap-2">
-                    <label className="text-xs font-black uppercase tracking-widest text-text-muted/40 px-1 font-display">{t.academic.type}</label>
+                    <label className="text-xs font-black uppercase tracking-widest text-text-muted/60 px-1 font-display">{t.academic.type}</label>
                     <select 
-                      className="w-full h-14 bg-surface-2 border border-neon-cyan/10 rounded-2xl px-5 font-bold outline-none focus:ring-2 focus:ring-neon-cyan/30 transition-all appearance-none cursor-pointer"
+                      className="w-full h-14 bg-surface-2 border border-neon-cyan/20 rounded-2xl px-5 font-bold outline-none focus:ring-2 focus:ring-neon-cyan/30 transition-all appearance-none cursor-pointer"
                       value={form.type}
                       onChange={(e) => setForm(s => ({ ...s, type: e.target.value as CourseType }))}
                     >
@@ -310,7 +310,7 @@ export function StudyManagerView() {
 
                 <div className="flex flex-col gap-4">
                   {form.schedules.map((sch, index) => (
-                    <div key={index} className="p-6 bg-surface-2/30 rounded-3xl border border-neon-cyan/10 flex flex-col gap-6 relative group/slot">
+                    <div key={index} className="p-6 bg-surface-2/30 rounded-3xl border border-neon-cyan/20 flex flex-col gap-6 relative group/slot shadow-sm">
                       {form.schedules.length > 1 && (
                         <button 
                           className="absolute -top-2 -right-2 w-8 h-8 rounded-full bg-neon-red/20 text-neon-red flex items-center justify-center opacity-0 group-hover/slot:opacity-100 transition-opacity hover:scale-110 active:scale-95"
@@ -322,9 +322,9 @@ export function StudyManagerView() {
                       
                       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                         <div className="flex flex-col gap-2">
-                          <label className="text-[10px] font-black uppercase tracking-widest text-text-muted/30 px-1">{t.academic.day}</label>
+                          <label className="text-[10px] font-black uppercase tracking-widest text-text-muted/60 px-1">{t.academic.day}</label>
                           <select 
-                            className="bg-surface-2 border border-neon-cyan/5 rounded-xl px-4 h-11 text-sm font-bold outline-none focus:border-neon-cyan/30 appearance-none cursor-pointer"
+                            className="bg-surface-2 border border-neon-cyan/10 rounded-xl px-4 h-11 text-sm font-bold outline-none focus:border-neon-cyan/30 appearance-none cursor-pointer"
                             value={sch.day}
                             onChange={(e) => updateScheduleField(index, { day: parseInt(e.target.value) })}
                           >
@@ -334,19 +334,19 @@ export function StudyManagerView() {
                           </select>
                         </div>
                         <div className="flex flex-col gap-2">
-                          <label className="text-[10px] font-black uppercase tracking-widest text-text-muted/30 px-1">{t.academic.startTime}</label>
+                          <label className="text-[10px] font-black uppercase tracking-widest text-text-muted/60 px-1">{t.academic.startTime}</label>
                           <input 
                             type="time" 
-                            className="bg-surface-2 border border-neon-cyan/5 rounded-xl px-4 h-11 text-sm font-bold outline-none focus:border-neon-cyan/30"
+                            className="bg-surface-2 border border-neon-cyan/10 rounded-xl px-4 h-11 text-sm font-bold outline-none focus:border-neon-cyan/30"
                             value={sch.startTime}
                             onChange={(e) => updateScheduleField(index, { startTime: e.target.value })}
                           />
                         </div>
                         <div className="flex flex-col gap-2">
-                          <label className="text-[10px] font-black uppercase tracking-widest text-text-muted/30 px-1">{t.academic.endTime}</label>
+                          <label className="text-[10px] font-black uppercase tracking-widest text-text-muted/60 px-1">{t.academic.endTime}</label>
                           <input 
                             type="time" 
-                            className="bg-surface-2 border border-neon-cyan/5 rounded-xl px-4 h-11 text-sm font-bold outline-none focus:border-neon-cyan/30"
+                            className="bg-surface-2 border border-neon-cyan/10 rounded-xl px-4 h-11 text-sm font-bold outline-none focus:border-neon-cyan/30"
                             value={sch.endTime}
                             onChange={(e) => updateScheduleField(index, { endTime: e.target.value })}
                           />
@@ -355,20 +355,20 @@ export function StudyManagerView() {
 
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                         <div className="flex flex-col gap-2">
-                          <label className="text-[10px] font-black uppercase tracking-widest text-text-muted/30 px-1">{t.academic.room}</label>
+                          <label className="text-[10px] font-black uppercase tracking-widest text-text-muted/60 px-1">{t.academic.room}</label>
                           <input 
                             type="text" 
-                            className="bg-surface-2 border border-neon-cyan/5 rounded-xl px-4 h-11 text-sm font-bold outline-none focus:border-neon-cyan/30"
+                            className="bg-surface-2 border border-neon-cyan/10 rounded-xl px-4 h-11 text-sm font-bold outline-none focus:border-neon-cyan/30 placeholder:text-text-muted/30"
                             value={sch.room}
                             onChange={(e) => updateScheduleField(index, { room: e.target.value })}
                             placeholder="e.g. Lab 1"
                           />
                         </div>
                         <div className="flex flex-col gap-2">
-                          <label className="text-[10px] font-black uppercase tracking-widest text-text-muted/30 px-1">{t.academic.lecturer}</label>
+                          <label className="text-[10px] font-black uppercase tracking-widest text-text-muted/60 px-1">{t.academic.lecturer}</label>
                           <input 
                             type="text" 
-                            className="bg-surface-2 border border-neon-cyan/5 rounded-xl px-4 h-11 text-sm font-bold outline-none focus:border-neon-cyan/30"
+                            className="bg-surface-2 border border-neon-cyan/10 rounded-xl px-4 h-11 text-sm font-bold outline-none focus:border-neon-cyan/30 placeholder:text-text-muted/30"
                             value={sch.lecturer}
                             onChange={(e) => updateScheduleField(index, { lecturer: e.target.value })}
                             placeholder="e.g. Dr. John"
