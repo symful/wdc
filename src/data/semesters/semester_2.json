@@ -1,0 +1,148 @@
+{
+  "semester": {
+    "id": "sem-2",
+    "number": 2,
+    "year": "2025/2026",
+    "type": "genap",
+    "totalSks": 21
+  },
+  "courses": [
+    {
+      "id": "course-1",
+      "semesterId": "sem-2",
+      "name": "Proyek 1: Pengembangan Perangkat Lunak Desktop",
+      "code": "25T11106",
+      "sks": 6,
+      "type": "Wajib",
+      "schedules": [
+        { "day": 0, "startTime": "08:00", "endTime": "12:00", "room": "D102-Lab. MT", "lecturer": "Aprilianti Nanda S, Ade Chandra Nugraha, Ardhian Ekawijaya" }
+      ],
+      "topics": [
+        { "id": "c1t1", "title": "Windows Forms Architecture", "completed": false, "confidence": 3, "repetitionCount": 2 },
+        { "id": "c1t2", "title": "WPF & XAML Basics", "completed": false, "confidence": 1, "repetitionCount": 1 },
+        { "id": "c1t3", "title": "Entity Framework Integration", "completed": false, "confidence": 2, "repetitionCount": 0 },
+        { "id": "c1t4", "title": "UI/UX Design for Desktop", "completed": false, "confidence": 4, "repetitionCount": 5 }
+      ]
+    },
+    {
+      "id": "course-2",
+      "semesterId": "sem-2",
+      "name": "Teknik Pemrograman",
+      "code": "25T11107",
+      "sks": 3,
+      "type": "Wajib",
+      "schedules": [
+        { "day": 1, "startTime": "10:00", "endTime": "11:20", "room": "D101-Kelas", "lecturer": "Zulkifli Arsyad" },
+        { "day": 2, "startTime": "08:00", "endTime": "10:40", "room": "D106-Lab. SDB", "lecturer": "Muhammad Riza A" }
+      ],
+      "topics": [
+        { "id": "c2t1", "title": "Modular Programming", "completed": true, "confidence": 5, "repetitionCount": 8 },
+        { "id": "c2t2", "title": "Pointer & Memory Management", "completed": false, "confidence": 2, "repetitionCount": 3 },
+        { "id": "c2t3", "title": "Recursion Depth", "completed": false, "confidence": 3, "repetitionCount": 2 }
+      ]
+    },
+    {
+      "id": "course-3",
+      "semesterId": "sem-2",
+      "name": "Struktur Data dan Algoritma",
+      "code": "25T11105",
+      "sks": 4,
+      "type": "Wajib",
+      "schedules": [
+        { "day": 1, "startTime": "12:30", "endTime": "14:30", "room": "D107-Lab. RPL", "lecturer": "Asri Maspupah" },
+        { "day": 1, "startTime": "15:10", "endTime": "15:50", "room": "D107-Lab. RPL", "lecturer": "Asri Maspupah" },
+        { "day": 4, "startTime": "09:20", "endTime": "10:40", "room": "D224-Kelas", "lecturer": "Ani Rahmani" }
+      ],
+      "topics": [
+        { "id": "c3t1", "title": "Asymptotic Analysis (O-Notation)", "completed": false, "confidence": 4, "repetitionCount": 4 },
+        { "id": "c3t2", "title": "Linked Lists & Doubly Linked Lists", "completed": false, "confidence": 3, "repetitionCount": 2 },
+        { "id": "c3t3", "title": "Stack & Queue Implementation", "completed": false, "confidence": 5, "repetitionCount": 6 },
+        { "id": "c3t4", "title": "Trees & Binary Search Trees", "completed": false, "confidence": 1, "repetitionCount": 1 }
+      ]
+    },
+    {
+      "id": "course-4",
+      "semesterId": "sem-2",
+      "name": "Bahasa Indonesia",
+      "code": "25KU1007",
+      "sks": 2,
+      "type": "Wajib",
+      "schedules": [
+        { "day": 2, "startTime": "10:40", "endTime": "12:00", "room": "H504-Kelas", "lecturer": "Topik Mulyana" }
+      ],
+      "topics": [
+        { "id": "c4t1", "title": "Ejaan Yang Disempurnakan (EYD)", "completed": true, "confidence": 5, "repetitionCount": 3 },
+        { "id": "c4t2", "title": "Penulisan Karya Ilmiah", "completed": false, "confidence": 4, "repetitionCount": 2 }
+      ]
+    },
+    {
+      "id": "course-5",
+      "semesterId": "sem-2",
+      "name": "Pendidikan Agama",
+      "code": "25KU1001",
+      "sks": 2,
+      "type": "Wajib",
+      "schedules": [
+        { "day": 2, "startTime": "12:30", "endTime": "13:50", "room": "H506-Kelas", "lecturer": "Waway Qodratullah S" }
+      ],
+      "topics": [
+        { "id": "c5t1", "title": "Sejarah & Peradaban", "completed": false, "confidence": 4, "repetitionCount": 1 },
+        { "id": "c5t2", "title": "Etika & Moralitas", "completed": true, "confidence": 5, "repetitionCount": 2 }
+      ]
+    },
+    {
+      "id": "course-6",
+      "semesterId": "sem-2",
+      "name": "Bahasa Inggris 2",
+      "code": "25IG1018",
+      "sks": 2,
+      "type": "Wajib",
+      "schedules": [
+        { "day": 3, "startTime": "08:00", "endTime": "10:00", "room": "D224-Kelas", "lecturer": "Muhammad Yazidus S" }
+      ],
+      "topics": [
+        { "id": "c6t1", "title": "Technical Report Writing", "completed": false, "confidence": 3, "repetitionCount": 2 },
+        { "id": "c6t2", "title": "Professional Presentation", "completed": false, "confidence": 2, "repetitionCount": 1 }
+      ]
+    },
+    {
+      "id": "course-7",
+      "semesterId": "sem-2",
+      "name": "Matematika Terapan B",
+      "code": "25KU1009",
+      "sks": 2,
+      "type": "Wajib",
+      "schedules": [
+        { "day": 3, "startTime": "10:00", "endTime": "12:00", "room": "D224-Kelas", "lecturer": "Siti Dwi Setiarini" }
+      ],
+      "topics": [
+        { "id": "c7t1", "title": "Linear Algebra for Graphics", "completed": false, "confidence": 2, "repetitionCount": 2 },
+        { "id": "c7t2", "title": "Calculus in Optimization", "completed": false, "confidence": 1, "repetitionCount": 1 },
+        { "id": "c7t3", "title": "Discrete Probability", "completed": false, "confidence": 4, "repetitionCount": 3 }
+      ]
+    }
+  ],
+  "xpLogs": [
+    { "id": "xp1", "amount": 100, "source": "Daily Streak", "date": "2026-03-15T10:00:00Z" },
+    { "id": "xp2", "amount": 250, "source": "Session Mastery: SDA", "date": "2026-03-15T14:30:00Z" },
+    { "id": "xp3", "amount": 150, "source": "Exam Prep: TP", "date": "2026-03-14T20:00:00Z" }
+  ],
+  "sessions": [
+    { "id": "s1", "courseId": "course-1", "topic": "Windows Forms Architecture", "durationMinutes": 45, "date": "2026-03-15T09:00:00Z", "confidence": 4 },
+    { "id": "s2", "courseId": "course-2", "topic": "Modular Programming", "durationMinutes": 30, "date": "2026-03-15T11:00:00Z", "confidence": 5 },
+    { "id": "s3", "courseId": "course-3", "topic": "Stack & Queue Implementation", "durationMinutes": 120, "date": "2026-03-14T14:00:00Z", "confidence": 5 },
+    { "id": "s4", "courseId": "course-1", "topic": "UI/UX Design for Desktop", "durationMinutes": 15, "date": "2026-03-13T10:00:00Z", "confidence": 3 },
+    { "id": "s5", "courseId": "course-2", "topic": "Pointer & Memory Management", "durationMinutes": 60, "date": "2026-03-12T08:00:00Z", "confidence": 2 },
+    { "id": "s15", "courseId": "course-4", "topic": "Penulisan Karya Ilmiah", "durationMinutes": 25, "date": "2026-03-16T08:00:00Z", "confidence": 4 },
+    { "id": "s16", "courseId": "course-1", "topic": "Advanced XAML", "durationMinutes": 180, "date": "2026-03-01T10:00:00Z", "confidence": 4 },
+    { "id": "s17", "courseId": "course-2", "topic": "Refactoring Code", "durationMinutes": 90, "date": "2026-03-02T14:00:00Z", "confidence": 5 },
+    { "id": "s18", "courseId": "course-3", "topic": "Graph Theory", "durationMinutes": 40, "date": "2026-03-04T09:00:00Z", "confidence": 3 },
+    { "id": "s19", "courseId": "course-4", "topic": "Sastra Indonesia", "durationMinutes": 15, "date": "2026-03-05T11:00:00Z", "confidence": 5 },
+    { "id": "s20", "courseId": "course-5", "topic": "World Religions", "durationMinutes": 110, "date": "2026-03-07T16:00:00Z", "confidence": 4 },
+    { "id": "s21", "courseId": "course-6", "topic": "Business English", "durationMinutes": 65, "date": "2026-03-08T10:00:00Z", "confidence": 4 },
+    { "id": "s22", "courseId": "course-7", "topic": "Probability Theory", "durationMinutes": 130, "date": "2026-03-10T11:00:00Z", "confidence": 4 },
+    { "id": "s23", "courseId": "course-1", "topic": "Desktop UX Patterns", "durationMinutes": 20, "date": "2026-03-11T15:00:00Z", "confidence": 5 },
+    { "id": "s24", "courseId": "course-3", "topic": "Sorting Algorithms", "durationMinutes": 240, "date": "2026-03-13T08:00:00Z", "confidence": 5 },
+    { "id": "s25", "courseId": "course-2", "topic": "Concurrency in C++", "durationMinutes": 50, "date": "2026-03-14T17:00:00Z", "confidence": 3 }
+  ]
+}

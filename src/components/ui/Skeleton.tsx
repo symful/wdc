@@ -14,7 +14,7 @@ export function Skeleton({ className = '', variant = 'rect' }: SkeletonProps) {
   return (
     <div 
       className={`
-        animate-pulse bg-neon-cyan/[0.04] border border-neon-cyan/[0.06]
+        animate-pulse bg-neon-cyan/4 border border-neon-cyan/6
         ${variant === 'rect' ? 'rounded-2xl' : ''}
         ${variant === 'text' ? 'rounded-md' : ''}
         ${baseSize}
@@ -30,7 +30,7 @@ export function DashboardSkeleton() {
       {/* Loading indicator */}
       <div className="flex items-center gap-3 text-neon-cyan/30">
         <div className="w-2 h-2 rounded-full bg-neon-cyan/40 animate-pulse shadow-[0_0_8px_rgba(0,240,255,0.3)]"></div>
-        <span className="text-[10px] font-black uppercase tracking-[0.2em] font-display animate-pulse">Loading Command Center...</span>
+        <span className="text-[10px] font-black uppercase tracking-[0.2em] font-display animate-pulse">Loading Watchlist...</span>
       </div>
       
       <div className="flex justify-between items-center">
@@ -64,7 +64,7 @@ export function KanbanSkeleton() {
         </div>
         <Skeleton className="w-40 h-14 rounded-2xl" />
       </div>
-      <div className="flex gap-6 h-[600px]">
+      <div className="flex gap-6 h-150">
         <Skeleton variant="rect" className="flex-1 rounded-[2.5rem]" />
         <Skeleton variant="rect" className="flex-1 rounded-[2.5rem]" />
         <Skeleton variant="rect" className="flex-1 rounded-[2.5rem]" />
@@ -78,7 +78,7 @@ export function ScheduleSkeleton() {
     <div className="flex flex-col gap-8 animate-in fade-in duration-700">
       <div className="flex items-center gap-3 text-neon-cyan/30">
         <div className="w-2 h-2 rounded-full bg-neon-cyan/40 animate-pulse shadow-[0_0_8px_rgba(0,240,255,0.3)]"></div>
-        <span className="text-[10px] font-black uppercase tracking-[0.2em] font-display animate-pulse">Loading Mission Timeline...</span>
+        <span className="text-[10px] font-black uppercase tracking-[0.2em] font-display animate-pulse">Loading Study Manager...</span>
       </div>
       
       <div className="flex justify-between items-center">
@@ -88,7 +88,7 @@ export function ScheduleSkeleton() {
           <Skeleton className="w-32 h-12 rounded-2xl" />
         </div>
       </div>
-      <Skeleton variant="rect" className="flex-1 min-h-[500px] rounded-[2.5rem]" />
+      <Skeleton variant="rect" className="flex-1 min-h-125 rounded-[2.5rem]" />
     </div>
   );
 }

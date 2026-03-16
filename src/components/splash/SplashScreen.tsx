@@ -1,4 +1,5 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
+import { useLanguageStore, translations } from '../../store/useLanguageStore';
 
 // ===== WEB AUDIO API SOUND EFFECTS =====
 function createAudioContext(): AudioContext | null {
@@ -110,6 +111,8 @@ export function SplashScreen({ onComplete }: SplashScreenProps) {
   const [mousePos, setMousePos] = useState({ x: 0.5, y: 0.5 });
   const [exiting, setExiting] = useState(false);
   const audioCtxRef = useRef<AudioContext | null>(null);
+  const { language } = useLanguageStore();
+  const t = translations[language];
   const particles = useRef(generateParticles(25)).current;
 
   // Phase sequencing
@@ -200,8 +203,8 @@ export function SplashScreen({ onComplete }: SplashScreenProps) {
   }, [handleStart]);
 
   // Typewriter texts
-  const bootText = useTypewriter('> INITIALIZING SYSTEM...', phase >= 1 ? 0 : 99999, 40);
-  const titleText = useTypewriter('STUDIKU QUEST', phase >= 2 ? 0 : 99999, 80);
+  const bootText = useTypewriter(language === 'id' ? '> INITIALIZING SYSTEM...' : '> INITIALIZING SYSTEM...', phase >= 1 ? 0 : 99999, 40);
+  const titleText = useTypewriter('ontime! Quest', phase >= 2 ? 0 : 99999, 80);
 
   if (phase === 6) return null;
 
@@ -264,23 +267,39 @@ export function SplashScreen({ onComplete }: SplashScreenProps) {
           </div>
         )}
 
-        {/* Shield Emblem */}
+        {/* Timer Emblem */}
         {phase >= 2 && (
           <div className="splash-emblem">
             <svg viewBox="0 0 60 70" fill="none" xmlns="http://www.w3.org/2000/svg" className="splash-shield-svg">
-              <path
-                d="M30 2L56 16V40C56 52 44 62 30 68C16 62 4 52 4 40V16L30 2Z"
+              <circle
+                cx="30"
+                cy="38"
+                r="26"
                 stroke="currentColor"
                 strokeWidth="2"
                 fill="none"
               />
-              <path
-                d="M30 12L48 22V38C48 47 39 55 30 60C21 55 12 47 12 38V22L30 12Z"
+              <circle
+                cx="30"
+                cy="38"
+                r="22"
                 stroke="currentColor"
                 strokeWidth="1"
                 fill="rgba(0, 240, 255, 0.05)"
               />
-              <text x="30" y="42" textAnchor="middle" fill="currentColor" fontSize="16" fontFamily="Orbitron" fontWeight="900">S</text>
+              <path
+                d="M30 12V2M24 2H36M46 22L50 18"
+                stroke="currentColor"
+                strokeWidth="2"
+                strokeLinecap="round"
+              />
+              <path
+                d="M30 38L38 30"
+                stroke="currentColor"
+                strokeWidth="2"
+                strokeLinecap="round"
+              />
+              <text x="30" y="44" textAnchor="middle" fill="currentColor" fontSize="12" fontFamily="Orbitron" fontWeight="900" opacity="0.3">T</text>
             </svg>
           </div>
         )}
@@ -311,8 +330,8 @@ export function SplashScreen({ onComplete }: SplashScreenProps) {
             </div>
             <div className="splash-loading-text">
               {loadingProgress < 100
-                ? `LOADING QUEST DATA... ${Math.floor(loadingProgress)}%`
-                : 'SYSTEM READY'}
+                ? `${language === 'id' ? 'LOADING QUEST DATA...' : 'LOADING QUEST DATA...'} ${Math.floor(loadingProgress)}%`
+                : (language === 'id' ? 'SYSTEM READY' : 'SYSTEM READY')}
             </div>
           </div>
         )}
@@ -324,14 +343,14 @@ export function SplashScreen({ onComplete }: SplashScreenProps) {
             onClick={(e) => { e.stopPropagation(); handleStart(); }}
             id="splash-start-btn"
           >
-            ▶ PRESS START
+            ▶ {language === 'id' ? 'PRESS START' : 'PRESS START'}
           </button>
         )}
 
         {/* Hint */}
         {phase >= 4 && (
           <div className="splash-hint">
-            or press ENTER to continue
+            {language === 'id' ? 'atau tekan ENTER untuk lanjut' : 'or press ENTER to continue'}
           </div>
         )}
       </div>

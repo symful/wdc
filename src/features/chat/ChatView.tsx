@@ -1,5 +1,6 @@
 import { useState, useRef, useEffect } from 'react';
 import { useChatStore } from '../../store/useChatStore';
+import { useLanguageStore, translations } from '../../store/useLanguageStore';
 import { 
   Send, 
   Users, 
@@ -22,7 +23,7 @@ import {
   FileText,
   Clock,
   Camera,
-  Image as ImageIcon,
+  ImageIcon,
   Share2
 } from 'lucide-react';
 import { QRCodeCanvas } from 'qrcode.react';
@@ -47,6 +48,9 @@ export function ChatView() {
     replyingTo,
     setReplyingTo
   } = useChatStore();
+  
+  const { language } = useLanguageStore();
+  const t = translations[language];
 
   const [ui, setUi] = useState({
     sidebar: false,
@@ -113,7 +117,7 @@ export function ChatView() {
     const url = URL.createObjectURL(blob);
     const link = document.createElement('a');
     link.href = url;
-    link.download = `Keyroom_StudiKu_${roomKey.slice(0, 8)}.json`;
+    link.download = `Keyroom_ontime!_${roomKey.slice(0, 8)}.json`;
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
@@ -213,7 +217,7 @@ export function ChatView() {
           requestAnimationFrame(scan);
         }
       } catch (err) {
-        setForm(s => ({ ...s, scanError: "Gagal mengakses kamera. Pastikan izin diberikan." }));
+        setForm(s => ({ ...s, scanError: t.chat.scanError }));
       }
     };
 
@@ -239,7 +243,7 @@ export function ChatView() {
         joinRoom(form.userName || 'User', key);
         setUi(s => ({ ...s, scanning: false, scanModal: false }));
       } else {
-        setForm(s => ({ ...s, scanError: "QR Code tidak valid." }));
+        setForm(s => ({ ...s, scanError: t.chat.invalidQr }));
       }
     } catch (e) {
       // Direct key scan
@@ -247,7 +251,7 @@ export function ChatView() {
         joinRoom(form.userName || 'User', data);
         setUi(s => ({ ...s, scanning: false, scanModal: false }));
       } else {
-        setForm(s => ({ ...s, scanError: "Format QR Code tidak dikenal." }));
+        setForm(s => ({ ...s, scanError: t.chat.unknownQr }));
       }
     }
   };
@@ -271,7 +275,7 @@ export function ChatView() {
           if (code) {
             handleScanSuccess(code.data);
           } else {
-            setForm(s => ({ ...s, scanError: "Tidak dapat menemukan QR Code di gambar ini." }));
+            setForm(s => ({ ...s, scanError: t.chat.noQrFound }));
           }
         }
       };
@@ -300,8 +304,8 @@ export function ChatView() {
             <MessageSquare size={32} className="text-neon-cyan md:hidden" />
             <MessageSquare size={40} className="text-neon-cyan hidden md:block" />
           </div>
-          <h1 className="text-3xl md:text-4xl font-extrabold tracking-tight mb-2 neon-glow-text font-display">GUILD HALL</h1>
-          <p className="text-text-muted text-sm md:text-lg max-w-md mx-auto">Chat P2P dengan party members. Privasi total, pesan tidak disimpan di server manapun.</p>
+          <h1 className="text-3xl md:text-4xl font-extrabold tracking-tight mb-2 neon-glow-text font-display">{t.chat.title}</h1>
+          <p className="text-text-muted text-sm md:text-lg max-w-md mx-auto">{t.chat.subtitle}</p>
         </div>
 
         {error && (
@@ -312,11 +316,11 @@ export function ChatView() {
 
         <div className="game-panel p-6 md:p-8 w-full max-w-md flex flex-col gap-6">
           <div className="flex flex-col gap-2">
-            <label className="text-[10px] font-black uppercase tracking-widest text-text-muted/60 px-1">Nama Tampilan</label>
+            <label className="text-[10px] font-black uppercase tracking-widest text-text-muted/60 px-1">{t.chat.displayNameLabel}</label>
             <input 
               type="text" 
               className="w-full h-12 md:h-14 bg-surface-2 border border-neon-cyan/10 rounded-xl md:rounded-2xl px-5 font-bold focus:ring-2 focus:ring-neon-cyan/30 outline-none transition-all"
-              placeholder="Enter your player name..."
+              placeholder={t.chat.displayNamePlaceholder}
               value={form.userName}
               onChange={(e) => setForm(s => ({ ...s, userName: e.target.value }))}
             />
@@ -338,21 +342,21 @@ export function ChatView() {
               disabled={!form.userName.trim()}
             >
               {new URLSearchParams(window.location.search).get('join') ? (
-                <><Link size={20} className="group-hover:scale-110 transition-transform" /> Join Guild</>
+                <><Link size={20} className="group-hover:scale-110 transition-transform" /> {t.chat.joinGuildBtn}</>
               ) : (
-                <><ShieldCheck size={20} className="group-hover:scale-110 transition-transform" /> Create New Guild</>
+                <><ShieldCheck size={20} className="group-hover:scale-110 transition-transform" /> {t.chat.createGuildBtn}</>
               )}
             </button>
             
             <div className="relative flex items-center py-2">
               <div className="grow border-t border-border-main"></div>
-              <span className="shrink mx-4 text-[10px] font-black uppercase tracking-widest text-text-muted/40">atau</span>
+              <span className="shrink mx-4 text-[10px] font-black uppercase tracking-widest text-text-muted/40">{t.chat.or}</span>
               <div className="grow border-t border-border-main"></div>
             </div>
 
             <label className={`btn h-12 md:h-14 rounded-xl md:rounded-2xl font-black flex items-center justify-center gap-3 transition-all cursor-pointer transform active:scale-95 shadow-xl border border-neon-cyan/10 hover:border-neon-cyan/30 group
                ${!form.userName.trim() ? 'bg-surface-2 text-text-muted opacity-50 cursor-not-allowed' : 'bg-surface-1 hover:bg-surface-2 hover:scale-105'}`}>
-              <Upload size={20} className="group-hover:scale-110 transition-transform" /> Join via Keyroom
+              <Upload size={20} className="group-hover:scale-110 transition-transform" /> {t.chat.joinViaFile}
               <input 
                 type="file" 
                 className="hidden" 
@@ -368,7 +372,7 @@ export function ChatView() {
               onClick={() => form.userName.trim() && setUi(s => ({ ...s, scanModal: true }))}
               disabled={!form.userName.trim()}
             >
-              <QrCode size={20} className="group-hover:scale-110 transition-transform" /> Scan QR Guild
+              <QrCode size={20} className="group-hover:scale-110 transition-transform" /> {t.chat.scanQrBtn}
             </button>
           </div>
         </div>
@@ -385,8 +389,8 @@ export function ChatView() {
       <div className="flex flex-col items-center justify-center min-h-[60vh] gap-6 animate-in fade-in duration-500 text-center">
         <div className="w-16 h-16 border-4 border-neon-cyan/20 border-t-neon-cyan rounded-full animate-spin shadow-[0_0_20px_rgba(0,240,255,0.15)]"></div>
         <div>
-          <h2 className="text-2xl font-black tracking-tight mb-1 font-display neon-cyan-text">Connecting to Guild...</h2>
-          <p className="text-text-muted text-sm font-medium">Establishing peer connection. Stand by, adventurer.</p>
+          <h2 className="text-2xl font-black tracking-tight mb-1 font-display neon-cyan-text">{t.chat.connectingTitle}</h2>
+          <p className="text-text-muted text-sm font-medium">{t.chat.connectingDesc}</p>
         </div>
       </div>
     );
@@ -404,10 +408,10 @@ export function ChatView() {
           </div>
           <div className="min-w-0">
             <div className="flex items-center gap-2">
-              <h2 className="text-lg md:text-xl font-black tracking-tight truncate font-display">Guild Chamber</h2>
-              <span className="text-[9px] md:text-[10px] font-black uppercase tracking-widest px-1.5 md:px-2 py-0.5 bg-neon-green/[0.08] text-neon-green rounded-md border border-neon-green/20 shrink-0 font-display">Online</span>
+              <h2 className="text-lg md:text-xl font-black tracking-tight truncate font-display">{t.chat.guildChamber}</h2>
+              <span className="text-[9px] md:text-[10px] font-black uppercase tracking-widest px-1.5 md:px-2 py-0.5 bg-neon-green/[0.08] text-neon-green rounded-md border border-neon-green/20 shrink-0 font-display">{t.chat.onlineStatus}</span>
             </div>
-            <p className="text-[10px] md:text-xs font-bold text-text-muted/60">{users.length} Party Members Connected</p>
+            <p className="text-[10px] md:text-xs font-bold text-text-muted/60">{t.chat.connectedMembers(users.length)}</p>
           </div>
         </div>
 
@@ -419,16 +423,16 @@ export function ChatView() {
           >
             <Download size={14} className="text-neon-cyan md:hidden cursor-pointer hover:scale-110 active:scale-90 transition-all" />
             <Download size={16} className="text-neon-cyan hidden md:block cursor-pointer hover:scale-110 active:scale-90 transition-all" />
-            <span className="hidden sm:inline ml-1.5">Export</span>
+            <span className="hidden sm:inline ml-1.5">{t.chat.exportKey}</span>
           </button>
           <button 
             className="btn h-9 md:h-11 px-3 md:px-4 text-[9px] md:text-[10px] font-black uppercase tracking-widest bg-status-danger-subtle text-status-danger border border-status-danger/20 hover:bg-status-danger/20 hover:scale-105 active:scale-95 transition-all"
             onClick={leaveRoom}
-            title="Keluar"
+            title={t.chat.exit}
           >
             <LogOut size={14} className="md:hidden cursor-pointer hover:scale-110 active:scale-90 transition-all" />
             <LogOut size={16} className="hidden md:block cursor-pointer hover:scale-110 active:scale-90 transition-all" />
-            <span className="hidden sm:inline ml-1.5">Keluar</span>
+            <span className="hidden sm:inline ml-1.5">{t.chat.exit}</span>
           </button>
           
           <button 
@@ -457,7 +461,7 @@ export function ChatView() {
         `}>
           <div className="flex flex-col gap-6 mb-8 shrink-0">
             <div className="text-[10px] font-black uppercase tracking-widest text-text-muted/40 flex items-center justify-between font-display">
-              My Profile
+              {t.chat.myProfile}
               <ShieldCheck size={12} className={currentUser?.role === 'admin' ? 'text-neon-cyan' : 'text-text-muted/20'} />
             </div>
             
@@ -491,13 +495,13 @@ export function ChatView() {
                     </button>
                   </div>
                 )}
-                <div className="text-[9px] font-black uppercase tracking-tighter text-text-muted/40 font-display">{currentUser?.role === 'admin' ? 'Guild Master' : 'Party Member'}</div>
+                <div className="text-[9px] font-black uppercase tracking-tighter text-text-muted/40 font-display">{currentUser?.role === 'admin' ? t.chat.guildMaster : t.chat.partyMember}</div>
               </div>
             </div>
           </div>
 
           <div className="text-[10px] font-black uppercase tracking-widest text-text-muted/40 mb-6 flex items-center justify-between shrink-0 font-display">
-            Party Members ({users.length})
+            {t.chat.participantsTitle} ({users.length})
             <Users size={12} />
           </div>
           <div className="flex flex-col gap-3 overflow-y-auto pr-2 flex-1 scrollbar-thin scrollbar-thumb-white/10">
@@ -547,7 +551,7 @@ export function ChatView() {
               className="mt-6 w-full lg:hidden btn btn-glass text-xs"
               onClick={() => setUi(s => ({ ...s, sidebar: false }))}
             >
-              Tutup
+              {t.chat.close}
             </button>
           )}
         </div>
@@ -562,7 +566,7 @@ export function ChatView() {
             {messages.length === 0 ? (
               <div className="h-full flex flex-col items-center justify-center opacity-20 gap-4 text-center">
                 <MessageSquare size={48} className="md:w-16 md:h-16 text-neon-cyan/30" />
-                <p className="font-black uppercase tracking-[0.2em] text-[10px] md:text-xs font-display">Start your guild conversation!</p>
+                <p className="font-black uppercase tracking-[0.2em] text-[10px] md:text-xs font-display">{t.chat.startConversation}</p>
               </div>
             ) : (
               messages.map((msg, i) => (
@@ -632,7 +636,7 @@ export function ChatView() {
                               <button 
                                 onClick={() => deleteMessage(msg.id)}
                                 className="p-1.5 md:p-2 bg-surface-2 border border-neon-cyan/10 rounded-lg md:rounded-xl text-neon-red/60 hover:text-neon-red hover:scale-125 active:scale-90 transition-all shadow-xl"
-                                title="Hapus"
+                                title={t.common.delete}
                               >
                                 <Trash2 size={12} className="md:w-[14px] md:h-[14px] cursor-pointer" />
                               </button>
@@ -669,7 +673,7 @@ export function ChatView() {
             <div className="relative">
               <textarea 
                 className={`w-full bg-surface-2 border border-neon-cyan/10 pl-12 md:pl-16 pr-12 md:pr-16 py-3 md:py-4 text-xs md:text-sm font-medium focus:ring-2 focus:ring-neon-cyan/30 outline-none transition-all resize-none max-h-32 shadow-inner ${replyingTo ? 'rounded-b-xl md:rounded-b-2xl border-t-0' : 'rounded-xl md:rounded-2xl'}`}
-                placeholder="Tulis pesan..."
+                placeholder={t.chat.inputPlaceholder}
                 rows={1}
                 value={form.inputText}
                 onChange={(e) => setForm(s => ({ ...s, inputText: e.target.value }))}
@@ -717,7 +721,7 @@ export function ChatView() {
               <div className="w-16 h-16 bg-neon-cyan/10 rounded-2xl flex items-center justify-center mx-auto mb-4 text-neon-cyan border border-neon-cyan/20">
                 <FileText size={32} />
               </div>
-              <h3 className="text-xl font-black font-display neon-cyan-text">Item Trade</h3>
+              <h3 className="text-xl font-black font-display neon-cyan-text">{t.chat.itemTradeTitle}</h3>
               <p className="text-sm text-text-muted mt-1 truncate">{fileShare.file?.name}</p>
             </div>
 
@@ -730,8 +734,8 @@ export function ChatView() {
                   <Maximize2 size={20} />
                 </div>
                 <div className="min-w-0">
-                  <div className="text-sm font-bold">Mode Instan</div>
-                  <div className="text-[10px] opacity-60">Langsung kirim ke semua orang.</div>
+                  <div className="text-sm font-bold">{t.chat.instantMode}</div>
+                  <div className="text-[10px] opacity-60">{t.chat.instantModeDesc}</div>
                 </div>
               </button>
 
@@ -743,15 +747,15 @@ export function ChatView() {
                   <Clock size={20} className="text-orange-400" />
                 </div>
                 <div className="min-w-0">
-                  <div className="text-sm font-bold">Mode Tunggu (On-Waiting)</div>
-                  <div className="text-[10px] opacity-60">Kirim hanya saat ada yang meminta.</div>
+                  <div className="text-sm font-bold">{t.chat.waitingMode}</div>
+                  <div className="text-[10px] opacity-60">{t.chat.waitingModeDesc}</div>
                 </div>
               </button>
             </div>
 
             <div className="flex gap-4">
-              <button onClick={() => setUi(s => ({ ...s, shareModal: false }))} className="flex-1 btn btn-glass text-xs font-black py-4 hover:scale-105 active:scale-95 transition-all cursor-pointer">Batal</button>
-              <button onClick={confirmFileShare} className="flex-1 btn btn-primary text-xs font-black py-4 hover:scale-105 active:scale-95 transition-all cursor-pointer">Bagikan</button>
+              <button onClick={() => setUi(s => ({ ...s, shareModal: false }))} className="flex-1 btn btn-glass text-xs font-black py-4 hover:scale-105 active:scale-95 transition-all cursor-pointer">{t.chat.cancel}</button>
+              <button onClick={confirmFileShare} className="flex-1 btn btn-primary text-xs font-black py-4 hover:scale-105 active:scale-95 transition-all cursor-pointer">{t.chat.share}</button>
             </div>
           </div>
         </div>
@@ -765,8 +769,8 @@ export function ChatView() {
               <div className="w-16 h-16 bg-neon-cyan/10 rounded-2xl flex items-center justify-center mx-auto mb-4 text-neon-cyan border border-neon-cyan/20">
                 <Share2 size={32} />
               </div>
-              <h3 className="text-xl font-black font-display neon-cyan-text">Invite Party Members</h3>
-              <p className="text-sm text-text-muted mt-1">Share this link or QR code to invite friends to your guild.</p>
+              <h3 className="text-xl font-black font-display neon-cyan-text">{t.chat.inviteTitle}</h3>
+              <p className="text-sm text-text-muted mt-1">{t.chat.inviteDesc}</p>
             </div>
 
             <div className="bg-white p-4 rounded-3xl flex items-center justify-center mx-auto shadow-inner">
@@ -781,11 +785,11 @@ export function ChatView() {
                 onClick={copyJoinLink}
                 className="w-full btn btn-primary h-12 rounded-xl text-xs font-black uppercase tracking-widest hover:scale-105 active:scale-95 transition-all cursor-pointer group"
               >
-                <Link size={16} className="mr-2 group-hover:scale-110 transition-transform" /> Copy Invite Link
+                <Link size={16} className="mr-2 group-hover:scale-110 transition-transform" /> {t.chat.copyLink}
               </button>
             </div>
 
-            <button onClick={() => setUi(s => ({ ...s, inviteModal: false }))} className="w-full btn btn-glass h-12 rounded-xl text-xs font-black hover:scale-105 active:scale-95 transition-all cursor-pointer">Tutup</button>
+            <button onClick={() => setUi(s => ({ ...s, inviteModal: false }))} className="w-full btn btn-glass h-12 rounded-xl text-xs font-black hover:scale-105 active:scale-95 transition-all cursor-pointer">{t.chat.close}</button>
           </div>
         </div>
       )}
@@ -800,7 +804,7 @@ export function ChatView() {
       <div className="fixed inset-0 z-120 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-in fade-in duration-300">
         <div className="game-panel w-full max-w-md p-6 rounded-4xl flex flex-col gap-6">
           <div className="flex items-center justify-between">
-            <h3 className="text-xl font-black font-display neon-cyan-text">Scan Guild QR</h3>
+            <h3 className="text-xl font-black font-display neon-cyan-text">{t.chat.scanQrBtn}</h3>
             <button onClick={() => setUi(s => ({ ...s, scanning: false, scanModal: false }))} className="p-2 text-text-muted hover:text-white transition-all hover:scale-125 active:scale-90 cursor-pointer">
               <X size={20} />
             </button>
@@ -826,15 +830,15 @@ export function ChatView() {
                     }}
                     className="btn btn-primary px-6 h-11 rounded-xl text-xs font-black hover:scale-105 active:scale-95 transition-all cursor-pointer"
                   >
-                    Mulai Kamera
+                    {language === 'id' ? 'Mulai Kamera' : 'Start Camera'}
                   </button>
                   <div className="relative flex items-center w-full py-2">
                     <div className="grow border-t border-border-main"></div>
-                    <span className="shrink mx-4 text-[10px] font-black uppercase tracking-widest text-text-muted/40">atau</span>
+                    <span className="shrink mx-4 text-[10px] font-black uppercase tracking-widest text-text-muted/40">{t.chat.or}</span>
                     <div className="grow border-t border-border-main"></div>
                   </div>
                   <label className="btn btn-glass w-full h-11 rounded-xl text-xs font-black flex items-center justify-center gap-3 cursor-pointer hover:scale-105 active:scale-95 transition-all group">
-                    <ImageIcon size={18} className="group-hover:scale-110 transition-transform" /> Pilih Gambar QR
+                    <ImageIcon size={18} className="group-hover:scale-110 transition-transform" /> {language === 'id' ? 'Pilih Gambar QR' : 'Choose QR Image'}
                     <input type="file" className="hidden" accept="image/*" onChange={handleImageScan} />
                   </label>
                 </div>
@@ -848,7 +852,7 @@ export function ChatView() {
             </div>
           )}
 
-          <p className="text-center text-[10px] text-text-muted/60 px-4">Arahkan kamera ke QR Code atau unggah gambar yang berisi QR Code ruangan.</p>
+          <p className="text-center text-[10px] text-text-muted/60 px-4">{language === 'id' ? 'Arahkan kamera ke QR Code atau unggah gambar yang berisi QR Code ruangan.' : 'Point your camera at the QR Code or upload an image containing the room QR Code.'}</p>
         </div>
       </div>
     );
