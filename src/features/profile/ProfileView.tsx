@@ -412,8 +412,9 @@ function TrendChart({ sessions, tasks, view, setView, language }: { sessions: an
     const d = new Date();
     d.setDate(d.getDate() - (6 - i));
     const dateStr = d.toISOString().split('T')[0];
-    const dateLabel = `${d.getDate().toString().padStart(2, '0')}/${(d.getMonth() + 1).toString().padStart(2, '0')}`;
-    return { dateStr, dateLabel };
+    const dateDay = d.getDate().toString().padStart(2, '0');
+    const dateMonth = (d.getMonth() + 1).toString().padStart(2, '0');
+    return { dateStr, dateDay, dateMonth };
   });
 
   const data = last7Days.map(day => {
@@ -422,7 +423,7 @@ function TrendChart({ sessions, tasks, view, setView, language }: { sessions: an
     const dayTasks = (tasks.filter((t: any) => 
       (t.completedAt || t.deadline).startsWith(day.dateStr) && t.status === 'done'
     ).length) + (dummyDay?.tasks || 0);
-    return { ...day, sessions: daySessions, tasks: dayTasks };
+    return { ...day, sessions: daySessions, tasks: dayTasks } as { sessions: number, tasks: number, dateStr: string, dateDay: string, dateMonth: string };
   });
 
   const maxVal = Math.max(...data.map(d => d[view] as number), 1) + 2;
@@ -518,7 +519,10 @@ function TrendChart({ sessions, tasks, view, setView, language }: { sessions: an
       {/* X-Axis Labels */}
       <div className="flex justify-between pl-8 pr-0">
         {data.map((d, i) => (
-          <span key={i} className="text-[10px] font-black text-text-muted/40 uppercase tracking-widest font-display">{d.dateLabel}</span>
+          <div key={i} className="flex flex-col items-center">
+            <span className="text-[10px] font-black text-text-muted/60 uppercase tracking-widest font-display leading-tight">{d.dateDay}</span>
+            <span className="text-[8px] font-black text-text-muted/30 uppercase tracking-widest font-display leading-tight">{d.dateMonth}</span>
+          </div>
         ))}
       </div>
       
