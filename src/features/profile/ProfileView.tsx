@@ -414,7 +414,8 @@ function TrendChart({ sessions, tasks, view, setView, language }: { sessions: an
     const dateStr = d.toISOString().split('T')[0];
     const dateDay = d.getDate().toString().padStart(2, '0');
     const dateMonth = (d.getMonth() + 1).toString().padStart(2, '0');
-    return { dateStr, dateDay, dateMonth };
+    const dayName = d.toLocaleDateString(language === 'id' ? 'id-ID' : 'en-US', { weekday: 'short' });
+    return { dateStr, dateDay, dateMonth, dayName };
   });
 
   const data = last7Days.map(day => {
@@ -423,7 +424,7 @@ function TrendChart({ sessions, tasks, view, setView, language }: { sessions: an
     const dayTasks = (tasks.filter((t: any) => 
       (t.completedAt || t.deadline).startsWith(day.dateStr) && t.status === 'done'
     ).length) + (dummyDay?.tasks || 0);
-    return { ...day, sessions: daySessions, tasks: dayTasks } as { sessions: number, tasks: number, dateStr: string, dateDay: string, dateMonth: string };
+    return { ...day, sessions: daySessions, tasks: dayTasks } as { sessions: number, tasks: number, dateStr: string, dateDay: string, dateMonth: string, dayName: string };
   });
 
   const maxVal = Math.max(...data.map(d => d[view] as number), 1) + 2;
@@ -520,6 +521,7 @@ function TrendChart({ sessions, tasks, view, setView, language }: { sessions: an
       <div className="flex justify-between pl-8 pr-0">
         {data.map((d, i) => (
           <div key={i} className="flex flex-col items-center">
+            <span className="text-[7px] font-black text-text-muted/30 uppercase tracking-widest font-display leading-tight mb-1">{d.dayName}</span>
             <span className="text-[10px] font-black text-text-muted/60 uppercase tracking-widest font-display leading-tight">{d.dateDay}</span>
             <span className="text-[8px] font-black text-text-muted/30 uppercase tracking-widest font-display leading-tight">{d.dateMonth}</span>
           </div>
