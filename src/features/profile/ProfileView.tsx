@@ -19,7 +19,8 @@ import {
   History,
   Swords,
   Zap,
-  Info
+  Info,
+  LineChart
 } from 'lucide-react';
 
 export function ProfileView() {
@@ -46,6 +47,7 @@ export function ProfileView() {
     type: 'ganjil' as SemesterType,
     totalSks: 0
   });
+  const [chartView, setChartView] = useState<'sessions' | 'tasks' | 'both'>('both');
 
   const activeSemester = semesters.find(s => s.id === activeSemesterId);
 
@@ -80,7 +82,7 @@ export function ProfileView() {
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 items-stretch">
         {/* Semester Management */}
-        <div className="lg:col-span-1">
+        <div className="lg:col-span-1 order-1">
           <div className="game-panel p-8 flex flex-col gap-6 h-full">
             <h3 className="text-lg font-black flex items-center gap-3 tracking-tight font-display">
               <div className="p-2 bg-neon-cyan/10 rounded-xl border border-neon-cyan/20">
@@ -127,39 +129,8 @@ export function ProfileView() {
           </div>
         </div>
 
-        {/* Base Stats Panel */}
-        <div className="lg:col-span-2">
-          <div className="game-panel p-8 h-full">
-            <h3 className="text-lg font-black flex items-center gap-3 mb-8 tracking-tight font-display">
-              <div className="p-2 bg-neon-gold/10 rounded-xl border border-neon-gold/20">
-                <Trophy size={20} className="text-neon-gold" />
-              </div>
-              <span className="neon-gold-text">{t.profile.statsTitle}</span>
-            </h3>
-            
-            <div className="grid grid-cols-1 sm:grid-cols-4 gap-6">
-              <div className="stat-card">
-                <span className="text-[10px] text-text-muted/60 font-black uppercase tracking-widest font-display">{t.dashboard.tasksDone}</span>
-                <span className="text-3xl font-black tabular-nums text-neon-cyan">{completedTasks}<span className="text-lg text-text-muted/40">/{tasks.length}</span></span>
-              </div>
-              <div className="stat-card">
-                <span className="text-[10px] text-text-muted/60 font-black uppercase tracking-widest font-display">{t.dashboard.trainingTime}</span>
-                <span className="text-3xl font-black tabular-nums text-neon-gold">{(totalStudyTime / 60).toFixed(1)}<span className="text-sm text-text-muted/40">{t.dashboard.hours.toLowerCase().charAt(0)}</span></span>
-              </div>
-              <div className="stat-card">
-                <span className="text-[10px] text-text-muted/60 font-black uppercase tracking-widest font-display">{t.dashboard.skillTrees}</span>
-                <span className="text-3xl font-black tabular-nums text-neon-purple">{academicCourses.length}</span>
-              </div>
-              <div className="stat-card">
-                <span className="text-[10px] text-text-muted/60 font-black uppercase tracking-widest font-display">{t.dashboard.focusSessions}</span>
-                <span className="text-3xl font-black tabular-nums text-neon-green">{sessions.length}</span>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        {/* Player Level Card */}
-        <div className="lg:col-span-1">
+        {/* Player Level Card (order 2 on mobile) */}
+        <div className="lg:col-span-1 order-2 lg:order-3">
           <div className="game-panel p-6 flex flex-col h-full relative overflow-hidden group">
             <div className="absolute top-0 right-0 w-32 h-32 bg-neon-cyan/5 rounded-full blur-3xl group-hover:bg-neon-cyan/10 transition-all"></div>
             
@@ -196,8 +167,50 @@ export function ProfileView() {
           </div>
         </div>
 
+        {/* Base Stats Panel (order 3 on mobile) */}
+        <div className="lg:col-span-2 order-3 lg:order-2">
+          <div className="game-panel p-8 h-full">
+            <h3 className="text-lg font-black flex items-center gap-3 mb-8 tracking-tight font-display">
+              <div className="p-2 bg-neon-gold/10 rounded-xl border border-neon-gold/20">
+                <Trophy size={20} className="text-neon-gold" />
+              </div>
+              <span className="neon-gold-text">{t.profile.statsTitle}</span>
+            </h3>
+            
+            <div className="grid grid-cols-1 sm:grid-cols-4 gap-6">
+              <div className="stat-card">
+                <span className="text-[10px] text-text-muted/60 font-black uppercase tracking-widest font-display">{t.dashboard.tasksDone}</span>
+                <span className="text-3xl font-black tabular-nums text-neon-cyan">{completedTasks}<span className="text-lg text-text-muted/40">/{tasks.length}</span></span>
+              </div>
+              <div className="stat-card">
+                <span className="text-[10px] text-text-muted/60 font-black uppercase tracking-widest font-display">{t.dashboard.trainingTime}</span>
+                <span className="text-3xl font-black tabular-nums text-neon-gold">{(totalStudyTime / 60).toFixed(1)}<span className="text-sm text-text-muted/40">{t.dashboard.hours.toLowerCase().charAt(0)}</span></span>
+              </div>
+              <div className="stat-card">
+                <span className="text-[10px] text-text-muted/60 font-black uppercase tracking-widest font-display">{t.dashboard.skillTrees}</span>
+                <span className="text-3xl font-black tabular-nums text-neon-purple">{academicCourses.length}</span>
+              </div>
+              <div className="stat-card">
+                <span className="text-[10px] text-text-muted/60 font-black uppercase tracking-widest font-display">{t.dashboard.focusSessions}</span>
+                <span className="text-3xl font-black tabular-nums text-neon-green">{sessions.length}</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Activity Trend Line Chart */}
+        <div className="lg:col-span-2 order-4">
+          <TrendChart 
+            sessions={sessions} 
+            tasks={tasks} 
+            view={chartView} 
+            setView={setChartView}
+            language={language}
+          />
+        </div>
+
         {/* Activity Monitor (Heatmap) */}
-        <div className="lg:col-span-2">
+        <div className="lg:col-span-3 order-5">
           <div className="game-panel p-8 flex flex-col gap-6">
             <h3 className="text-lg font-black flex items-center gap-3 tracking-tight font-display">
               <div className="p-2 bg-neon-green/10 rounded-xl border border-neon-green/20">
@@ -389,6 +402,141 @@ export function ProfileView() {
            </div>
         </div>
       )}
+    </div>
+  );
+}
+
+function TrendChart({ sessions, tasks, view, setView, language }: any) {
+  const last7Days = Array.from({ length: 7 }).map((_, i) => {
+    const d = new Date();
+    d.setDate(d.getDate() - (6 - i));
+    const dateStr = d.toISOString().split('T')[0];
+    const dayName = d.toLocaleDateString(language === 'id' ? 'id-ID' : 'en-US', { weekday: 'short' });
+    return { dateStr, dayName };
+  });
+
+  const data = last7Days.map(day => {
+    const daySessions = sessions.filter((s: any) => s.date.startsWith(day.dateStr)).length;
+    const dayTasks = tasks.filter((t: any) => 
+      (t.completedAt || t.deadline).startsWith(day.dateStr) && t.status === 'done'
+    ).length;
+    return { ...day, sessions: daySessions, tasks: dayTasks };
+  });
+
+  const maxVal = Math.max(...data.map(d => Math.max(d.sessions, d.tasks)), 1) + 1;
+  
+  const getPath = (key: 'sessions' | 'tasks') => {
+    const points = data.map((d, i) => {
+      const x = (i / 6) * 100;
+      const y = 100 - (d[key] / maxVal) * 100;
+      return `${x},${y}`;
+    }).join(' ');
+    return points;
+  };
+
+  return (
+    <div className="game-panel p-8 flex flex-col gap-6 h-full min-h-[300px]">
+      <div className="flex items-center justify-between flex-wrap gap-4">
+        <h3 className="text-lg font-black flex items-center gap-3 tracking-tight font-display">
+          <div className="p-2 bg-neon-purple/10 rounded-xl border border-neon-purple/20">
+            <LineChart size={20} className="text-neon-purple" />
+          </div>
+          <span className="neon-purple-text uppercase tracking-widest">Activity Trend</span>
+        </h3>
+        <div className="flex bg-surface-2 p-1 rounded-xl border border-white/5">
+          {(['sessions', 'tasks', 'both'] as const).map(v => (
+            <button
+              key={v}
+              onClick={() => setView(v)}
+              className={`px-4 py-1.5 rounded-lg text-[10px] font-black uppercase tracking-wider transition-all ${view === v ? 'bg-neon-purple text-white shadow-lg shadow-neon-purple/20' : 'text-text-muted/40 hover:text-text-main'}`}
+            >
+              {v}
+            </button>
+          ))}
+        </div>
+      </div>
+
+      <div className="flex-1 relative mt-8 h-40">
+        {/* SVG Chart */}
+        <svg viewBox="0 0 100 100" className="w-full h-full preserve-3d overflow-visible" preserveAspectRatio="none">
+          {/* Grid lines */}
+          {[0, 25, 50, 75, 100].map(val => (
+            <line key={val} x1="0" y1={val} x2="100" y2={val} stroke="rgba(255,255,255,0.05)" strokeWidth="0.5" />
+          ))}
+          
+          {/* Sessions Path */}
+          {(view === 'sessions' || view === 'both') && (
+            <>
+              <polyline
+                fill="none"
+                stroke="var(--color-neon-green)"
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                points={getPath('sessions')}
+                className="drop-shadow-[0_0_8px_rgba(57,255,20,0.5)]"
+              />
+              {data.map((d, i) => (
+                <circle 
+                  key={i} 
+                  cx={(i / 6) * 100} 
+                  cy={100 - (d.sessions / maxVal) * 100} 
+                  r="1.5" 
+                  fill="var(--color-neon-green)" 
+                  className="shadow-lg shadow-neon-green/40"
+                />
+              ))}
+            </>
+          )}
+
+          {/* Tasks Path */}
+          {(view === 'tasks' || view === 'both') && (
+            <>
+              <polyline
+                fill="none"
+                stroke="var(--color-neon-cyan)"
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                points={getPath('tasks')}
+                className="drop-shadow-[0_0_8px_rgba(0,240,255,0.5)]"
+              />
+              {data.map((d, i) => (
+                <circle 
+                  key={i} 
+                  cx={(i / 6) * 100} 
+                  cy={100 - (d.tasks / maxVal) * 100} 
+                  r="1.5" 
+                  fill="var(--color-neon-cyan)" 
+                  className="shadow-lg shadow-neon-cyan/40"
+                />
+              ))}
+            </>
+          )}
+        </svg>
+        
+        {/* X-Axis Labels */}
+        <div className="flex justify-between mt-4">
+          {data.map((d, i) => (
+            <span key={i} className="text-[10px] font-black text-text-muted/40 uppercase tracking-widest font-display">{d.dayName}</span>
+          ))}
+        </div>
+      </div>
+      
+      <div className="flex gap-6 mt-4 pt-4 border-t border-white/5">
+        {(view === 'sessions' || view === 'both') && (
+          <div className="flex items-center gap-2">
+            <div className="w-2 h-2 rounded-full bg-neon-green"></div>
+            <span className="text-[10px] font-bold text-text-muted/60 uppercase">Sessions</span>
+          </div>
+        )}
+        {(view === 'tasks' || view === 'both') && (
+          <div className="flex items-center gap-2">
+            <div className="w-2 h-2 rounded-full bg-neon-cyan"></div>
+            <span className="text-[10px] font-bold text-text-muted/60 uppercase">Tasks</span>
+          </div>
+        )}
+      </div>
     </div>
   );
 }

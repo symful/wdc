@@ -24,6 +24,7 @@ export interface Task {
   subtasks: SubTask[];
   links: string[];
   createdAt: string;
+  completedAt?: string;
 }
 
 interface TaskState {
@@ -64,7 +65,8 @@ export const useTaskStore = create<TaskState>()(
         tasks: state.tasks.map((t: Task) => {
           if (t.id === id) {
             const progress = newStatus === 'done' ? 100 : (newStatus === 'todo' ? 0 : t.progress);
-            return { ...t, status: newStatus, progress };
+            const completedAt = newStatus === 'done' ? new Date().toISOString() : t.completedAt;
+            return { ...t, status: newStatus, progress, completedAt };
           }
           return t;
         })
