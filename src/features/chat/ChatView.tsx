@@ -24,7 +24,11 @@ import {
   Clock,
   Camera,
   ImageIcon,
-  Share2
+  Share2,
+  ListChecks,
+  Plus,
+  CheckCircle2,
+  Trophy
 } from 'lucide-react';
 import { QRCodeCanvas } from 'qrcode.react';
 import jsQR from 'jsqr';
@@ -46,7 +50,11 @@ export function ChatView() {
     renameUser,
     kickUser,
     replyingTo,
-    setReplyingTo
+    setReplyingTo,
+    sharedTasks,
+    addSharedTask: storeAddSharedTask,
+    toggleSharedTask,
+    removeSharedTask,
   } = useChatStore();
   
   const { language } = useLanguageStore();
@@ -72,6 +80,16 @@ export function ChatView() {
     file: null as File | null,
     mode: 'instant' as 'instant' | 'on-waiting',
   });
+
+  // Shared Tasks (Group Collaboration) — now from store
+  const [newTaskText, setNewTaskText] = useState('');
+  const [sidebarTab, setSidebarTab] = useState<'members' | 'tasks' | 'progress'>('members');
+
+  const addSharedTask = () => {
+    if (!newTaskText.trim()) return;
+    storeAddSharedTask(newTaskText.trim());
+    setNewTaskText('');
+  };
 
   const scrollRef = useRef<HTMLDivElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -546,6 +564,142 @@ export function ChatView() {
             ))}
           </div>
           
+          {/* Tab Switcher */}
+          <div className="flex gap-1 border-t border-white/5 pt-4 mt-4 shrink-0">
+            <button
+              onClick={() => setSidebarTab('members')}
+              className={`flex-1 px-2 py-2 text-[8px] font-black uppercase tracking-widest rounded-lg transition-all font-display ${sidebarTab === 'members' ? 'bg-neon-cyan/10 text-neon-cyan border border-neon-cyan/20' : 'text-text-muted/40 hover:text-text-muted/60'}`}
+            >
+              <Users size={14} className="mx-auto mb-1" />
+              Members
+            </button>
+            <button
+              onClick={() => setSidebarTab('tasks')}
+              className={`flex-1 px-2 py-2 text-[8px] font-black uppercase tracking-widest rounded-lg transition-all font-display ${sidebarTab === 'tasks' ? 'bg-neon-green/10 text-neon-green border border-neon-green/20' : 'text-text-muted/40 hover:text-text-muted/60'}`}
+            >
+              <ListChecks size={14} className="mx-auto mb-1" />
+              Tasks
+              {sharedTasks.length > 0 && (
+                <span className="ml-1 text-[7px] bg-neon-green/20 text-neon-green px-1 rounded">
+                  {sharedTasks.filter(t => !t.done).length}
+                </span>
+              )}
+            </button>
+            <button
+              onClick={() => setSidebarTab('progress')}
+              className={`flex-1 px-2 py-2 text-[8px] font-black uppercase tracking-widest rounded-lg transition-all font-display ${sidebarTab === 'progress' ? 'bg-neon-gold/10 text-neon-gold border border-neon-gold/20' : 'text-text-muted/40 hover:text-text-muted/60'}`}
+            >
+              <Trophy size={14} className="mx-auto mb-1" />
+              Progress
+            </button>
+          </div>
+
+          {/* Group Tasks Panel */}
+          {sidebarTab === 'tasks' && (
+            <div className="flex flex-col gap-3 mt-4 flex-1 overflow-y-auto">
+              <div className="text-[10px] font-black uppercase tracking-widest text-text-muted/40 flex items-center justify-between font-display">
+                {language === 'id' ? 'SHARED TASKS' : 'SHARED TASKS'}
+                <ListChecks size={12} className="text-neon-green" />
+              </div>
+              <div className="flex gap-2">
+                <input
+                  className="flex-1 bg-surface-2 border border-white/5 rounded-lg px-3 py-2 text-xs outline-none focus:border-neon-green/40 transition-colors"
+                  placeholder={language === 'id' ? 'Tambah task baru...' : 'Add new task...'}
+                  value={newTaskText}
+                  onChange={e => setNewTaskText(e.target.value)}
+                  onKeyDown={e => e.key === 'Enter' && addSharedTask()}
+                />
+                <button
+                  onClick={addSharedTask}
+                  className="p-2 bg-neon-green/10 text-neon-green border border-neon-green/20 rounded-lg hover:scale-110 active:scale-95 transition-all"
+                >
+                  <Plus size={14} />
+                </button>
+              </div>
+              {sharedTasks.length === 0 ? (
+                <div className="text-center py-6 text-text-muted/30">
+                  <ListChecks size={24} className="mx-auto mb-2 opacity-30" />
+                  <p className="text-[10px] font-black uppercase tracking-widest font-display">
+                    {language === 'id' ? 'Belum ada task' : 'No tasks yet'}
+                  </p>
+                </div>
+              ) : (
+                sharedTasks.map(task => (
+                  <div
+                    key={task.id}
+                    className={`flex items-start gap-3 p-3 rounded-xl border transition-all ${
+                      task.done ? 'bg-neon-green/5 border-neon-green/10 opacity-60' : 'bg-surface-2 border-white/5 hover:border-neon-green/20'
+                    }`}
+                  >
+                    <button
+                      onClick={() => toggleSharedTask(task.id)}
+                      className={`mt-0.5 shrink-0 w-5 h-5 rounded-md border-2 flex items-center justify-center transition-all ${
+                        task.done ? 'bg-neon-green border-neon-green text-white' : 'border-text-muted/20 hover:border-neon-green/50'
+                      }`}
+                    >
+                      {task.done && <Check size={12} />}
+                    </button>
+                    <div className="flex-1 min-w-0">
+                      <div className={`text-xs font-semibold ${task.done ? 'line-through text-text-muted/40' : 'text-text-main'}`}>
+                        {task.text}
+                      </div>
+                      <div className="text-[8px] text-text-muted/40 font-display">
+                        {task.author}
+                      </div>
+                    </div>
+                    <button
+                      onClick={() => removeSharedTask(task.id)}
+                      className="p-1 text-text-muted/20 hover:text-neon-red hover:scale-110 transition-all"
+                    >
+                      <X size={12} />
+                    </button>
+                  </div>
+                ))
+              )}
+              {sharedTasks.length > 0 && (
+                <div className="text-[9px] text-text-muted/40 text-center pt-2 border-t border-white/5 font-display">
+                  {sharedTasks.filter(t => t.done).length}/{sharedTasks.length} {language === 'id' ? 'selesai' : 'completed'}
+                </div>
+              )}
+            </div>
+          )}
+
+          {/* Group Progress Panel */}
+          {sidebarTab === 'progress' && (
+            <div className="flex flex-col gap-3 mt-4 flex-1 overflow-y-auto">
+              <div className="text-[10px] font-black uppercase tracking-widest text-text-muted/40 flex items-center justify-between font-display">
+                {language === 'id' ? 'AKTIVITAS GROUP' : 'GROUP ACTIVITY'}
+                <Trophy size={12} className="text-neon-gold" />
+              </div>
+              {users.map((user, i) => {
+                const userMsgs = messages.filter(m => m.senderId === user.id && m.type === 'text').length;
+                return (
+                  <div key={user.id} className="flex items-center gap-3 p-3 rounded-xl bg-surface-2 border border-white/5">
+                    <div className={`w-6 h-6 rounded-lg flex items-center justify-center text-[10px] font-black ${
+                      i === 0 ? 'bg-neon-gold/20 text-neon-gold' : i === 1 ? 'bg-neon-cyan/20 text-neon-cyan' : 'bg-surface-subtle text-text-muted/40'
+                    }`}>
+                      {i + 1}
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <div className="text-xs font-bold truncate">{user.name}</div>
+                      <div className="text-[8px] text-text-muted/40 font-display">
+                        {userMsgs} {language === 'id' ? 'pesan' : 'messages'}
+                      </div>
+                    </div>
+                    {user.role === 'admin' && <ShieldCheck size={12} className="text-neon-cyan shrink-0" />}
+                  </div>
+                );
+              })}
+              {users.length === 1 && (
+                <div className="text-center py-4 text-text-muted/30">
+                  <p className="text-[10px] font-black uppercase tracking-widest font-display">
+                    {language === 'id' ? 'Undang teman untuk mulai kolaborasi!' : 'Invite friends to start collaborating!'}
+                  </p>
+                </div>
+              )}
+            </div>
+          )}
+
           {ui.sidebar && (
             <button 
               className="mt-6 w-full lg:hidden btn btn-glass text-xs"

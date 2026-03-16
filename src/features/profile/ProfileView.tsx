@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { useAcademicStore, SemesterType } from '../../store/useAcademicStore';
 import { useTaskStore } from '../../store/useTaskStore';
 import { useStudyStore, StudySession } from '../../store/useStudyStore';
+import { useAchievementStore } from '../../store/useAchievementStore';
 import { Timer } from 'lucide-react';
 import { useLanguageStore, translations } from '../../store/useLanguageStore';
 import mockActivityData from '../../data/mockActivityData.json';
@@ -39,6 +40,7 @@ export function ProfileView() {
   const { sessions } = useStudyStore();
   const { language } = useLanguageStore();
   const t = translations[language];
+  const { achievements } = useAchievementStore();
 
   const [showAddModal, setShowAddModal] = useState(false);
   const [showLogModal, setShowLogModal] = useState(false);
@@ -210,8 +212,71 @@ export function ProfileView() {
           />
         </div>
 
-        {/* Activity Monitor (Heatmap) */}
+        {/* Trophy Case - Achievement Badges */}
         <div className="lg:col-span-3 order-5">
+          <div className="game-panel p-8 flex flex-col gap-6">
+            <h3 className="text-lg font-black flex items-center gap-3 tracking-tight font-display">
+              <div className="p-2 bg-neon-gold/10 rounded-xl border border-neon-gold/20">
+                <Trophy size={20} className="text-neon-gold" />
+              </div>
+              <span className="neon-gold-text uppercase tracking-widest">{language === 'id' ? 'Trophy Case' : 'Trophy Case'}</span>
+            </h3>
+            
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+              {achievements.map((ach) => {
+                const isUnlocked = !!ach.unlockedAt;
+                const rarityColors = {
+                  common: 'border-neon-green/20 bg-neon-green/5',
+                  rare: 'border-neon-blue/20 bg-neon-blue/5',
+                  legendary: 'border-neon-gold/20 bg-neon-gold/5',
+                };
+                const rarityGlow = {
+                  common: '',
+                  rare: isUnlocked ? 'shadow-[0_0_15px_rgba(77,124,255,0.15)]' : '',
+                  legendary: isUnlocked ? 'shadow-[0_0_20px_rgba(255,215,0,0.2)]' : '',
+                };
+                return (
+                  <div
+                    key={ach.id}
+                    className={`p-4 rounded-2xl border transition-all duration-500 flex flex-col items-center text-center gap-3 group relative overflow-hidden ${
+                      isUnlocked
+                        ? `${rarityColors[ach.rarity]} ${rarityGlow[ach.rarity]} hover:scale-105`
+                        : 'border-white/5 bg-surface-2/30 opacity-40 grayscale'
+                    }`}
+                  >
+                    <div className={`text-3xl transition-transform duration-300 ${isUnlocked ? 'group-hover:scale-125 group-hover:rotate-12' : ''}`}>
+                      {ach.icon}
+                    </div>
+                    <div>
+                      <div className={`text-xs font-black uppercase tracking-wide font-display ${
+                        isUnlocked ? 'text-text-main' : 'text-text-muted/40'
+                      }`}>
+                        {language === 'id' ? ach.title : ach.titleEn}
+                      </div>
+                      <div className="text-[10px] text-text-muted/60 mt-1">
+                        {language === 'id' ? ach.description : ach.descriptionEn}
+                      </div>
+                    </div>
+                    {isUnlocked && (
+                      <div className="text-[8px] font-black uppercase tracking-widest text-neon-gold/60 font-display">
+                        {new Date(ach.unlockedAt!).toLocaleDateString(language === 'id' ? 'id-ID' : 'en-US', { month: 'short', day: 'numeric' })}
+                      </div>
+                    )}
+                    {!isUnlocked && (
+                      <div className="text-[8px] font-black text-text-muted/30 uppercase tracking-widest font-display">🔒 Locked</div>
+                    )}
+                    {isUnlocked && ach.rarity === 'legendary' && (
+                      <div className="absolute inset-0 bg-linear-to-t from-neon-gold/5 to-transparent pointer-events-none" />
+                    )}
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+        </div>
+
+        {/* Activity Monitor (Heatmap) */}
+        <div className="lg:col-span-3 order-6">
           <div className="game-panel p-8 flex flex-col gap-6">
             <h3 className="text-lg font-black flex items-center gap-3 tracking-tight font-display">
               <div className="p-2 bg-neon-green/10 rounded-xl border border-neon-green/20">

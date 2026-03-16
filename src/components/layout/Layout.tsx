@@ -1,10 +1,15 @@
 import { useState, useEffect, Suspense } from 'react';
 import { NavLink, Outlet } from 'react-router-dom';
-import { Calendar, CheckSquare, BookOpen, BarChart3, Menu, X, MessageSquare, Swords, Timer, Gamepad2, Map, ScrollText, GraduationCap, User, Shield, Radar } from 'lucide-react';
+import { Calendar, CheckSquare, BookOpen, BarChart3, Menu, X, MessageSquare, Swords, Timer, Gamepad2, Map, ScrollText, GraduationCap, User, Shield, Radar, Bell, Sun, Moon } from 'lucide-react';
 import { DashboardSkeleton } from '../ui/Skeleton';
+import { NotificationToast } from '../ui/NotificationToast';
 import { useTaskStore } from '../../store/useTaskStore';
 import { useStudyStore } from '../../store/useStudyStore';
 import { useLanguageStore, translations } from '../../store/useLanguageStore';
+import { useThemeStore } from '../../store/useThemeStore';
+import { useNotificationStore } from '../../store/useNotificationStore';
+import { useAchievementStore } from '../../store/useAchievementStore';
+import type { AchievementContext } from '../../store/useAchievementStore';
 import { Languages } from 'lucide-react';
 
 export function Layout() {
@@ -15,25 +20,122 @@ export function Layout() {
   const { sessions } = useStudyStore();
   const { language, setLanguage } = useLanguageStore();
   const t = translations[language];
+  const { theme, toggleTheme, initTheme } = useThemeStore();
+  const { notifications, addNotification } = useNotificationStore();
+  const { checkAchievements } = useAchievementStore();
+  const [showNotifPanel, setShowNotifPanel] = useState(false);
+
+  // Initialize theme on mount
+  useEffect(() => {
+    initTheme();
+  }, [initTheme]);
 
   // Gamification: calculate XP and Level
   const completedTasks = tasks.filter(t => t.status === 'done').length;
   const totalStudyMinutes = sessions.reduce((acc, s) => acc + s.durationMinutes, 0);
-  const xp = completedTasks * 100 + totalStudyMinutes * 2; // 100 XP per task, 2 XP per study minute
-  const level = Math.floor(xp / 500) + 1; // Level up every 500 XP
+  const xp = completedTasks * 100 + totalStudyMinutes * 2;
+  const level = Math.floor(xp / 500) + 1;
   const xpProgress = ((xp % 500) / 500) * 100;
+
+  // Achievement checking and deadline notifications
+  useEffect(() => {
+    // Check achievements
+    const today = new Date().toISOString().split('T')[0];
+    const sessionsToday = sessions.filter(s => s.date.startsWith(today)).length;
+    const hasNightSession = sessions.some(s => {
+      const hour = new Date(s.date).getHours();
+      return hour >= 22 || hour < 4;
+    });
+    const hasSameDayTask = tasks.some(t => {
+      if (t.status !== 'done' || !t.completedAt) return false;
+      return t.createdAt.split('T')[0] === t.completedAt.split('T')[0];
+    });
+
+    // Calculate streak
+    let streak = 0;
+    for (let i = 0; i < 60; i++) {
+      const d = new Date();
+      d.setDate(d.getDate() - i);
+      const dateStr = d.toISOString().split('T')[0];
+      const hasSession = sessions.some(s => s.date.startsWith(dateStr));
+      if (hasSession) streak++;
+      else if (i > 0) break;
+    }
+
+    const ctx: AchievementContext = {
+      completedTasksCount: completedTasks,
+      totalStudyMinutes,
+      totalSessions: sessions.length,
+      currentStreak: streak,
+      hasNightSession,
+      hasSameDayTask,
+      totalTasksCreated: tasks.length,
+      sessionsToday,
+    };
+
+    const newBadges = checkAchievements(ctx);
+    newBadges.forEach((badge) => {
+      addNotification({
+        type: 'badge',
+        title: language === 'id' ? 'Badge Baru!' : 'New Badge!',
+        message: `${badge.icon} ${language === 'id' ? badge.title : badge.titleEn}`,
+        icon: badge.icon,
+      });
+    });
+
+    // Check deadline notifications
+    const now = Date.now();
+    tasks.forEach((task) => {
+      if (task.status === 'done') return;
+      const deadline = new Date(task.deadline).getTime();
+      const hoursLeft = (deadline - now) / 3600000;
+      if (hoursLeft > 0 && hoursLeft < 24) {
+        // Only show once per session
+        const key = `deadline-notif-${task.id}-${today}`;
+        if (!sessionStorage.getItem(key)) {
+          sessionStorage.setItem(key, '1');
+          addNotification({
+            type: 'deadline',
+            title: language === 'id' ? 'Deadline Mendekat!' : 'Deadline Approaching!',
+            message: `"${task.title}" — ${Math.round(hoursLeft)} ${language === 'id' ? 'jam lagi' : 'hours left'}`,
+            autoDismiss: false,
+          });
+        }
+      }
+    });
+
+    // Streak notification
+    if (streak >= 3) {
+      const streakKey = `streak-notif-${today}`;
+      if (!sessionStorage.getItem(streakKey)) {
+        sessionStorage.setItem(streakKey, '1');
+        addNotification({
+          type: 'streak',
+          title: language === 'id' ? 'Streak Aktif!' : 'Streak Active!',
+          message: `🔥 ${streak} ${language === 'id' ? 'hari berturut-turut! Jangan putus!' : 'day streak! Keep it going!'}`,
+          icon: '🔥',
+        });
+      }
+    }
+  }, [tasks.length, sessions.length, completedTasks]);
+
+  const unreadCount = notifications.filter(n => !n.read).length;
 
   const navItems = [
     { to: "/", icon: <Radar size={20} />, label: t.common.commandCenter, badge: null },
     { to: "/academic", icon: <GraduationCap size={20} />, label: t.common.studyManager, badge: null },
     { to: "/tasks", icon: <ScrollText size={20} />, label: t.common.taskBoard, badge: tasks.filter(t => t.status !== 'done').length || null },
     { to: "/study", icon: <Swords size={20} />, label: t.common.trainingArena, badge: null },
+    { to: "/stats", icon: <BarChart3 size={20} />, label: language === 'id' ? 'STATISTIK' : 'STATISTICS', badge: null },
     { to: "/chat", icon: <MessageSquare size={20} />, label: t.common.guildHall, badge: null },
     { to: "/profile", icon: <User size={20} />, label: t.common.profile, badge: null },
   ];
 
   return (
     <div className="app-container">
+      {/* Notification Toasts */}
+      <NotificationToast />
+
       {/* Sidebar */}
       <aside className={`app-sidebar ${sidebarOpen ? 'open' : ''} transition-all duration-300 z-50`}>
         <div className="p-6 flex items-center justify-between border-b border-neon-cyan/10">
@@ -101,15 +203,29 @@ export function Layout() {
         
         {/* Sidebar Footer */}
         <div className="p-6 border-t border-neon-cyan/10 flex flex-col gap-4">
-          <button 
-            onClick={() => setLanguage(language === 'id' ? 'en' : 'id')}
-            className="flex items-center gap-3 px-4 py-3 bg-surface-2 hover:bg-neon-cyan/10 rounded-xl border border-neon-cyan/10 transition-all group w-full"
-          >
-            <Languages size={18} className="text-neon-cyan group-hover:scale-110 transition-transform" />
-            <span className="text-xs font-black font-display text-text-main uppercase tracking-widest leading-none">
-              {language === 'id' ? 'Indonesia' : 'English'}
-            </span>
-          </button>
+          <div className="flex gap-2">
+            <button 
+              onClick={() => setLanguage(language === 'id' ? 'en' : 'id')}
+              className="flex-1 flex items-center gap-3 px-4 py-3 bg-surface-2 hover:bg-neon-cyan/10 rounded-xl border border-neon-cyan/10 transition-all group"
+            >
+              <Languages size={18} className="text-neon-cyan group-hover:scale-110 transition-transform" />
+              <span className="text-xs font-black font-display text-text-main uppercase tracking-widest leading-none">
+                {language === 'id' ? 'ID' : 'EN'}
+              </span>
+            </button>
+
+            <button 
+              onClick={toggleTheme}
+              className="flex items-center gap-2 px-4 py-3 bg-surface-2 hover:bg-neon-gold/10 rounded-xl border border-neon-cyan/10 transition-all group"
+              title={theme === 'dark' ? 'Switch to Light Mode' : 'Switch to Dark Mode'}
+            >
+              {theme === 'dark' ? (
+                <Sun size={18} className="text-neon-gold group-hover:scale-110 group-hover:rotate-45 transition-all" />
+              ) : (
+                <Moon size={18} className="text-neon-purple group-hover:scale-110 group-hover:-rotate-12 transition-all" />
+              )}
+            </button>
+          </div>
 
           <div className="flex items-center gap-3 px-3 py-1 text-text-muted/30">
             <div className="w-2 h-2 rounded-full bg-neon-green shadow-[0_0_8px_rgba(57,255,20,0.5)] animate-pulse"></div>
@@ -136,6 +252,106 @@ export function Layout() {
             </div>
           </div>
           <div className="flex items-center gap-3 md:gap-4">
+            {/* Notification Bell + Dropdown */}
+            <div className="relative">
+              <button
+                onClick={() => {
+                  setShowNotifPanel(!showNotifPanel);
+                  if (!showNotifPanel) {
+                    useNotificationStore.getState().markAllAsRead();
+                  }
+                }}
+                className="relative p-2 rounded-lg bg-surface-1 border border-border-main hover:border-neon-cyan/30 hover:scale-110 active:scale-95 transition-all cursor-pointer"
+              >
+                <Bell size={16} className="text-text-muted/60" />
+                {unreadCount > 0 && (
+                  <span className="absolute -top-1 -right-1 w-4 h-4 bg-neon-red text-[8px] font-black text-white rounded-full flex items-center justify-center animate-pulse shadow-[0_0_8px_rgba(255,49,49,0.5)]">
+                    {unreadCount > 9 ? '9+' : unreadCount}
+                  </span>
+                )}
+              </button>
+
+              {/* Notification Dropdown Panel */}
+              {showNotifPanel && (
+                <>
+                  <div className="fixed inset-0 z-40" onClick={() => setShowNotifPanel(false)} />
+                  <div className="absolute right-0 top-full mt-2 w-80 max-h-96 z-50 game-panel rounded-2xl border border-neon-cyan/20 shadow-[0_0_40px_rgba(0,0,0,0.5)] flex flex-col overflow-hidden animate-in slide-in-from-top-2 fade-in duration-200">
+                    {/* Header */}
+                    <div className="flex items-center justify-between p-4 border-b border-white/5 shrink-0">
+                      <div className="flex items-center gap-2">
+                        <Bell size={14} className="text-neon-cyan" />
+                        <span className="text-xs font-black uppercase tracking-widest font-display text-text-main">
+                          {language === 'id' ? 'Notifikasi' : 'Notifications'}
+                        </span>
+                      </div>
+                      <div className="flex items-center gap-1">
+                        {notifications.length > 0 && (
+                          <button
+                            onClick={() => useNotificationStore.getState().clearAll()}
+                            className="text-[9px] font-black uppercase tracking-wider text-text-muted/40 hover:text-neon-red px-2 py-1 rounded-lg hover:bg-neon-red/10 transition-all"
+                          >
+                            {language === 'id' ? 'Hapus Semua' : 'Clear All'}
+                          </button>
+                        )}
+                      </div>
+                    </div>
+
+                    {/* Notification List */}
+                    <div className="flex-1 overflow-y-auto">
+                      {notifications.length === 0 ? (
+                        <div className="flex flex-col items-center justify-center py-12 gap-3 text-text-muted/20">
+                          <Bell size={28} />
+                          <span className="text-[10px] font-black uppercase tracking-widest font-display">
+                            {language === 'id' ? 'Tidak ada notifikasi' : 'No notifications'}
+                          </span>
+                        </div>
+                      ) : (
+                        notifications.slice(0, 15).map((notif) => (
+                          <div
+                            key={notif.id}
+                            className={`flex items-start gap-3 p-4 border-b border-white/5 hover:bg-white/3 transition-all group ${!notif.read ? 'bg-neon-cyan/3' : ''}`}
+                          >
+                            <div className="p-1.5 rounded-lg bg-surface-2 border border-white/5 shrink-0 mt-0.5">
+                              {notif.icon ? (
+                                <span className="text-sm">{notif.icon}</span>
+                              ) : notif.type === 'deadline' ? (
+                                <Bell size={14} className="text-neon-red" />
+                              ) : notif.type === 'streak' ? (
+                                <Bell size={14} className="text-neon-gold" />
+                              ) : notif.type === 'badge' ? (
+                                <Bell size={14} className="text-neon-gold" />
+                              ) : (
+                                <Bell size={14} className="text-neon-cyan" />
+                              )}
+                            </div>
+                            <div className="flex-1 min-w-0">
+                              <div className="text-[10px] font-black uppercase tracking-wider font-display text-text-main mb-0.5">
+                                {notif.title}
+                              </div>
+                              <div className="text-[11px] text-text-muted leading-relaxed line-clamp-2">
+                                {notif.message}
+                              </div>
+                              <div className="text-[8px] font-bold text-text-muted/30 mt-1 font-display">
+                                {new Date(notif.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                              </div>
+                            </div>
+                            <button
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                useNotificationStore.getState().dismissNotification(notif.id);
+                              }}
+                              className="p-1 text-text-muted/20 hover:text-neon-red opacity-0 group-hover:opacity-100 transition-all hover:scale-125 shrink-0"
+                            >
+                              <X size={12} />
+                            </button>
+                          </div>
+                        ))
+                      )}
+                    </div>
+                  </div>
+                </>
+              )}
+            </div>
             {/* XP Display */}
             <div className="flex items-center gap-2 px-3 py-1.5 bg-neon-gold/6 rounded-lg border border-neon-gold/15">
               <span className="text-neon-gold text-[10px] font-black font-display">{xp} {t.common.xp}</span>

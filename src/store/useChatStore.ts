@@ -30,6 +30,13 @@ export interface ChatUser {
   joinTime: number;
 }
 
+export interface SharedTask {
+  id: string;
+  text: string;
+  done: boolean;
+  author: string;
+}
+
 interface ChatState {
   peer: Peer | null;
   connections: Record<string, DataConnection>;
@@ -40,6 +47,7 @@ interface ChatState {
   roomKey: string | null;
   status: 'idle' | 'connecting' | 'connected' | 'error';
   error: string | null;
+  sharedTasks: SharedTask[];
 
   // Actions
   initPeer: (userName: string) => Promise<string>;
@@ -58,6 +66,11 @@ interface ChatState {
   sendFile: (file: File, mode: 'instant' | 'on-waiting') => void;
   requestFile: (msgId: string) => void;
   cancelFileTransfer: (msgId: string) => void;
+
+  // Shared Task Actions
+  addSharedTask: (text: string) => void;
+  toggleSharedTask: (taskId: string) => void;
+  removeSharedTask: (taskId: string) => void;
 }
 
 let heartbeatInterval: any = null;
@@ -72,6 +85,7 @@ export const useChatStore = create<ChatState>((set, get) => ({
   roomKey: null,
   status: 'idle',
   error: null,
+  sharedTasks: [],
 
   initPeer: (userName: string) => {
     return new Promise((resolve, reject) => {
@@ -323,7 +337,8 @@ export const useChatStore = create<ChatState>((set, get) => ({
       currentUser: null,
       replyingTo: null,
       roomKey: null,
-      status: 'idle'
+      status: 'idle',
+      sharedTasks: [],
     });
   },
 
@@ -347,7 +362,39 @@ export const useChatStore = create<ChatState>((set, get) => ({
     }));
   },
 
-  clearMessages: () => set({ messages: [] })
+  clearMessages: () => set({ messages: [] }),
+
+  // Shared Task Actions
+  addSharedTask: (text: string) => {
+    const state = get();
+    if (!state.currentUser || !text.trim()) return;
+    const task: SharedTask = {
+      id: Math.random().toString(36).substr(2, 9),
+      text: text.trim(),
+      done: false,
+      author: state.currentUser.name,
+    };
+    set((s) => ({ sharedTasks: [...s.sharedTasks, task] }));
+    broadcast({ type: 'shared_task_add', task });
+    // Announce in chat
+    state.sendMessage(`📋 [Shared Task] ${task.text}`);
+  },
+
+  toggleSharedTask: (taskId: string) => {
+    set((s) => ({
+      sharedTasks: s.sharedTasks.map((t) =>
+        t.id === taskId ? { ...t, done: !t.done } : t
+      ),
+    }));
+    broadcast({ type: 'shared_task_toggle', taskId });
+  },
+
+  removeSharedTask: (taskId: string) => {
+    set((s) => ({
+      sharedTasks: s.sharedTasks.filter((t) => t.id !== taskId),
+    }));
+    broadcast({ type: 'shared_task_remove', taskId });
+  },
 }));
 
 // Helper functions for internal logic
@@ -412,6 +459,32 @@ function setupConnection(conn: DataConnection) {
       }));
     } else if (type === 'pong') {
       // Heartbeat received
+    } else if (type === 'shared_task_add') {
+      useChatStore.setState((s) => ({ sharedTasks: [...s.sharedTasks, data.task] }));
+      // Admin relays to others
+      if (state.currentUser?.role === 'admin') {
+        Object.keys(state.connections).forEach(id => {
+          if (id !== conn.peer) state.connections[id].send(data);
+        });
+      }
+    } else if (type === 'shared_task_toggle') {
+      useChatStore.setState((s) => ({
+        sharedTasks: s.sharedTasks.map(t => t.id === data.taskId ? { ...t, done: !t.done } : t)
+      }));
+      if (state.currentUser?.role === 'admin') {
+        Object.keys(state.connections).forEach(id => {
+          if (id !== conn.peer) state.connections[id].send(data);
+        });
+      }
+    } else if (type === 'shared_task_remove') {
+      useChatStore.setState((s) => ({
+        sharedTasks: s.sharedTasks.filter(t => t.id !== data.taskId)
+      }));
+      if (state.currentUser?.role === 'admin') {
+        Object.keys(state.connections).forEach(id => {
+          if (id !== conn.peer) state.connections[id].send(data);
+        });
+      }
     }
   });
 

@@ -13,6 +13,7 @@ const ProfileView = lazy(() => import('./features/profile/ProfileView').then(m =
 const KanbanBoard = lazy(() => import('./features/tasks/KanbanBoard').then(m => ({ default: m.KanbanBoard })));
 const StudyView = lazy(() => import('./features/study/StudyView').then(m => ({ default: m.StudyView })));
 const ChatView = lazy(() => import('./features/chat/ChatView').then(m => ({ default: m.ChatView })));
+const StatsView = lazy(() => import('./features/analytics/StatsView').then(m => ({ default: m.StatsView })));
 
 const router = createBrowserRouter([
   {
@@ -48,6 +49,14 @@ const router = createBrowserRouter([
         element: (
           <Suspense fallback={<DashboardSkeleton />}>
             <StudyView />
+          </Suspense>
+        )
+      },
+      {
+        path: "stats",
+        element: (
+          <Suspense fallback={<DashboardSkeleton />}>
+            <StatsView />
           </Suspense>
         )
       },

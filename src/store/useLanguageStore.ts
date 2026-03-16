@@ -205,7 +205,34 @@ export const translations = {
       startCamera: 'Mulai Kamera',
       chooseQrImage: 'Pilih Gambar QR',
       scanInstruction: 'Arahkan kamera ke QR Code atau unggah gambar yang berisi QR Code ruangan.',
-    }
+    },
+    stats: {
+      title: 'STATISTIK',
+      subtitle: 'Analisis performa belajar dan produktivitas Anda.',
+      thisWeekStudy: 'Belajar Minggu Ini',
+      tasksCompleted: 'Task Selesai',
+      mostProductiveDay: 'Hari Paling Produktif',
+      currentStreak: 'Streak Saat Ini',
+      progressChart: 'Grafik Progres',
+      personalRecommendations: 'Rekomendasi Personal',
+      weeklyComparison: 'Perbandingan Mingguan',
+      taskBreakdown: 'Rincian Task',
+    },
+    achievements: {
+      trophyCase: 'Trophy Case',
+      locked: 'Terkunci',
+      newBadge: 'Badge Baru!',
+      unlocked: 'Terbuka',
+      total: 'Total Achievements',
+    },
+    notifications: {
+      title: 'Notifikasi',
+      deadlineApproaching: 'Deadline Mendekat!',
+      streakActive: 'Streak Aktif!',
+      markAllRead: 'Tandai Semua Dibaca',
+      clearAll: 'Hapus Semua',
+      noNotifications: 'Tidak ada notifikasi',
+    },
   },
   en: {
     common: {
@@ -391,6 +418,33 @@ export const translations = {
       startCamera: 'Start Camera',
       chooseQrImage: 'Choose QR Image',
       scanInstruction: 'Point your camera at the QR Code or upload an image containing the room QR Code.',
-    }
+    },
+    stats: {
+      title: 'STATISTICS',
+      subtitle: 'Analyze your study performance and productivity.',
+      thisWeekStudy: 'Study This Week',
+      tasksCompleted: 'Tasks Completed',
+      mostProductiveDay: 'Most Productive Day',
+      currentStreak: 'Current Streak',
+      progressChart: 'Progress Chart',
+      personalRecommendations: 'Personal Recommendations',
+      weeklyComparison: 'Weekly Comparison',
+      taskBreakdown: 'Task Breakdown',
+    },
+    achievements: {
+      trophyCase: 'Trophy Case',
+      locked: 'Locked',
+      newBadge: 'New Badge!',
+      unlocked: 'Unlocked',
+      total: 'Total Achievements',
+    },
+    notifications: {
+      title: 'Notifications',
+      deadlineApproaching: 'Deadline Approaching!',
+      streakActive: 'Streak Active!',
+      markAllRead: 'Mark All Read',
+      clearAll: 'Clear All',
+      noNotifications: 'No notifications',
+    },
   }
 };

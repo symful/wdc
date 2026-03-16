@@ -21,9 +21,11 @@ import {
   BarChart3,
   CalendarRange,
   CheckCircle2,
-  Loader2
+  Loader2,
+  CalendarDays
 } from 'lucide-react';
 import { useLanguageStore, translations } from '../../store/useLanguageStore';
+import { generateICS } from './calendarExport';
 
 export function DashboardView() {
   const { tasks } = useTaskStore();
@@ -166,6 +168,13 @@ export function DashboardView() {
           >
             <Sparkles size={20} className="text-neon-cyan group-hover:animate-pulse shrink-0" />
             <span className="text-xs sm:text-sm truncate">{t.dashboard.generateStudyPlan}</span>
+          </button>
+          <button 
+            className="btn btn-glass px-4 sm:px-6 h-14 rounded-2xl font-black uppercase tracking-widest gap-2 hover:scale-105 active:scale-95 transition-all group whitespace-nowrap justify-center overflow-hidden border-neon-green/20 hover:border-neon-green/40"
+            onClick={() => generateICS(academicCourses, tasks)}
+          >
+            <CalendarDays size={20} className="text-neon-green group-hover:scale-110 transition-transform shrink-0" />
+            <span className="text-xs sm:text-sm truncate hidden sm:inline">{language === 'id' ? 'Export Kalender' : 'Export Calendar'}</span>
           </button>
         </div>
       </div>
