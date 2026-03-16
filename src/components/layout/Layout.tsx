@@ -100,8 +100,18 @@ export function Layout() {
         </nav>
         
         {/* Sidebar Footer */}
-        <div className="p-6 border-t border-neon-cyan/10">
-          <div className="flex items-center gap-3 px-3 py-2 text-text-muted/30">
+        <div className="p-6 border-t border-neon-cyan/10 flex flex-col gap-4">
+          <button 
+            onClick={() => setLanguage(language === 'id' ? 'en' : 'id')}
+            className="flex items-center gap-3 px-4 py-3 bg-surface-2 hover:bg-neon-cyan/10 rounded-xl border border-neon-cyan/10 transition-all group w-full"
+          >
+            <Languages size={18} className="text-neon-cyan group-hover:scale-110 transition-transform" />
+            <span className="text-xs font-black font-display text-text-main uppercase tracking-widest leading-none">
+              {language === 'id' ? 'Indonesia' : 'English'}
+            </span>
+          </button>
+
+          <div className="flex items-center gap-3 px-3 py-1 text-text-muted/30">
             <div className="w-2 h-2 rounded-full bg-neon-green shadow-[0_0_8px_rgba(57,255,20,0.5)] animate-pulse"></div>
             <span className="text-[9px] font-black uppercase tracking-[0.2em] font-display">{t.common.systemOnline}</span>
           </div>
@@ -126,14 +136,6 @@ export function Layout() {
             </div>
           </div>
           <div className="flex items-center gap-3 md:gap-4">
-            {/* Language Switcher */}
-            <button 
-              onClick={() => setLanguage(language === 'id' ? 'en' : 'id')}
-              className="flex items-center gap-2 px-3 py-1.5 bg-surface-2 hover:bg-neon-cyan/10 rounded-lg border border-neon-cyan/10 transition-all group"
-            >
-              <Languages size={14} className="text-neon-cyan group-hover:scale-110 transition-transform" />
-              <span className="text-[10px] font-black font-display text-text-main uppercase tracking-widest">{language === 'id' ? 'ID' : 'EN'}</span>
-            </button>
             {/* XP Display */}
             <div className="flex items-center gap-2 px-3 py-1.5 bg-neon-gold/6 rounded-lg border border-neon-gold/15">
               <span className="text-neon-gold text-[10px] font-black font-display">{xp} {t.common.xp}</span>
