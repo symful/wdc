@@ -30,7 +30,7 @@ import { generateICS } from './calendarExport';
 export function DashboardView() {
   const { tasks } = useTaskStore();
   const { sessions } = useStudyStore();
-  const { courses: academicCourses, activeSemesterId, studyPlan, generateStudyPlan } = useAcademicStore();
+  const { courses: academicCourses, activeSemesterId, studyPlan, generateStudyPlan, xpLogs } = useAcademicStore();
   const { language } = useLanguageStore();
   const t = translations[language];
 
@@ -74,9 +74,9 @@ export function DashboardView() {
     .reduce((acc: number, s: StudySession) => acc + s.durationMinutes, 0);
 
   const completedTasks = tasks.filter(t => t.status === 'done').length;
-  const xp = completedTasks * 100 + totalStudyTime * 2;
-  const level = Math.floor(xp / 500) + 1;
-  const xpProgress = ((xp % 500) / 500) * 100;
+  const xp = xpLogs.reduce((acc, log) => acc + log.amount, 0);
+  const level = Math.floor(xp / 1000) + 1;
+  const xpProgress = ((xp % 1000) / 1000) * 100;
 
   const activeTasks = tasks.filter((t: Task) => t.status !== 'done');
   const criticalTasks = activeTasks.filter((t: Task) => {

@@ -10,6 +10,7 @@ import { useThemeStore } from '../../store/useThemeStore';
 import { useNotificationStore } from '../../store/useNotificationStore';
 import { useAchievementStore } from '../../store/useAchievementStore';
 import type { AchievementContext } from '../../store/useAchievementStore';
+import { useAcademicStore } from '../../store/useAcademicStore';
 import { Languages } from 'lucide-react';
 
 export function Layout() {
@@ -23,6 +24,7 @@ export function Layout() {
   const { theme, toggleTheme, initTheme } = useThemeStore();
   const { notifications, addNotification } = useNotificationStore();
   const { checkAchievements } = useAchievementStore();
+  const { xpLogs } = useAcademicStore();
   const [showNotifPanel, setShowNotifPanel] = useState(false);
 
   // Initialize theme on mount
@@ -33,9 +35,9 @@ export function Layout() {
   // Gamification: calculate XP and Level
   const completedTasks = tasks.filter(t => t.status === 'done').length;
   const totalStudyMinutes = sessions.reduce((acc, s) => acc + s.durationMinutes, 0);
-  const xp = completedTasks * 100 + totalStudyMinutes * 2;
-  const level = Math.floor(xp / 500) + 1;
-  const xpProgress = ((xp % 500) / 500) * 100;
+  const xp = xpLogs.reduce((acc, log) => acc + log.amount, 0);
+  const level = Math.floor(xp / 1000) + 1;
+  const xpProgress = ((xp % 1000) / 1000) * 100;
 
   // Achievement checking and deadline notifications
   useEffect(() => {
@@ -137,8 +139,8 @@ export function Layout() {
       <NotificationToast />
 
       {/* Sidebar */}
-      <aside className={`app-sidebar ${sidebarOpen ? 'open' : ''} transition-all duration-300 z-50`}>
-        <div className="p-6 flex items-center justify-between border-b border-neon-cyan/10">
+      <aside className={`app-sidebar flex flex-col ${sidebarOpen ? 'open' : ''} transition-all duration-300 z-50`}>
+        <div className="p-6 flex items-center justify-between border-b border-neon-cyan/10 shrink-0">
           <div className="flex items-center gap-3">
             <div className="w-9 h-9 rounded-lg bg-neon-cyan/10 border border-neon-cyan/20 flex items-center justify-center">
               <Timer size={18} className="text-neon-cyan" />
@@ -151,7 +153,7 @@ export function Layout() {
         </div>
         
         {/* Player Stats Mini Card */}
-        <div className="mx-6 mt-6 p-4 rounded-xl border border-neon-cyan/10 bg-neon-cyan/3 relative overflow-hidden">
+        <div className="mx-6 mt-6 p-4 rounded-xl border border-neon-cyan/10 bg-neon-cyan/3 relative overflow-hidden shrink-0">
           <div className="absolute top-0 right-0 w-20 h-20 bg-neon-cyan/5 rounded-full blur-2xl"></div>
           <div className="flex items-center gap-3 mb-3 relative z-10">
             <div className="w-10 h-10 rounded-lg bg-linear-to-br from-neon-cyan/20 to-neon-purple/20 border border-neon-cyan/20 flex items-center justify-center">
@@ -171,7 +173,7 @@ export function Layout() {
           </div>
         </div>
 
-        <nav className="p-6 flex flex-col gap-1.5 flex-1 overflow-y-auto">
+        <nav className="p-6 flex flex-col gap-1.5 flex-1 overflow-y-auto min-h-0">
           <div className="text-text-muted/30 text-[9px] font-black uppercase tracking-[0.2em] px-3 mb-3 font-display">{t.layout.navigation}</div>
           {navItems.map((item) => (
             <NavLink
@@ -202,7 +204,7 @@ export function Layout() {
         </nav>
         
         {/* Sidebar Footer */}
-        <div className="p-6 border-t border-neon-cyan/10 flex flex-col gap-4">
+        <div className="p-6 border-t border-neon-cyan/10 flex flex-col gap-4 shrink-0">
           <div className="flex gap-2">
             <button 
               onClick={() => setLanguage(language === 'id' ? 'en' : 'id')}
