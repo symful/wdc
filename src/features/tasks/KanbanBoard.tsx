@@ -25,7 +25,7 @@ export function KanbanBoard() {
   const t = translations[language];
 
   const COLUMNS: { id: TaskStatus; title: string; label: string; color: string; glow: string }[] = [
-    { id: 'todo', title: t.tasks.newQuestsCol, label: '📜 New', color: 'var(--color-neon-cyan)', glow: 'rgba(0, 240, 255, 0.15)' },
+    { id: 'todo', title: t.tasks.newTasksCol, label: '📜 New', color: 'var(--color-neon-cyan)', glow: 'rgba(0, 240, 255, 0.15)' },
     { id: 'doing', title: t.tasks.inProgressCol, label: '⚔️ Active', color: 'var(--color-neon-gold)', glow: 'rgba(255, 215, 0, 0.15)' },
     { id: 'done', title: t.tasks.completedCol, label: '✅ Done', color: 'var(--color-neon-green)', glow: 'rgba(57, 255, 20, 0.15)' },
   ];
@@ -127,7 +127,7 @@ export function KanbanBoard() {
         </div>
         <button className="btn btn-neon px-8 hover:scale-105 active:scale-95 transition-all group" onClick={() => setUi(s => ({ ...s, showAddModal: true }))}>
           <Plus size={20} className="mr-1 group-hover:scale-110 transition-transform" />
-          <span className="font-black uppercase tracking-widest text-[10px]">{t.tasks.newQuest}</span>
+          <span className="font-black uppercase tracking-widest text-[10px]">{t.tasks.newTask}</span>
         </button>
       </div>
 
@@ -154,7 +154,7 @@ export function KanbanBoard() {
                   <div
                     key={task.id}
                     className={`
-                      quest-card group/card
+                      task-card group/card
                       ${ui.draggedTask === task.id ? 'opacity-40 scale-95' : 'opacity-100'}
                     `}
                     draggable
@@ -203,7 +203,7 @@ export function KanbanBoard() {
                     {task.subtasks.length > 0 && (
                       <div className="flex flex-col gap-2 mb-4">
                         <div className="flex justify-between items-center text-[10px] font-black uppercase tracking-wider text-text-muted/60 font-display">
-                          <span>Sub-quests</span>
+                          <span>Sub-tasks</span>
                           <span>{task.subtasks.filter(s => s.completed).length}/{task.subtasks.length}</span>
                         </div>
                         <div className="xp-bar">
@@ -233,7 +233,7 @@ export function KanbanBoard() {
                     
                     {task.status === 'done' && (
                       <div className="flex items-center gap-2 px-4 py-2 bg-neon-green/8 rounded-2xl border border-neon-green/20 text-neon-green text-[10px] font-black uppercase tracking-[0.2em] mt-auto font-display">
-                        <CheckCircle2 size={14} strokeWidth={3} /> {t.tasks.questComplete}
+                        <CheckCircle2 size={14} strokeWidth={3} /> {t.tasks.taskComplete}
                       </div>
                     )}
 
@@ -268,7 +268,7 @@ export function KanbanBoard() {
         <div className="fixed inset-0 bg-black/80 backdrop-blur-xl z-100 flex items-center justify-center p-6 animate-in fade-in duration-300">
           <div className="game-panel p-8 max-w-xl w-full flex flex-col gap-8 border-neon-cyan/20 shadow-[0_0_50px_rgba(0,240,255,0.05)]">
             <div className="flex justify-between items-center">
-              <h3 className="text-2xl font-black tracking-tight font-display neon-cyan-text">{t.tasks.addQuestTitle}</h3>
+              <h3 className="text-2xl font-black tracking-tight font-display neon-cyan-text">{t.tasks.addTaskTitle}</h3>
               <button onClick={() => setUi(s => ({ ...s, showAddModal: false }))} className="p-2 hover:bg-neon-cyan/10 rounded-full text-text-muted/40 hover:text-neon-cyan transition-all hover:scale-110 active:scale-95 cursor-pointer">
                 <X size={24} />
               </button>
@@ -276,11 +276,11 @@ export function KanbanBoard() {
 
             <div className="flex flex-col gap-6">
               <div className="flex flex-col gap-2">
-                <label className="text-xs font-black uppercase tracking-widest text-text-muted/40 px-1 font-display">{t.tasks.questLabel}</label>
+                <label className="text-xs font-black uppercase tracking-widest text-text-muted/40 px-1 font-display">{t.tasks.taskLabel}</label>
                 <input 
                   type="text" 
                   className="w-full h-14 bg-surface-2 border border-neon-cyan/10 rounded-2xl px-5 font-bold outline-none focus:ring-2 focus:ring-neon-cyan/30 focus:border-neon-cyan/30 transition-all" 
-                  placeholder={t.tasks.questPlaceholder}
+                  placeholder={t.tasks.taskPlaceholder}
                   value={form.title}
                   onChange={(e) => setForm(s => ({ ...s, title: e.target.value }))}
                 />

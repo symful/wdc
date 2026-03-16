@@ -139,7 +139,7 @@ export function ProfileView() {
             
             <div className="grid grid-cols-1 sm:grid-cols-4 gap-6">
               <div className="stat-card">
-                <span className="text-[10px] text-text-muted/60 font-black uppercase tracking-widest font-display">{t.dashboard.questsDone}</span>
+                <span className="text-[10px] text-text-muted/60 font-black uppercase tracking-widest font-display">{t.dashboard.tasksDone}</span>
                 <span className="text-3xl font-black tabular-nums text-neon-cyan">{completedTasks}<span className="text-lg text-text-muted/40">/{tasks.length}</span></span>
               </div>
               <div className="stat-card">

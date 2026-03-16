@@ -455,7 +455,7 @@
   }
 
   /* === QUEST CARD === */
-  .quest-card {
+  .task-card {
     @apply p-5 rounded-xl border transition-all duration-300 cursor-grab;
     border-color: rgba(0, 240, 255, 0.1);
     background: rgba(10, 14, 26, 0.9);
@@ -466,13 +466,13 @@
     );
   }
 
-  .quest-card:hover {
+  .task-card:hover {
     border-color: rgba(0, 240, 255, 0.3);
     box-shadow: 0 0 20px rgba(0, 240, 255, 0.08);
     transform: translateY(-2px);
   }
 
-  .quest-card:active {
+  .task-card:active {
     cursor: grabbing;
   }
 }

@@ -269,8 +269,8 @@ export function DashboardView() {
                 </div>
                 <div>
                   <p className="font-bold text-red-100 italic">
-                    <span className="font-black text-[10px] uppercase tracking-widest bg-neon-red/30 text-neon-red px-3 py-1 rounded-lg mr-3 border border-neon-red/30 font-display not-italic">⚠ {t.dashboard.urgentQuest}</span>
-                    {t.dashboard.urgentQuestSubtitle(criticalTasks.length)}
+                    <span className="font-black text-[10px] uppercase tracking-widest bg-neon-red/30 text-neon-red px-3 py-1 rounded-lg mr-3 border border-neon-red/30 font-display not-italic">⚠ {t.dashboard.urgentTask}</span>
+                    {t.dashboard.urgentTaskSubtitle(criticalTasks.length)}
                   </p>
                 </div>
               </div>

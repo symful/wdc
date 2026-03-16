@@ -26,7 +26,7 @@ export function Layout() {
   const navItems = [
     { to: "/", icon: <Radar size={20} />, label: t.common.commandCenter, badge: null },
     { to: "/academic", icon: <GraduationCap size={20} />, label: t.common.studyManager, badge: null },
-    { to: "/tasks", icon: <ScrollText size={20} />, label: t.common.questBoard, badge: tasks.filter(t => t.status !== 'done').length || null },
+    { to: "/tasks", icon: <ScrollText size={20} />, label: t.common.taskBoard, badge: tasks.filter(t => t.status !== 'done').length || null },
     { to: "/study", icon: <Swords size={20} />, label: t.common.trainingArena, badge: null },
     { to: "/chat", icon: <MessageSquare size={20} />, label: t.common.guildHall, badge: null },
     { to: "/profile", icon: <User size={20} />, label: t.common.profile, badge: null },
