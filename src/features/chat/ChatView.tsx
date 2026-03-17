@@ -3,17 +3,24 @@ import { useChatStore } from "../../store/useChatStore";
 import { translations, useLanguageStore } from "../../store/useLanguageStore";
 import { useChatViewStore } from "../../store/useChatViewStore";
 import {
+  Ban,
+  Camera,
   Check,
   Clock,
   Download,
   Edit2,
   FileText,
+  ImageIcon,
   Info,
   Link,
   ListChecks,
   LogOut,
+  Maximize2,
   MessageSquare,
+  Paperclip,
   Plus,
+  QrCode,
+  Reply,
   Send,
   Share2,
   ShieldCheck,
@@ -46,6 +53,8 @@ export function ChatView() {
     sharedTasks,
     addSharedTask: storeAddSharedTask,
     toggleSharedTask,
+    removeSharedTask,
+    transferAdmin,
   } = useChatStore();
 
   const { language } = useLanguageStore();
@@ -483,7 +492,7 @@ export function ChatView() {
               <h2 className="text-lg md:text-xl font-black tracking-tight truncate font-display">
                 {t.chat.guildChamber}
               </h2>
-              <span className="text-[9px] md:text-[10px] font-black uppercase tracking-widest px-1.5 md:px-2 py-0.5 bg-neon-green/[0.08] text-neon-green rounded-md border border-neon-green/20 shrink-0 font-display">
+              <span className="text-[9px] md:text-[10px] font-black uppercase tracking-widest px-1.5 md:px-2 py-0.5 bg-neon-green/8 text-neon-green rounded-md border border-neon-green/20 shrink-0 font-display">
                 {t.chat.onlineStatus}
               </span>
             </div>

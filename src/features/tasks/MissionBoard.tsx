@@ -289,7 +289,7 @@ export function MissionBoard() {
                       ? "scale-95 opacity-0 blur-sm pointer-events-none"
                       : "scale-100 opacity-100"
                   } ${
-                    ui.viewMode === "archive"
+                    viewMode === "archive"
                       ? "opacity-70 grayscale hover:grayscale-0"
                       : ""
                   }`}
