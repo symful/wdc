@@ -37,6 +37,21 @@ export interface SharedTask {
   author: string;
 }
 
+export type ChatProtocol =
+  | { type: 'chat'; message: ChatMessage }
+  | { type: 'sync_users'; users: ChatUser[] }
+  | { type: 'admin_transfer'; newAdminId: string }
+  | { type: 'delete_message'; messageId: string }
+  | { type: 'user_rename'; userId: string; newName: string }
+  | { type: 'kicked' }
+  | { type: 'file_request'; messageId: string; fileId: string; requesterId: string }
+  | { type: 'file_response'; messageId: string; fileId: string; data: string }
+  | { type: 'shared_task_add'; task: SharedTask }
+  | { type: 'shared_task_toggle'; taskId: string }
+  | { type: 'shared_task_remove'; taskId: string }
+  | { type: 'ping' }
+  | { type: 'pong' };
+
 interface ChatState {
   peer: Peer | null;
   connections: Record<string, DataConnection>;
@@ -73,7 +88,17 @@ interface ChatState {
   removeSharedTask: (taskId: string) => void;
 }
 
-let heartbeatInterval: any = null;
+const broadcast = (data: ChatProtocol) => {
+  const state = useChatStore.getState();
+  if (state.currentUser?.role === 'admin') {
+    Object.values(state.connections).forEach(conn => conn.send(data));
+  } else {
+    const hostConn = Object.values(state.connections)[0];
+    if (hostConn) hostConn.send(data);
+  }
+};
+
+let heartbeatInterval: ReturnType<typeof setInterval> | null = null;
 
 export const useChatStore = create<ChatState>((set, get) => ({
   peer: null,
@@ -87,7 +112,7 @@ export const useChatStore = create<ChatState>((set, get) => ({
   error: null,
   sharedTasks: [],
 
-  initPeer: (userName: string) => {
+  initPeer: (_userName: string) => {
     return new Promise((resolve, reject) => {
       stopHeartbeat();
       const peer = new Peer({
@@ -175,7 +200,7 @@ export const useChatStore = create<ChatState>((set, get) => ({
     if (!state.currentUser || !state.peer) return;
 
     const newMessage: ChatMessage = {
-      id: Math.random().toString(36).substr(2, 9),
+      id: Math.random().toString(36).substring(2, 11),
       senderId: state.currentUser.id,
       senderName: state.currentUser.name,
       content,
@@ -202,8 +227,8 @@ export const useChatStore = create<ChatState>((set, get) => ({
     const state = get();
     if (!state.currentUser || !state.peer) return;
 
-    const fileId = Math.random().toString(36).substr(2, 9);
-    const msgId = Math.random().toString(36).substr(2, 9);
+    const fileId = Math.random().toString(36).substring(2, 11);
+    const msgId = Math.random().toString(36).substring(2, 11);
 
     let fileData: string | undefined = undefined;
     if (mode === 'instant') {
@@ -236,8 +261,9 @@ export const useChatStore = create<ChatState>((set, get) => ({
 
     // Store the file object for on-waiting requests
     if (mode === 'on-waiting') {
-      (window as any)._pendingFiles = (window as any)._pendingFiles || {};
-      (window as any)._pendingFiles[fileId] = file;
+      const win = window as unknown as { _pendingFiles?: Record<string, File> };
+      win._pendingFiles = win._pendingFiles || {};
+      win._pendingFiles[fileId] = file;
     }
   },
 
@@ -281,8 +307,11 @@ export const useChatStore = create<ChatState>((set, get) => ({
     broadcast({ type: 'delete_message', messageId: msgId });
 
     // Cleanup local files if I was the sender
-    if (msg.file?.id && (window as any)._pendingFiles) {
-      delete (window as any)._pendingFiles[msg.file.id];
+    if (msg.file?.id) {
+      const win = window as unknown as { _pendingFiles?: Record<string, File> };
+      if (win._pendingFiles) {
+        delete win._pendingFiles[msg.file.id];
+      }
     }
   },
 
@@ -299,7 +328,7 @@ export const useChatStore = create<ChatState>((set, get) => ({
     }));
 
     const eventMsg: ChatMessage = {
-      id: Math.random().toString(36).substr(2, 9),
+      id: Math.random().toString(36).substring(2, 11),
       senderId: 'system',
       senderName: 'Sistem',
       content: `${oldName} mengganti nama menjadi ${newName}`,
@@ -369,7 +398,7 @@ export const useChatStore = create<ChatState>((set, get) => ({
     const state = get();
     if (!state.currentUser || !text.trim()) return;
     const task: SharedTask = {
-      id: Math.random().toString(36).substr(2, 9),
+      id: Math.random().toString(36).substring(2, 11),
       text: text.trim(),
       done: false,
       author: state.currentUser.name,
@@ -399,51 +428,53 @@ export const useChatStore = create<ChatState>((set, get) => ({
 
 // Helper functions for internal logic
 function setupConnection(conn: DataConnection) {
-  conn.on('data', (data: any) => {
+  conn.on('data', (data) => {
+    const messageData = data as ChatProtocol;
     const state = useChatStore.getState();
-    const { type } = data;
+    const { type } = messageData;
 
     if (type === 'chat') {
-      useChatStore.setState((s) => ({ messages: [...s.messages, data.message] }));
+      useChatStore.setState((s) => ({ messages: [...s.messages, messageData.message] }));
       
       // If I am admin, relay to everyone else
       if (state.currentUser?.role === 'admin') {
         Object.keys(state.connections).forEach(id => {
-          if (id !== data.message.senderId) {
-            state.connections[id].send(data);
+          if (id !== messageData.message.senderId) {
+            state.connections[id].send(messageData);
           }
         });
       }
     } else if (type === 'sync_users') {
-      useChatStore.setState({ users: data.users });
+      useChatStore.setState({ users: messageData.users });
     } else if (type === 'admin_transfer') {
       // Reconnect logic or just update role
-      if (state.currentUser?.id === data.newAdminId) {
+      if (state.currentUser?.id === messageData.newAdminId) {
         promoteToAdmin();
       } else {
         useChatStore.setState((s) => ({
-          users: s.users.map(u => u.id === data.newAdminId ? { ...u, role: 'admin' } : (u.role === 'admin' ? { ...u, role: 'user' } : u))
+          users: s.users.map(u => u.id === messageData.newAdminId ? { ...u, role: 'admin' } : (u.role === 'admin' ? { ...u, role: 'user' } : u))
         }));
       }
     } else if (type === 'delete_message') {
-      useChatStore.setState((s) => ({ messages: s.messages.filter(m => m.id !== data.messageId) }));
+      useChatStore.setState((s) => ({ messages: s.messages.filter(m => m.id !== messageData.messageId) }));
     } else if (type === 'user_rename') {
       useChatStore.setState((s) => ({
-        users: s.users.map(u => u.id === data.userId ? { ...u, name: data.newName } : u)
+        users: s.users.map(u => u.id === messageData.userId ? { ...u, name: messageData.newName } : u)
       }));
     } else if (type === 'kicked') {
       useChatStore.getState().leaveRoom();
       useChatStore.setState({ error: 'Anda telah dikeluarkan dari ruangan oleh Admin.', status: 'error' });
     } else if (type === 'file_request') {
       // Someone is requesting a file I have (on-waiting)
-      const file = (window as any)._pendingFiles?.[data.fileId];
-      if (file && state.connections[data.requesterId]) {
+      const win = window as unknown as { _pendingFiles?: Record<string, File> };
+      const file = win._pendingFiles?.[messageData.fileId];
+      if (file && state.connections[messageData.requesterId]) {
         const reader = new FileReader();
         reader.onload = (e) => {
-          state.connections[data.requesterId].send({
+          state.connections[messageData.requesterId].send({
             type: 'file_response',
-            messageId: data.messageId,
-            fileId: data.fileId,
+            messageId: messageData.messageId,
+            fileId: messageData.fileId,
             data: e.target?.result as string
           });
         };
@@ -452,37 +483,37 @@ function setupConnection(conn: DataConnection) {
     } else if (type === 'file_response') {
       // Received the actual file data for an on-waiting request
       useChatStore.setState((s) => ({
-        messages: s.messages.map(m => m.id === data.messageId ? { 
+        messages: s.messages.map(m => m.id === messageData.messageId ? { 
           ...m, 
-          file: m.file ? { ...m.file, data: data.data, status: 'completed' } : undefined 
+          file: m.file ? { ...m.file, data: messageData.data, status: 'completed' } : undefined 
         } : m)
       }));
     } else if (type === 'pong') {
       // Heartbeat received
     } else if (type === 'shared_task_add') {
-      useChatStore.setState((s) => ({ sharedTasks: [...s.sharedTasks, data.task] }));
+      useChatStore.setState((s) => ({ sharedTasks: [...s.sharedTasks, messageData.task] }));
       // Admin relays to others
       if (state.currentUser?.role === 'admin') {
         Object.keys(state.connections).forEach(id => {
-          if (id !== conn.peer) state.connections[id].send(data);
+          if (id !== conn.peer) state.connections[id].send(messageData);
         });
       }
     } else if (type === 'shared_task_toggle') {
       useChatStore.setState((s) => ({
-        sharedTasks: s.sharedTasks.map(t => t.id === data.taskId ? { ...t, done: !t.done } : t)
+        sharedTasks: s.sharedTasks.map(t => t.id === messageData.taskId ? { ...t, done: !t.done } : t)
       }));
       if (state.currentUser?.role === 'admin') {
         Object.keys(state.connections).forEach(id => {
-          if (id !== conn.peer) state.connections[id].send(data);
+          if (id !== conn.peer) state.connections[id].send(messageData);
         });
       }
     } else if (type === 'shared_task_remove') {
       useChatStore.setState((s) => ({
-        sharedTasks: s.sharedTasks.filter(t => t.id !== data.taskId)
+        sharedTasks: s.sharedTasks.filter(t => t.id !== messageData.taskId)
       }));
       if (state.currentUser?.role === 'admin') {
         Object.keys(state.connections).forEach(id => {
-          if (id !== conn.peer) state.connections[id].send(data);
+          if (id !== conn.peer) state.connections[id].send(messageData);
         });
       }
     }
@@ -495,7 +526,6 @@ function setupConnection(conn: DataConnection) {
 
 function handleIncomingConnection(conn: DataConnection) {
   conn.on('open', () => {
-    const state = useChatStore.getState();
     const newUser: ChatUser = {
       id: conn.peer,
       name: conn.metadata.name || 'Anonymous',
@@ -514,7 +544,7 @@ function handleIncomingConnection(conn: DataConnection) {
 
       // System message
       const systemMsg: ChatMessage = {
-        id: Math.random().toString(36).substr(2, 9),
+        id: Math.random().toString(36).substring(2, 11),
         senderId: 'system',
         senderName: 'Sistem',
         content: `${newUser.name} bergabung ke ruangan`,
@@ -544,10 +574,10 @@ function handleDisconnection(peerId: string) {
   
   useChatStore.setState((s) => {
     const updatedUsers = s.users.filter(u => u.id !== peerId);
-    const { [peerId]: removed, ...remainingConnections } = s.connections;
+    const { [peerId]: _removed, ...remainingConnections } = s.connections;
 
     const systemMsg: ChatMessage = {
-      id: Math.random().toString(36).substr(2, 9),
+      id: Math.random().toString(36).substring(2, 11),
       senderId: 'system',
       senderName: 'Sistem',
       content: `${disconnectedUser?.name || 'Seseorang'} keluar dari ruangan`,
@@ -585,7 +615,7 @@ function handleDisconnection(peerId: string) {
   }
 }
 
-function handleHostMigration(oldState: any) {
+function handleHostMigration(_oldState: ChatState) {
   const state = useChatStore.getState();
   if (state.users.length === 0) return;
 
@@ -609,7 +639,7 @@ function handleHostMigration(oldState: any) {
           metadata: { name: innerState.currentUser?.name, joinTime: innerState.currentUser?.joinTime }
         });
         conn.on('open', () => {
-          useChatStore.setState(s => ({
+          useChatStore.setState(() => ({
             connections: { [nextAdmin.id]: conn },
             roomKey: nextAdmin.id,
             status: 'connected',
@@ -635,7 +665,7 @@ function promoteToAdmin() {
 
   // System message
   const systemMsg: ChatMessage = {
-    id: Math.random().toString(36).substr(2, 9),
+    id: Math.random().toString(36).substring(2, 11),
     senderId: 'system',
     senderName: 'Sistem',
     content: `Anda sekarang adalah Admin Ruangan. Menunggu peserta lain untuk menyambung kembali...`,
@@ -646,15 +676,7 @@ function promoteToAdmin() {
   useChatStore.setState(s => ({ messages: [...s.messages, systemMsg] }));
 }
 
-function broadcast(data: any) {
-  const state = useChatStore.getState();
-  if (state.currentUser?.role === 'admin') {
-    Object.values(state.connections).forEach(conn => conn.send(data));
-  } else {
-    const hostConn = Object.values(state.connections)[0];
-    if (hostConn) hostConn.send(data);
-  }
-}
+// broadcast function moved upwards to resolve hoisting/scoping issues with ChatProtocol usage
 
 function startHeartbeat() {
   stopHeartbeat();
@@ -663,7 +685,7 @@ function startHeartbeat() {
     Object.values(state.connections).forEach(conn => {
       try {
         conn.send({ type: 'ping' });
-      } catch (err) {
+      } catch {
         handleDisconnection(conn.peer);
       }
     });

@@ -1,11 +1,11 @@
-import { lazy, Suspense, useState, useCallback, useEffect } from 'react';
+import { lazy, Suspense, useCallback, useEffect } from 'react';
 import { createBrowserRouter, RouterProvider, Navigate } from 'react-router-dom';
 import { Layout } from './components/layout/Layout';
 import { DashboardSkeleton, KanbanSkeleton, ScheduleSkeleton } from './components/ui/Skeleton';
 import { Swords } from 'lucide-react';
 import { SplashScreen } from './components/splash/SplashScreen';
-import { useAcademicStore } from './store/useAcademicStore';
-import { useStudyStore } from './store/useStudyStore';
+import { useAcademicStore, Semester, AcademicCourse, XPLog } from './store/useAcademicStore';
+import { useStudyStore, StudySession } from './store/useStudyStore';
 import { useLanguageStore } from './store/useLanguageStore';
 import semester2Data from './data/semesters/semester_2.json';
 
@@ -78,6 +78,7 @@ const router = createBrowserRouter([
 ]);
 
 import { useRPGAudio } from './hooks/useRPGAudio';
+import { useSplashScreenStore } from './store/useSplashScreenStore';
 
 function GlobalAudio() {
   useRPGAudio();
@@ -87,14 +88,12 @@ function GlobalAudio() {
 const SPLASH_KEY = 'ontime-splash-seen';
 
 export default function App() {
-  const [showSplash, setShowSplash] = useState(
-    () => !sessionStorage.getItem(SPLASH_KEY)
-  );
+  const { showSplash, setShowSplash } = useSplashScreenStore();
 
   const handleSplashComplete = useCallback(() => {
     sessionStorage.setItem(SPLASH_KEY, '1');
     setShowSplash(false);
-  }, []);
+  }, [setShowSplash]);
 
   const { semesters, courses, xpLogs, importData } = useAcademicStore();
   const { sessions, setSessions } = useStudyStore();
@@ -104,15 +103,15 @@ export default function App() {
     // Auto-initialize if empty (to ensure semester file is loaded)
     if (semesters.length === 0 || courses.length === 0 || xpLogs.length === 0) {
       importData({
-        semesters: [semester2Data.semester] as any,
-        courses: semester2Data.courses as any,
-        xpLogs: semester2Data.xpLogs as any
+        semesters: [semester2Data.semester as unknown as Semester],
+        courses: semester2Data.courses as unknown as AcademicCourse[],
+        xpLogs: semester2Data.xpLogs as unknown as XPLog[]
       });
     }
     
     // Initialize sessions if empty
     if (sessions.length === 0 && semester2Data.sessions) {
-      setSessions(semester2Data.sessions as any);
+      setSessions(semester2Data.sessions as unknown as StudySession[]);
     }
   }, [semesters.length, courses.length, xpLogs.length, sessions.length, importData, setSessions]);
 

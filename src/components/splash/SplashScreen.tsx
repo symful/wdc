@@ -1,41 +1,11 @@
-import { useState, useEffect, useCallback, useRef } from 'react';
-import { useLanguageStore, translations } from '../../store/useLanguageStore';
+import { useState, useEffect, useCallback, useMemo } from 'react';
+import { useLanguageStore } from '../../store/useLanguageStore';
+import { useSplashScreenStore } from '../../store/useSplashScreenStore';
 import { playClickSound } from '../../hooks/useRPGAudio';
 import { ChevronRight, Play } from 'lucide-react';
 
-// ===== WEB AUDIO API SOUND EFFECTS =====
-function createAudioContext(): AudioContext | null {
-  try {
-    return new (window.AudioContext || (window as any).webkitAudioContext)();
-  } catch {
-    return null;
-  }
-}
-
-function playBootBeep(ctx: AudioContext, freq: number, startTime: number, duration = 0.08) {
-  const osc = ctx.createOscillator();
-  const gain = ctx.createGain();
-  osc.type = 'square';
-  osc.frequency.setValueAtTime(freq, startTime);
-  gain.gain.setValueAtTime(0.06, startTime);
-  gain.gain.exponentialRampToValueAtTime(0.001, startTime + duration);
-  osc.connect(gain);
-  gain.connect(ctx.destination);
-  osc.start(startTime);
-  osc.stop(startTime + duration);
-}
-
-function playBootSequence(ctx: AudioContext) {
-  const now = ctx.currentTime;
-  const freqs = [220, 330, 440, 550, 660, 880];
-  freqs.forEach((f, i) => {
-    playBootBeep(ctx, f, now + i * 0.1, 0.08);
-  });
-}
-
-// Removed redundant local sound funcs to rely on useRPGAudio hook 
-
 // ===== PARTICLE DATA =====
+// (Keeping particle logic)
 interface Particle {
   id: number;
   x: number;
@@ -62,15 +32,14 @@ function generateParticles(count: number): Particle[] {
 }
 
 // ===== TYPEWRITER HOOK =====
+// (Keeping typewriter hook but utilizing store if needed later, for now keeping it local as it's purely UI transient)
 function useTypewriter(text: string, startDelay: number, charDelay = 60) {
   const [displayed, setDisplayed] = useState('');
   const [done, setDone] = useState(false);
 
   useEffect(() => {
-    let timeout: ReturnType<typeof setTimeout>;
     let charIndex = 0;
-
-    timeout = setTimeout(() => {
+    const timeout = setTimeout(() => {
       const interval = setInterval(() => {
         charIndex++;
         setDisplayed(text.slice(0, charIndex));
@@ -95,22 +64,19 @@ interface SplashScreenProps {
 }
 
 export function SplashScreen({ onComplete }: SplashScreenProps) {
-  const [phase, setPhase] = useState(0);
-  // phase 0: initial fade-in (hex grid + particles)
-  // phase 1: boot text typing
-  // phase 2: title typing
-  // phase 3: tagline + loading bar
-  // phase 4: press start visible
-  // phase 5: exit animation
-  // phase 6: done (unmount)
+  const {
+    phase,
+    loadingProgress,
+    mousePos,
+    exiting,
+    setPhase,
+    setLoadingProgress,
+    setMousePos,
+    setExiting
+  } = useSplashScreenStore();
 
-  const [loadingProgress, setLoadingProgress] = useState(0);
-  const [mousePos, setMousePos] = useState({ x: 0.5, y: 0.5 });
-  const [exiting, setExiting] = useState(false);
-  const audioCtxRef = useRef<AudioContext | null>(null);
   const { language } = useLanguageStore();
-  const t = translations[language];
-  const particles = useRef(generateParticles(25)).current;
+  const particles = useMemo(() => generateParticles(25), []);
 
   // Phase sequencing
   useEffect(() => {
@@ -121,26 +87,26 @@ export function SplashScreen({ onComplete }: SplashScreenProps) {
     timers.push(setTimeout(() => setPhase(3), 2800));   // tagline + loading
     timers.push(setTimeout(() => setPhase(4), 4200));   // press start
 
-    return () => timers.forEach(clearTimeout);
-  }, []);
+    return () => {
+      timers.forEach(clearTimeout);
+    };
+  }, [setPhase]);
 
-  // Removed blocked auto-play audio implementation
-
-  // Loading bar animation
+  // Loading bar animation - FIXED: Removed loadingProgress from dependencies 
   useEffect(() => {
     if (phase >= 3) {
-      let progress = 0;
       const interval = setInterval(() => {
-        progress += 2 + Math.random() * 5;
-        if (progress >= 100) {
-          progress = 100;
-          clearInterval(interval);
-        }
-        setLoadingProgress(progress);
+        setLoadingProgress((prev) => {
+          if (prev >= 100) {
+            clearInterval(interval);
+            return 100;
+          }
+          return Math.min(prev + 2 + Math.random() * 5, 100);
+        });
       }, 50);
       return () => clearInterval(interval);
     }
-  }, [phase]);
+  }, [phase, setLoadingProgress]);
 
   // Mouse parallax
   const handleMouseMove = useCallback((e: React.MouseEvent) => {
@@ -148,10 +114,10 @@ export function SplashScreen({ onComplete }: SplashScreenProps) {
       x: e.clientX / window.innerWidth,
       y: e.clientY / window.innerHeight,
     });
-  }, []);
+  }, [setMousePos]);
 
   // Handle start
-  const handleStart = useCallback((isKeyboard = false) => {
+  const handleStart = useCallback(() => {
     if (phase < 4 || exiting) return;
 
     playClickSound();
@@ -163,7 +129,7 @@ export function SplashScreen({ onComplete }: SplashScreenProps) {
       setPhase(6);
       onComplete();
     }, 900);
-  }, [phase, exiting, onComplete]);
+  }, [phase, exiting, onComplete, setExiting, setPhase]);
 
   // Handle skip
   const handleSkip = useCallback(() => {
@@ -174,14 +140,15 @@ export function SplashScreen({ onComplete }: SplashScreenProps) {
       setPhase(6);
       onComplete();
     }, 500);
-  }, [exiting, onComplete]);
+  }, [exiting, onComplete, setExiting, setPhase]);
+
 
   // Keyboard support
   useEffect(() => {
     const handler = (e: KeyboardEvent) => {
       if (e.key === 'Enter' || e.key === ' ') {
         e.preventDefault();
-        handleStart(true);
+        handleStart();
       }
     };
     window.addEventListener('keydown', handler);
@@ -201,7 +168,7 @@ export function SplashScreen({ onComplete }: SplashScreenProps) {
     <div
       className={`splash-overlay ${exiting ? 'splash-exiting' : ''} ${phase >= 4 ? 'cursor-pointer' : ''}`}
       onMouseMove={handleMouseMove}
-      onClick={phase >= 4 ? () => handleStart(false) : undefined}
+      onClick={phase >= 4 ? () => handleStart() : undefined}
       id="splash-screen"
     >
       {/* Hex Grid Background */}
@@ -217,7 +184,7 @@ export function SplashScreen({ onComplete }: SplashScreenProps) {
           transform: `translate(${parallaxX}px, ${parallaxY}px)`,
         }}
       >
-        {particles.map((p) => (
+        {particles.map((p: Particle) => (
           <div
             key={p.id}
             className={`splash-particle splash-particle-${p.shape}`}
@@ -291,7 +258,7 @@ export function SplashScreen({ onComplete }: SplashScreenProps) {
         {phase >= 4 && (
           <button
             className="splash-start-btn"
-            onClick={(e) => { e.stopPropagation(); handleStart(false); }}
+            onClick={(e) => { e.stopPropagation(); handleStart(); }}
             id="splash-start-btn"
           >
             <Play className="inline mr-1" size={16} /> {language === 'id' ? 'PRESS START' : 'PRESS START'}

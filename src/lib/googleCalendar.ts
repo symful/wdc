@@ -1,24 +1,46 @@
-/**
- * Google Calendar API Implementation for ontime!
- * This module handles OAuth2 authentication and calendar synchronization.
- */
+import type { AcademicCourse } from '../store/useAcademicStore';
+import type { Task } from '../store/useTaskStore';
 
-// Placeholder for Client ID - User must replace this in Google Cloud Console
+// Google API Types
+interface GapiClient {
+  load(api: string, callback: () => void): void;
+  client: {
+    init(config: { discoveryDocs: string[] }): Promise<void>;
+    getToken(): { access_token: string } | null;
+    calendar: {
+      calendarList: {
+        list(): Promise<{ result: { items: { id: string; summary: string }[] } }>;
+      };
+      calendars: {
+        insert(config: { resource: { summary: string } }): Promise<{ result: { id: string } }>;
+      };
+      events: {
+        insert(config: { calendarId: string; resource: unknown }): Promise<void>;
+      };
+    };
+  };
+}
+
+interface TokenClient {
+  callback?: (resp: { error?: string }) => Promise<void>;
+  requestAccessToken(config: { prompt: string }): void;
+}
+
 const CLIENT_ID = '816409399692-e448gkgt6u3pcedc1cg8maeed4kg2hnv.apps.googleusercontent.com';
 const SCOPES = 'https://www.googleapis.com/auth/calendar';
 
 let gapiInited = false;
 let gsisInited = false;
-let tokenClient: any = null;
+let tokenClient: TokenClient | null = null;
 
 /**
  * Initialize GAPI Client
  */
 async function initializeGapiClient() {
+  const gapi = (window as unknown as { gapi: GapiClient }).gapi;
   return new Promise<void>((resolve) => {
-    (window as any).gapi.load('client', async () => {
-      await (window as any).gapi.client.init({
-        // apiKey: 'YOUR_API_KEY', // Optional if only using OAuth
+    gapi.load('client', async () => {
+      await gapi.client.init({
         discoveryDocs: ['https://www.googleapis.com/discovery/v1/apis/calendar/v3/rest'],
       });
       gapiInited = true;
@@ -33,11 +55,12 @@ let currentResolve: ((res: boolean) => void) | null = null;
  * Initialize GSIS Client
  */
 function initializeGsisClient() {
-  tokenClient = (window as any).google.accounts.oauth2.initTokenClient({
+  const google = (window as unknown as { google: { accounts: { oauth2: { initTokenClient(config: unknown): TokenClient, hasGrantedAllScopes(resp: unknown, scope: string): boolean } } } }).google;
+  tokenClient = google.accounts.oauth2.initTokenClient({
     client_id: CLIENT_ID,
     scope: SCOPES,
     callback: '', // defined later in requestToken
-    error_callback: (err: any) => {
+    error_callback: (err: unknown) => {
       console.warn('Google Auth Error:', err);
       if (currentResolve) {
         currentResolve(false);
@@ -53,15 +76,19 @@ function initializeGsisClient() {
  */
 async function requestToken(): Promise<{ success: boolean; error?: string }> {
   if (!gsisInited) initializeGsisClient();
+  if (!tokenClient) return { success: false, error: 'Auth client not initialized.' };
   
-  return new Promise((resolve) => {
-    currentResolve = (res: any) => resolve({ success: res }); // Fallback old cast
+  const gapi = (window as unknown as { gapi: GapiClient }).gapi;
+  const google = (window as unknown as { google: { accounts: { oauth2: { hasGrantedAllScopes(resp: unknown, scope: string): boolean } } } }).google;
 
-    tokenClient.callback = async (resp: any) => {
+  return new Promise((resolve) => {
+    currentResolve = (res: boolean) => resolve({ success: res });
+
+    tokenClient!.callback = async (resp: { error?: string }) => {
       if (resp.error !== undefined) {
         resolve({ success: false, error: 'Cancelled or auth error.' });
       } else {
-        const hasScope = (window as any).google.accounts.oauth2.hasGrantedAllScopes(resp, SCOPES);
+        const hasScope = google.accounts.oauth2.hasGrantedAllScopes(resp, SCOPES);
         if (!hasScope) {
           resolve({ success: false, error: 'NO_SCOPE' });
         } else {
@@ -72,13 +99,13 @@ async function requestToken(): Promise<{ success: boolean; error?: string }> {
     };
 
     try {
-      if ((window as any).gapi.client.getToken() === null) {
-        tokenClient.requestAccessToken({ prompt: 'consent' });
+      if (gapi.client.getToken() === null) {
+        tokenClient!.requestAccessToken({ prompt: 'consent' });
       } else {
         // Force consent to check scopes if things failed previously
-        tokenClient.requestAccessToken({ prompt: '' });
+        tokenClient!.requestAccessToken({ prompt: '' });
       }
-    } catch (e) {
+    } catch {
       resolve({ success: false, error: 'Failed to request token.' });
       currentResolve = null;
     }
@@ -89,10 +116,11 @@ async function requestToken(): Promise<{ success: boolean; error?: string }> {
  * Sync Events from Current Time to End of Week
  */
 export async function syncToGoogleCalendar(
-  courses: any[], 
-  tasks: any[], 
+  courses: AcademicCourse[], 
+  tasks: Task[], 
   onProgress?: (step: number) => void
 ): Promise<{ success: boolean; error?: string }> {
+  const gapi = (window as unknown as { gapi: GapiClient }).gapi;
   try {
     if (!gapiInited) await initializeGapiClient();
     
@@ -112,12 +140,12 @@ export async function syncToGoogleCalendar(
     // 1. Get or Create "ontime! Academic" Calendar
     let calendarId = 'primary';
     try {
-      const calendarsResp = await (window as any).gapi.client.calendar.calendarList.list();
-      const existing = calendarsResp.result.items.find((c: any) => c.summary === 'ontime! Academic');
+      const calendarsResp = await gapi.client.calendar.calendarList.list();
+      const existing = calendarsResp.result.items.find((c) => c.summary === 'ontime! Academic');
       if (existing) {
         calendarId = existing.id;
       } else {
-        const newCal = await (window as any).gapi.client.calendar.calendars.insert({
+        const newCal = await gapi.client.calendar.calendars.insert({
           resource: { summary: 'ontime! Academic' }
         });
         calendarId = newCal.result.id;
@@ -127,14 +155,14 @@ export async function syncToGoogleCalendar(
     }
 
     // 2. Prepare Events
-    const events: any[] = [];
+    const events: unknown[] = [];
 
     // Add Courses
     courses.forEach(course => {
-      course.schedules.forEach((sch: any) => {
+      course.schedules.forEach((sch) => {
         const eventDate = new Date(now);
         const targetDay = sch.day === 6 ? 0 : sch.day + 1;
-        let daysToAdd = targetDay - now.getDay();
+        const daysToAdd = targetDay - now.getDay();
         if (daysToAdd < 0) return; // Only upcoming in current week
 
         eventDate.setDate(now.getDate() + daysToAdd);
@@ -177,21 +205,31 @@ export async function syncToGoogleCalendar(
 
     // 3. Push to Google Calendar
     for (const event of events) {
-      await (window as any).gapi.client.calendar.events.insert({
+      await gapi.client.calendar.events.insert({
         calendarId: calendarId,
         resource: event,
       });
     }
 
     return { success: true };
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error("Google Calendar Sync Error:", error);
     let errorMsg = 'Unknown error occurred.';
-    if (error?.result?.error?.message) {
-      errorMsg = error.result.error.message;
+    
+    interface GapiError {
+      result?: {
+        error?: {
+          message?: string;
+        };
+      };
+    }
+
+    if ((error as GapiError)?.result?.error?.message) {
+      errorMsg = (error as GapiError).result!.error!.message!;
     } else if (error instanceof Error) {
       errorMsg = error.message;
     }
     return { success: false, error: errorMsg };
   }
 }
+

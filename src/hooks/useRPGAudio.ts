@@ -1,14 +1,16 @@
-import { useEffect, useRef, useCallback } from 'react';
+import { useEffect } from 'react';
 
 // Shared AudioContext to prevent creating too many contexts
 let sharedCtx: AudioContext | null = null;
-let systemMuted = false;
+const systemMuted = false;
 
 function getContext() {
   if (systemMuted) return null;
   if (!sharedCtx) {
     try {
-      sharedCtx = new (window.AudioContext || (window as any).webkitAudioContext)();
+      const AudioContextClass = window.AudioContext || 
+        (window as unknown as { webkitAudioContext: typeof AudioContext }).webkitAudioContext;
+      sharedCtx = new AudioContextClass();
     } catch {
       return null;
     }

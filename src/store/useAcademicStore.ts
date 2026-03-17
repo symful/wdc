@@ -1,5 +1,6 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
+import { StudySession } from './useStudyStore';
 
 export type SemesterType = 'ganjil' | 'genap';
 export type CourseType = 'Wajib' | 'Pilihan' | 'Mengulang';
@@ -73,7 +74,7 @@ interface AcademicState {
   addXp: (amount: number, source: string) => void;
 
   // Study Plan
-  generateStudyPlan: (pastSessions: any[]) => void;
+  generateStudyPlan: (pastSessions: StudySession[]) => void;
   skipTask: (courseId: string, topicTitle: string) => void;
   importData: (data: { semesters: Semester[]; courses: AcademicCourse[]; xpLogs?: XPLog[] }) => void;
 }
@@ -90,7 +91,7 @@ export const useAcademicStore = create<AcademicState>()(
       xpLogs: semesterData.xpLogs as XPLog[],
       
       addSemester: (semData) => set((state) => {
-        const id = Math.random().toString(36).substr(2, 9);
+        const id = Math.random().toString(36).substring(2, 11);
         return { 
           semesters: [...state.semesters, { ...semData, id }],
           activeSemesterId: state.activeSemesterId || id
@@ -110,7 +111,7 @@ export const useAcademicStore = create<AcademicState>()(
       setActiveSemester: (id) => set({ activeSemesterId: id }),
       
       addCourse: (courseData) => set((state) => ({
-        courses: [...state.courses, { ...courseData, topics: [], id: Math.random().toString(36).substr(2, 9) }]
+        courses: [...state.courses, { ...courseData, topics: [], id: Math.random().toString(36).substring(2, 11) }]
       })),
       
       updateCourse: (id, updates) => set((state) => ({
@@ -124,7 +125,7 @@ export const useAcademicStore = create<AcademicState>()(
       addTopic: (courseId, title) => set((state) => ({
         courses: state.courses.map(c => c.id === courseId ? {
           ...c,
-          topics: [...c.topics, { id: Math.random().toString(36).substr(2, 9), title, completed: false, confidence: 0, repetitionCount: 0 }]
+          topics: [...c.topics, { id: Math.random().toString(36).substring(2, 11), title, completed: false, confidence: 0, repetitionCount: 0 }]
         } : c)
       })),
 
@@ -144,7 +145,7 @@ export const useAcademicStore = create<AcademicState>()(
 
       addXp: (amount, source) => set((state) => ({
         xpLogs: [{
-          id: Math.random().toString(36).substr(2, 9),
+          id: Math.random().toString(36).substring(2, 11),
           amount,
           source,
           date: new Date().toISOString()
