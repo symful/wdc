@@ -370,13 +370,12 @@ export function Layout() {
             <div className="flex items-center gap-2">
               <div className="w-2 h-2 rounded-full bg-neon-cyan shadow-[0_0_8px_rgba(0,240,255,0.5)] animate-pulse">
               </div>
-              <h2 className="text-xs font-black tracking-[0.15em] font-display text-text-muted/60 hidden sm:block uppercase">
+              <h2 className="text-xs font-black tracking-[0.15em] font-display text-text-muted/60 hidden lg:block uppercase">
                 {t.common.commandCenter}
               </h2>
             </div>
           </div>
-          <div className="flex items-center gap-3 md:gap-4">
-            {/* Notification Bell + Dropdown */}
+          <div className="flex items-center gap-3 md:gap            {/* Notification Bell + Dropdown */}
             <div className="relative">
               <button
                 onClick={() => {
@@ -397,41 +396,43 @@ export function Layout() {
 
               {/* Notification Dropdown Panel */}
               {showNotifPanel && (
-                <div className="fixed md:absolute right-2 md:right-0 top-20 md:top-full md:mt-2 left-2 md:left-auto w-auto md:w-80 max-h-[70vh] md:max-h-96 z-150 bg-bg-main rounded-2xl border border-neon-cyan/30 shadow-[0_20px_50px_rgba(0,0,0,0.8)] flex flex-col overflow-hidden animate-in slide-in-from-top-2 fade-in duration-200">
+                <div className="fixed md:absolute right-2 md:-right-2 top-[72px] md:top-full md:mt-3 left-2 md:left-auto w-auto md:w-85 max-h-[70vh] md:max-h-[480px] z-150 bg-bg-main/95 backdrop-blur-xl rounded-2xl border border-neon-cyan/30 shadow-[0_20px_50px_rgba(0,0,0,0.8)] flex flex-col overflow-hidden animate-in slide-in-from-top-2 fade-in duration-200">
                   {/* Header */}
-                  <div className="flex items-center justify-between p-3 md:p-4 border-b border-white/5 shrink-0">
-                    <div className="flex items-center gap-2">
-                      <Bell size={14} className="text-neon-cyan" />
-                      <span className="text-xs font-black uppercase tracking-widest font-display text-text-main">
+                  <div className="flex items-center justify-between p-4 border-b border-white/5 shrink-0 bg-white/2">
+                    <div className="flex items-center gap-2.5">
+                      <div className="p-1.5 bg-neon-cyan/10 rounded-lg">
+                        <Bell size={14} className="text-neon-cyan" />
+                      </div>
+                      <span className="text-[11px] font-black uppercase tracking-[0.2em] font-display text-text-main">
                         {language === "id" ? "Notifikasi" : "Notifications"}
                       </span>
                     </div>
-                    <div className="flex items-center gap-1">
+                    <div className="flex items-center gap-2">
                       {notifications.length > 0 && (
                         <button
                           onClick={() =>
                             useNotificationStore.getState().clearAll()}
-                          className="text-[10px] md:text-[12px] font-black uppercase tracking-widest text-text-muted/70 hover:text-neon-red px-2 md:px-3 py-2 rounded-lg hover:bg-neon-red/10 transition-all"
+                          className="text-[10px] font-black uppercase tracking-widest text-text-muted/50 hover:text-neon-red px-3 py-1.5 rounded-lg hover:bg-neon-red/10 transition-all"
                         >
                           {language === "id" ? "Hapus" : "Clear"}
                         </button>
                       )}
                       <button
                         onClick={() => setShowNotifPanel(false)}
-                        className="md:hidden p-2 text-text-muted/50 hover:text-neon-red transition-all"
+                        className="p-1.5 text-text-muted/40 hover:text-white transition-all hover:rotate-90"
                       >
-                        <X size={18} />
+                        <X size={16} />
                       </button>
                     </div>
                   </div>
 
                   {/* Notification List */}
-                  <div className="flex-1 overflow-y-auto">
+                  <div className="flex-1 overflow-y-auto scrollbar-thin scrollbar-thumb-white/5">
                     {notifications.length === 0
-                      ? (
-                        <div className="flex flex-col items-center justify-center py-8 md:py-12 gap-3 text-text-muted/20">
-                          <Bell size={24} className="md:size-28" />
-                          <span className="text-[10px] font-black uppercase tracking-widest font-display">
+                       ? (
+                        <div className="flex flex-col items-center justify-center py-16 gap-4 text-text-muted/10">
+                          <Bell size={48} className="opacity-20" />
+                          <span className="text-[10px] font-black uppercase tracking-widest font-display opacity-40">
                             {language === "id"
                               ? "Tidak ada notifikasi"
                               : "No notifications"}
@@ -442,23 +443,28 @@ export function Layout() {
                         notifications.slice(0, 15).map((notif) => (
                           <div
                             key={notif.id}
-                            className={`flex items-start gap-2 md:gap-3 p-3 md:p-4 border-b border-white/5 hover:bg-white/3 transition-all group ${
-                              !notif.read ? "bg-neon-cyan/3" : ""
+                            className={`flex items-start gap-4 p-4 border-b border-white/5 hover:bg-white/3 transition-all group relative ${
+                              !notif.read ? "bg-neon-cyan/5" : ""
                             }`}
                           >
-                            <div className="flex-1 min-w-0">
-                              <div className="text-[9px] md:text-[10px] font-black uppercase tracking-wider font-display text-text-main mb-0.5">
-                                {notif.title}
+                            {!notif.read && (
+                              <div className="absolute left-0 top-0 bottom-0 w-0.5 bg-neon-cyan shadow-[0_0_8px_rgba(0,240,255,0.5)]"></div>
+                            )}
+                            <div className="flex-1 min-w-0 flex flex-col gap-1">
+                              <div className="flex items-center justify-between gap-2">
+                                <span className="text-[10px] font-black uppercase tracking-wider font-display text-neon-cyan/90 truncate">
+                                  {notif.title}
+                                </span>
+                                <span className="text-[9px] font-bold text-text-muted/30 shrink-0 font-display">
+                                  {new Date(notif.timestamp).toLocaleTimeString(
+                                    [],
+                                    { hour: "2-digit", minute: "2-digit" },
+                                  )}
+                                </span>
                               </div>
-                              <div className="text-[10px] md:text-[11px] text-text-muted leading-relaxed line-clamp-2">
+                              <p className="text-[11px] text-text-muted/80 leading-relaxed font-medium">
                                 {notif.message}
-                              </div>
-                              <div className="text-[8px] font-bold text-text-muted/30 mt-1 font-display">
-                                {new Date(notif.timestamp).toLocaleTimeString(
-                                  [],
-                                  { hour: "2-digit", minute: "2-digit" },
-                                )}
-                              </div>
+                              </p>
                             </div>
                             <button
                               onClick={(e) => {
@@ -466,9 +472,9 @@ export function Layout() {
                                 useNotificationStore.getState()
                                   .dismissNotification(notif.id);
                               }}
-                              className="p-1.5 md:p-2.5 text-text-muted/50 hover:text-neon-red opacity-100 transition-all hover:scale-125 shrink-0"
+                              className="p-1.5 text-text-muted/50 hover:text-neon-red opacity-0 group-hover:opacity-100 transition-all hover:scale-125 shrink-0"
                             >
-                              <X size={16} className="md:size-5" />
+                              <X size={14} />
                             </button>
                           </div>
                         ))
@@ -478,13 +484,13 @@ export function Layout() {
               )}
             </div>
             {/* XP Display */}
-            <div className="hidden xs:flex items-center gap-2 px-3 py-1.5 bg-neon-gold/6 rounded-lg border border-neon-gold/15 shrink-0">
+            <div className="hidden md:flex items-center gap-2 px-3 py-1.5 bg-neon-gold/6 rounded-lg border border-neon-gold/15 shrink-0">
               <span className="text-neon-gold text-[10px] font-black font-display">
                 {xp} {t.common.xp}
               </span>
             </div>
             {/* Season Badge */}
-            <div className="hidden sm:flex px-3 py-1.5 bg-surface-1 rounded-lg border border-neon-cyan/10 text-[10px] font-black shadow-inner items-center gap-2 font-display shrink-0">
+            <div className="hidden lg:flex px-3 py-1.5 bg-surface-1 rounded-lg border border-neon-cyan/10 text-[10px] font-black shadow-inner items-center gap-2 font-display shrink-0">
               <span className="text-text-muted/40 uppercase tracking-wider">
                 {t.common.season}:
               </span>
@@ -499,6 +505,7 @@ export function Layout() {
             </div>
           </div>
         </header>
+der>
 
         {/* Page Content */}
         <div className="app-content p-6 lg:p-10 flex-1 overflow-x-hidden">
