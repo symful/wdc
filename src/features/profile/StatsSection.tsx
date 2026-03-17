@@ -112,8 +112,8 @@ export function StatsSection() {
       recs.push({
         icon: <Target size={16} />,
         text: language === 'id'
-          ? `Review ulang materi "${topic}" — confidence masih rendah.`
-          : `Review "${topic}" — confidence is still low.`,
+          ? `Review ulang materi "${topic}" - confidence masih rendah.`
+          : `Review "${topic}" - confidence is still low.`,
         color: 'text-neon-red',
       });
     }
@@ -134,8 +134,8 @@ export function StatsSection() {
       recs.push({
         icon: <Flame size={16} />,
         text: language === 'id'
-          ? `Streak ${streak} hari! Jangan putus, terus semangat! 🔥`
-          : `${streak}-day streak! Don't break it, keep going! 🔥`,
+          ? `Streak ${streak} hari! Jangan putus, terus semangat!`
+          : `${streak}-day streak! Don't break it, keep going!`,
         color: 'text-neon-green',
       });
     }
@@ -220,13 +220,13 @@ export function StatsSection() {
           </div>
           <div className="flex gap-3 text-[9px] font-black text-text-muted/40">
             <span className="px-1.5 py-0.5 rounded bg-neon-gold/10 text-neon-gold border border-neon-gold/20">
-              📝 {tasksByType.tugas}
+              Task: {tasksByType.tugas}
             </span>
             <span className="px-1.5 py-0.5 rounded bg-neon-blue/10 text-neon-blue border border-neon-blue/20">
-              📋 {tasksByType.quiz}
+              Quiz: {tasksByType.quiz}
             </span>
             <span className="px-1.5 py-0.5 rounded bg-neon-red/10 text-neon-red border border-neon-red/20">
-              🎯 {tasksByType.ujian}
+              Exam: {tasksByType.ujian}
             </span>
           </div>
         </div>
@@ -266,7 +266,7 @@ export function StatsSection() {
             <span className="text-sm text-text-muted/40 ml-1">{language === 'id' ? 'hari' : 'days'}</span>
           </div>
           {streak >= 3 && (
-            <div className="text-[10px] font-black text-neon-gold animate-pulse">🔥 On Fire!</div>
+            <div className="text-[10px] font-black text-neon-gold animate-pulse">On Fire!</div>
           )}
         </div>
       </div>

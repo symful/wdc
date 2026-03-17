@@ -22,7 +22,16 @@ function getContext() {
 
 export const playClickSound = () => {
   const ctx = getContext();
-  if (!ctx || ctx.state !== 'running') return;
+  if (!ctx) return;
+  // Aggressively attempt to resume context on explicit click 
+  if (ctx.state === 'suspended') {
+    ctx.resume().then(() => playClickSoundWithCtx(ctx)).catch(() => {});
+    return;
+  }
+  playClickSoundWithCtx(ctx);
+};
+
+const playClickSoundWithCtx = (ctx: AudioContext) => {
   
   const osc = ctx.createOscillator();
   const gain = ctx.createGain();
@@ -106,6 +115,12 @@ export const useRPGAudio = () => {
     };
 
     const handleClick = (e: MouseEvent) => {
+      // First click on document initializes/resumes the context securely within a gesture
+      const ctx = getContext();
+      if (ctx?.state === 'suspended') {
+        ctx.resume().catch(() => {});
+      }
+
       const target = e.target as HTMLElement;
       if (target && target.closest('button, a, [role="button"], .cursor-pointer')) {
         playClickSound();

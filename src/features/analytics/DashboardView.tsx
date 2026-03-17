@@ -154,12 +154,12 @@ export function DashboardView() {
   return (
     <div className="flex flex-col gap-8">
       {/* Header Section */}
-      <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-6 shrink-0 w-full">
-        <div>
-          <h1 className="text-4xl font-extrabold tracking-tight mb-2 neon-glow-text font-display uppercase">{t.dashboard.title}</h1>
+      <div className="flex flex-col 2xl:flex-row 2xl:items-center justify-between gap-6 w-full">
+        <div className="flex-1 min-w-0">
+          <h1 className="text-4xl font-extrabold tracking-tight mb-2 neon-glow-text font-display uppercase truncate">{t.dashboard.title}</h1>
           <p className="text-text-muted text-lg max-w-2xl">{t.dashboard.subtitle}</p>
         </div>
-        <div className="flex flex-col sm:flex-row gap-4 items-stretch w-full lg:w-auto shrink-0">
+        <div className="flex flex-col sm:flex-row flex-wrap gap-4 items-stretch w-full 2xl:w-auto">
           <div className="game-panel px-6 py-4 flex items-center justify-center sm:justify-start gap-4 hover:scale-105 active:scale-[0.98] transition-all duration-300 group cursor-pointer h-14 min-w-45">
             <div className="p-2 bg-neon-cyan/10 rounded-xl group-hover:scale-110 transition-transform border border-neon-cyan/20">
               <Zap className="text-neon-cyan" size={20} />
@@ -175,10 +175,10 @@ export function DashboardView() {
             disabled={generationState.isActive}
           >
             <Sparkles size={20} className="text-neon-cyan group-hover:animate-pulse shrink-0" />
-            <span className="text-xs sm:text-sm truncate">{t.dashboard.generateStudyPlan}</span>
+            <span className="text-xs sm:text-sm">{t.dashboard.generateStudyPlan}</span>
           </button>
           <button 
-            className="btn btn-glass px-4 sm:px-6 h-14 rounded-2xl font-black uppercase tracking-widest gap-2 hover:scale-105 active:scale-95 transition-all group whitespace-nowrap justify-center overflow-hidden border-neon-cyan/20 hover:border-neon-cyan/40 disabled:opacity-50"
+            className="btn btn-glass px-4 sm:px-6 h-14 rounded-2xl font-black uppercase tracking-widest gap-2 sm:gap-3 hover:scale-105 active:scale-95 transition-all group disabled:opacity-50 whitespace-nowrap flex-1 sm:flex-none justify-center overflow-hidden border-neon-cyan/20 hover:border-neon-cyan/40"
             onClick={async () => {
               try {
                 const { playSuccessSound } = await import('../../hooks/useRPGAudio');
@@ -197,8 +197,7 @@ export function DashboardView() {
                   useNotificationStore.getState().addNotification({
                     type: 'info',
                     title: language === 'id' ? 'Sinkronisasi Berhasil' : 'Sync Successful',
-                    message: language === 'id' ? 'Jadwal dan misi berhasil disinkronkan ke Google Calendar.' : 'Schedules and missions were synced to Google Calendar.',
-                    icon: '✨'
+                    message: language === 'id' ? 'Jadwal dan misi berhasil disinkronkan ke Google Calendar.' : 'Schedules and missions were synced to Google Calendar.'
                   });
 
                   setTimeout(() => setGenerationState(s => ({ ...s, isExiting: true })), 1500);
@@ -217,7 +216,6 @@ export function DashboardView() {
                     type: 'deadline', // Use deadline type for a red error styling
                     title: language === 'id' ? 'Gagal Sinkronisasi' : 'Sync Failed',
                     message: errorDetail,
-                    icon: '⚠️',
                     autoDismiss: false // let it stay until dismissed manually
                   });
                 }
@@ -226,15 +224,14 @@ export function DashboardView() {
                 useNotificationStore.getState().addNotification({
                   type: 'info',
                   title: 'Error',
-                  message: 'A fatal error occurred during synchronization.',
-                  icon: '⚠️'
+                  message: 'A fatal error occurred during synchronization.'
                 });
               }
             }}
             disabled={generationState.isActive}
           >
             <Calendar size={20} className="text-neon-cyan group-hover:scale-110 transition-transform shrink-0" />
-            <span className="text-xs sm:text-sm truncate hidden sm:inline">{language === 'id' ? 'Sync ke Google' : 'Sync to Google'}</span>
+            <span className="text-xs sm:text-sm hidden sm:inline">{language === 'id' ? 'Sync ke Google' : 'Sync to Google'}</span>
           </button>
         </div>
       </div>
@@ -343,7 +340,7 @@ export function DashboardView() {
                 </div>
                 <div>
                   <p className="font-bold text-text-main italic">
-                    <span className="font-black text-[10px] uppercase tracking-widest bg-neon-red/30 text-neon-red px-3 py-1 rounded-lg mr-3 border border-neon-red/30 font-display not-italic">⚠ {t.dashboard.urgentTask}</span>
+                    <span className="font-black text-[10px] uppercase tracking-widest bg-neon-red/30 text-neon-red px-3 py-1 rounded-lg mr-3 border border-neon-red/30 font-display not-italic flex items-center justify-center gap-1"><AlertCircle size={10} /> {t.dashboard.urgentTask}</span>
                     {t.dashboard.urgentTaskSubtitle(criticalTasks.length)}
                   </p>
                 </div>

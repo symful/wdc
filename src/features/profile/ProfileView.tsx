@@ -22,7 +22,13 @@ import {
   Swords,
   Zap,
   Info,
-  LineChart
+  LineChart,
+  Flame,
+  Moon,
+  BookOpen,
+  Gem,
+  Crosshair,
+  Lock
 } from 'lucide-react';
 import { StatsSection } from './StatsSection';
 
@@ -207,8 +213,20 @@ export function ProfileView() {
                         : 'border-white/5 bg-surface-2/30 opacity-40 grayscale'
                     }`}
                   >
-                    <div className={`text-3xl transition-transform duration-300 ${isUnlocked ? 'group-hover:scale-125 group-hover:rotate-12' : ''}`}>
-                      {ach.icon}
+                    <div className={`text-3xl transition-transform duration-300 flex items-center justify-center ${isUnlocked ? 'group-hover:scale-125 group-hover:rotate-12' : ''}`}>
+                      {(() => {
+                        switch (ach.icon) {
+                          case 'sword': return <Swords size={32} />;
+                          case 'flame': return <Flame size={32} />;
+                          case 'moon': return <Moon size={32} />;
+                          case 'book': return <BookOpen size={32} />;
+                          case 'zap': return <Zap size={32} />;
+                          case 'gem': return <Gem size={32} />;
+                          case 'crosshair': return <Crosshair size={32} />;
+                          case 'timer': return <Timer size={32} />;
+                          default: return <span>{ach.icon}</span>; // Fallback for old emojis
+                        }
+                      })()}
                     </div>
                     <div>
                       <div className={`text-xs font-black uppercase tracking-wide font-display ${
@@ -226,7 +244,7 @@ export function ProfileView() {
                       </div>
                     )}
                     {!isUnlocked && (
-                      <div className="text-[8px] font-black text-text-muted/30 uppercase tracking-widest font-display">🔒 Locked</div>
+                      <div className="text-[8px] font-black text-text-muted/30 uppercase tracking-widest font-display flex items-center justify-center gap-1"><Lock size={8} /> Locked</div>
                     )}
                     {isUnlocked && ach.rarity === 'legendary' && (
                       <div className="absolute inset-0 bg-linear-to-t from-neon-gold/5 to-transparent pointer-events-none" />
@@ -408,7 +426,7 @@ export function ProfileView() {
                         <div className="flex flex-col">
                           <span className="font-bold text-sm text-text-main group-hover/logitem:text-neon-cyan transition-colors">{log.source}</span>
                           <span className="text-[10px] font-bold text-text-muted/40 font-mono mt-0.5">
-                            {new Date(log.date).toLocaleDateString(undefined, { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })} • {new Date(log.date).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                            {new Date(log.date).toLocaleDateString(undefined, { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })} - {new Date(log.date).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                           </span>
                         </div>
                       </div>

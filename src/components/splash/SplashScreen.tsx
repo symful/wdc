@@ -1,5 +1,7 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
 import { useLanguageStore, translations } from '../../store/useLanguageStore';
+import { playClickSound } from '../../hooks/useRPGAudio';
+import { ChevronRight, Play } from 'lucide-react';
 
 // ===== WEB AUDIO API SOUND EFFECTS =====
 function createAudioContext(): AudioContext | null {
@@ -149,10 +151,10 @@ export function SplashScreen({ onComplete }: SplashScreenProps) {
   }, []);
 
   // Handle start
-  const handleStart = useCallback(() => {
+  const handleStart = useCallback((isKeyboard = false) => {
     if (phase < 4 || exiting) return;
 
-    import('../../hooks/useRPGAudio').then(({ playSuccessSound }) => playSuccessSound());
+    playClickSound();
 
     setExiting(true);
     setPhase(5);
@@ -179,7 +181,7 @@ export function SplashScreen({ onComplete }: SplashScreenProps) {
     const handler = (e: KeyboardEvent) => {
       if (e.key === 'Enter' || e.key === ' ') {
         e.preventDefault();
-        handleStart();
+        handleStart(true);
       }
     };
     window.addEventListener('keydown', handler);
@@ -197,9 +199,9 @@ export function SplashScreen({ onComplete }: SplashScreenProps) {
 
   return (
     <div
-      className={`splash-overlay ${exiting ? 'splash-exiting' : ''}`}
+      className={`splash-overlay ${exiting ? 'splash-exiting' : ''} ${phase >= 4 ? 'cursor-pointer' : ''}`}
       onMouseMove={handleMouseMove}
-      onClick={phase >= 4 ? handleStart : undefined}
+      onClick={phase >= 4 ? () => handleStart(false) : undefined}
       id="splash-screen"
     >
       {/* Hex Grid Background */}
@@ -238,7 +240,7 @@ export function SplashScreen({ onComplete }: SplashScreenProps) {
         onClick={(e) => { e.stopPropagation(); handleSkip(); }}
         id="splash-skip-btn"
       >
-        {language === 'id' ? 'LEWATI ▸' : 'SKIP ▸'}
+        {language === 'id' ? 'LEWATI' : 'SKIP'} <ChevronRight className="inline" size={16} />
       </button>
 
       {/* Central Content */}
@@ -289,10 +291,10 @@ export function SplashScreen({ onComplete }: SplashScreenProps) {
         {phase >= 4 && (
           <button
             className="splash-start-btn"
-            onClick={(e) => { e.stopPropagation(); handleStart(); }}
+            onClick={(e) => { e.stopPropagation(); handleStart(false); }}
             id="splash-start-btn"
           >
-            ▶ {language === 'id' ? 'PRESS START' : 'PRESS START'}
+            <Play className="inline mr-1" size={16} /> {language === 'id' ? 'PRESS START' : 'PRESS START'}
           </button>
         )}
 

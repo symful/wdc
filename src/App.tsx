@@ -2,6 +2,7 @@ import { lazy, Suspense, useState, useCallback, useEffect } from 'react';
 import { createBrowserRouter, RouterProvider, Navigate } from 'react-router-dom';
 import { Layout } from './components/layout/Layout';
 import { DashboardSkeleton, KanbanSkeleton, ScheduleSkeleton } from './components/ui/Skeleton';
+import { Swords } from 'lucide-react';
 import { SplashScreen } from './components/splash/SplashScreen';
 import { useAcademicStore } from './store/useAcademicStore';
 import { useStudyStore } from './store/useStudyStore';
@@ -124,8 +125,8 @@ export default function App() {
       {!showSplash && !hasSemester && (
         <div className="fixed inset-0 z-200 bg-bg-main flex items-center justify-center p-6">
           <div className="game-panel p-10 max-w-md w-full border-neon-cyan/20 text-center flex flex-col gap-8 animate-in zoom-in duration-500">
-             <div className="w-20 h-20 bg-neon-cyan/10 rounded-3xl border border-neon-cyan/20 flex items-center justify-center mx-auto shadow-[0_0_30px_rgba(0,240,255,0.2)]">
-                <span className="text-4xl">⚔️</span>
+             <div className="w-20 h-20 bg-neon-cyan/10 rounded-3xl border border-neon-cyan/20 flex items-center justify-center mx-auto shadow-[0_0_30px_rgba(0,240,255,0.2)] text-neon-cyan">
+                <Swords size={36} />
              </div>
              <div>
                <h2 className="text-3xl font-black neon-glow-text uppercase mb-2">

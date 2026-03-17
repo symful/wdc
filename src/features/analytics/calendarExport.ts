@@ -50,7 +50,7 @@ export function generateICS(courses: AcademicCourse[], tasks: Task[]): void {
         `DTEND:${formatICSDate(endDate)}`,
         `RRULE:FREQ=WEEKLY;BYDAY=${icsDay};COUNT=16`,
         `SUMMARY:${escapeICS(course.name)}`,
-        `DESCRIPTION:${escapeICS(`${course.code} — ${sch.room || 'TBA'} — ${sch.lecturer || 'N/A'}`)}`,
+        `DESCRIPTION:${escapeICS(`${course.code} - ${sch.room || 'TBA'} - ${sch.lecturer || 'N/A'}`)}`,
         `LOCATION:${escapeICS(sch.room || '')}`,
         'STATUS:CONFIRMED',
         'BEGIN:VALARM',

@@ -462,7 +462,7 @@ export function StudyView() {
               ))}
             </div>
 
-            <p className="text-[10px] uppercase font-black tracking-widest text-text-muted/40 font-display">Level 1 ({t.study.weak}) — Level 5 ({t.study.mastered})</p>
+            <p className="text-[10px] uppercase font-black tracking-widest text-text-muted/40 font-display">Level 1 ({t.study.weak}) - Level 5 ({t.study.mastered})</p>
           </div>
         </div>
       )}
@@ -486,7 +486,7 @@ export function StudyView() {
                 <h3 className="text-4xl font-black tracking-tighter font-display uppercase neon-glow-text mb-2">
                   {activeSemester ? `${t.profile.semester} ${activeSemester.number}` : 'No Active Semester'}
                 </h3>
-                <p className="text-xs font-black tracking-[0.3em] text-text-muted/40 uppercase font-display">{activeSemester?.year} • {activeSemester?.type}</p>
+                <p className="text-xs font-black tracking-[0.3em] text-text-muted/40 uppercase font-display">{activeSemester?.year} - {activeSemester?.type}</p>
               </div>
             </div>
 

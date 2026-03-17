@@ -377,7 +377,7 @@ export const useChatStore = create<ChatState>((set, get) => ({
     set((s) => ({ sharedTasks: [...s.sharedTasks, task] }));
     broadcast({ type: 'shared_task_add', task });
     // Announce in chat
-    state.sendMessage(`📋 [Shared Task] ${task.text}`);
+    state.sendMessage(`[Shared Task] ${task.text}`);
   },
 
   toggleSharedTask: (taskId: string) => {

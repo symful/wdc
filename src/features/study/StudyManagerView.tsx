@@ -137,7 +137,7 @@ export function StudyManagerView() {
               <div className="px-4 py-1 rounded-full bg-neon-cyan/10 border border-neon-cyan/20 flex items-center gap-2">
                 <span className="text-[10px] font-black uppercase tracking-widest text-neon-cyan">{t.profile.semester} {activeSemester.number}</span>
                 <div className="w-1 h-1 rounded-full bg-neon-cyan/30"></div>
-                <span className="text-[10px] font-black uppercase tracking-widest text-text-muted/60">{activeSemester.year} • {activeSemester.type === 'ganjil' ? t.profile.ganjil : t.profile.genap}</span>
+                <span className="text-[10px] font-black uppercase tracking-widest text-text-muted/60">{activeSemester.year} - {activeSemester.type === 'ganjil' ? t.profile.ganjil : t.profile.genap}</span>
               </div>
             )}
           </div>

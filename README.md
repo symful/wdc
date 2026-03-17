@@ -36,8 +36,7 @@ points (XP), levels, and dynamic visual feedback.
     Google Calendar.
 
 - **Study Manager**: ![Study Manager](assets/recordings/study_manager_v3.webp)
-  - Manage course schedules with a dynamic time-block grid and optimization
-    logic.
+  - Manage course schedules, class times, and lecturer information.
   - Track detailed topics and confidence levels for each academic course.
 
 - **Skill Tree**: ![Skill Tree](assets/recordings/skill_tree_v3.webp)
@@ -70,8 +69,6 @@ points (XP), levels, and dynamic visual feedback.
   - Real-time summary of your academic progress, current level, and total XP.
   - Interactive charts displaying 14-day study streaks and task completion
     rates.
-  - **PDF Semester Report**: Generate a professionally formatted PDF report
-    containing semester summaries, task audits, and study history.
 
 - **Premium Aesthetics**:
   - Built with Tailwind CSS v4's architecture, utilizing glassmorphism, pulse
@@ -104,7 +101,7 @@ reliability:
    State is persisted client-side using Zustand with persistence middleware.
 2. **CDN-First Strategy**:
    - Almost all runtime libraries (React, React Router, Lucide, Zustand, PeerJS,
-     jspdf, etc.) are served via CDNs (esm.sh) to ensure minimum bundle size and
+     etc.) are served via CDNs (esm.sh) to ensure minimum bundle size and
      maximum delivery speed.
    - Vite is configured with `resolve.alias` to map standard imports directly to
      their respective CDN URLs during both development and build.
