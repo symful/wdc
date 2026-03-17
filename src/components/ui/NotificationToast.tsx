@@ -31,9 +31,6 @@ export function NotificationToast() {
           key={notif.id}
           className={`pointer-events-auto game-panel p-4 border ${bgMap[notif.type]} flex items-start gap-3 animate-in slide-in-from-right-full duration-500 shadow-[0_0_30px_rgba(0,0,0,0.5)] backdrop-blur-xl`}
         >
-          <div className="p-2 rounded-xl bg-surface-2 border border-white/5 shrink-0">
-            {notif.icon ? <span className="text-lg">{notif.icon}</span> : iconMap[notif.type]}
-          </div>
           <div className="flex-1 min-w-0">
             <div className="text-xs font-black uppercase tracking-widest font-display mb-1 text-text-main">
               {notif.title}
@@ -44,9 +41,9 @@ export function NotificationToast() {
           </div>
           <button
             onClick={() => removeToast(notif.id)}
-            className="p-1 text-text-muted/40 hover:text-text-main hover:scale-125 active:scale-90 transition-all shrink-0 cursor-pointer"
+            className="p-2 text-text-muted/40 hover:text-text-main hover:scale-125 active:scale-90 transition-all shrink-0 cursor-pointer"
           >
-            <X size={14} />
+            <X size={16} />
           </button>
         </div>
       ))}

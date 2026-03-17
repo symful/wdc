@@ -1,4 +1,4 @@
-import { useState, useEffect, Suspense } from 'react';
+import { useState, useEffect, Suspense, useRef } from 'react';
 import { NavLink, Outlet } from 'react-router-dom';
 import { Calendar, CheckSquare, BookOpen, BarChart3, Menu, X, MessageSquare, Swords, Timer, Gamepad2, Map, ScrollText, GraduationCap, User, Shield, Radar, Bell, Sun, Moon } from 'lucide-react';
 import { DashboardSkeleton } from '../ui/Skeleton';
@@ -11,11 +11,11 @@ import { useNotificationStore } from '../../store/useNotificationStore';
 import { useAchievementStore } from '../../store/useAchievementStore';
 import type { AchievementContext } from '../../store/useAchievementStore';
 import { useAcademicStore } from '../../store/useAcademicStore';
+import { useUIStore } from '../../store/useUIStore';
 import { Languages } from 'lucide-react';
 
 export function Layout() {
-  const [sidebarOpen, setSidebarOpen] = useState(false);
-  const toggleSidebar = () => setSidebarOpen(!sidebarOpen);
+  const { sidebarOpen, setSidebarOpen, toggleSidebar, showNotifPanel, setShowNotifPanel } = useUIStore();
 
   const { tasks } = useTaskStore();
   const { sessions } = useStudyStore();
@@ -25,7 +25,6 @@ export function Layout() {
   const { notifications, addNotification } = useNotificationStore();
   const { checkAchievements } = useAchievementStore();
   const { xpLogs } = useAcademicStore();
-  const [showNotifPanel, setShowNotifPanel] = useState(false);
 
   // Initialize theme on mount
   useEffect(() => {
@@ -38,6 +37,8 @@ export function Layout() {
   const xp = xpLogs.reduce((acc, log) => acc + log.amount, 0);
   const level = Math.floor(xp / 1000) + 1;
   const xpProgress = ((xp % 1000) / 1000) * 100;
+  const isInitialMount = useRef(true);
+
 
   // Achievement checking and deadline notifications
   useEffect(() => {
@@ -79,9 +80,10 @@ export function Layout() {
     newBadges.forEach((badge) => {
       addNotification({
         type: 'badge',
-        title: language === 'id' ? 'Badge Baru!' : 'New Badge!',
-        message: `${badge.icon} ${language === 'id' ? badge.title : badge.titleEn}`,
+        title: t.common.newBadge,
+        message: `${language === 'id' ? badge.title : badge.titleEn}`,
         icon: badge.icon,
+        isToast: !isInitialMount.current
       });
     });
 
@@ -98,9 +100,10 @@ export function Layout() {
           sessionStorage.setItem(key, '1');
           addNotification({
             type: 'deadline',
-            title: language === 'id' ? 'Deadline Mendekat!' : 'Deadline Approaching!',
-            message: `"${task.title}" — ${Math.round(hoursLeft)} ${language === 'id' ? 'jam lagi' : 'hours left'}`,
+            title: t.common.deadlineApproaching,
+            message: `"${task.title}" — ${t.common.hoursLeft(Math.round(hoursLeft))}`,
             autoDismiss: false,
+            isToast: !isInitialMount.current
           });
         }
       }
@@ -114,12 +117,17 @@ export function Layout() {
         addNotification({
           type: 'streak',
           title: language === 'id' ? 'Streak Aktif!' : 'Streak Active!',
-          message: `🔥 ${streak} ${language === 'id' ? 'hari berturut-turut! Jangan putus!' : 'day streak! Keep it going!'}`,
+          message: `${streak} ${language === 'id' ? 'hari berturut-turut! Jangan putus!' : 'day streak! Keep it going!'}`,
           icon: '🔥',
+          isToast: !isInitialMount.current
         });
       }
     }
-  }, [tasks.length, sessions.length, completedTasks]);
+
+    if (isInitialMount.current) {
+      isInitialMount.current = false;
+    }
+  }, [tasks.length, sessions.length, completedTasks, language]);
 
   const unreadCount = notifications.filter(n => !n.read).length;
 
@@ -136,6 +144,14 @@ export function Layout() {
     <div className="app-container">
       {/* Notification Toasts */}
       <NotificationToast />
+
+      {/* Global Click-to-close for panels */}
+      {showNotifPanel && (
+        <div 
+          className="fixed inset-0 z-100 w-full h-full bg-transparent cursor-default" 
+          onClick={() => setShowNotifPanel(false)} 
+        />
+      )}
 
       {/* Sidebar */}
       <aside className={`app-sidebar flex flex-col ${sidebarOpen ? 'open' : ''} transition-all duration-300 z-50`}>
@@ -271,9 +287,7 @@ export function Layout() {
 
               {/* Notification Dropdown Panel */}
               {showNotifPanel && (
-                <>
-                  <div className="fixed inset-0 z-40" onClick={() => setShowNotifPanel(false)} />
-                  <div className="absolute right-0 top-full mt-2 w-80 max-h-96 z-50 game-panel rounded-2xl border border-neon-cyan/20 shadow-[0_0_40px_rgba(0,0,0,0.5)] flex flex-col overflow-hidden animate-in slide-in-from-top-2 fade-in duration-200">
+                <div className="absolute right-0 top-full mt-2 w-80 max-h-96 z-150 bg-bg-main rounded-2xl border border-neon-cyan/30 shadow-[0_20px_50px_rgba(0,0,0,0.8)] flex flex-col overflow-hidden animate-in slide-in-from-top-2 fade-in duration-200">
                     {/* Header */}
                     <div className="flex items-center justify-between p-4 border-b border-white/5 shrink-0">
                       <div className="flex items-center gap-2">
@@ -286,7 +300,7 @@ export function Layout() {
                         {notifications.length > 0 && (
                           <button
                             onClick={() => useNotificationStore.getState().clearAll()}
-                            className="text-[9px] font-black uppercase tracking-wider text-text-muted/40 hover:text-neon-red px-2 py-1 rounded-lg hover:bg-neon-red/10 transition-all"
+                            className="text-[12px] font-black uppercase tracking-widest text-text-muted/70 hover:text-neon-red px-3 py-2 rounded-lg hover:bg-neon-red/10 transition-all"
                           >
                             {language === 'id' ? 'Hapus Semua' : 'Clear All'}
                           </button>
@@ -309,19 +323,7 @@ export function Layout() {
                             key={notif.id}
                             className={`flex items-start gap-3 p-4 border-b border-white/5 hover:bg-white/3 transition-all group ${!notif.read ? 'bg-neon-cyan/3' : ''}`}
                           >
-                            <div className="p-1.5 rounded-lg bg-surface-2 border border-white/5 shrink-0 mt-0.5">
-                              {notif.icon ? (
-                                <span className="text-sm">{notif.icon}</span>
-                              ) : notif.type === 'deadline' ? (
-                                <Bell size={14} className="text-neon-red" />
-                              ) : notif.type === 'streak' ? (
-                                <Bell size={14} className="text-neon-gold" />
-                              ) : notif.type === 'badge' ? (
-                                <Bell size={14} className="text-neon-gold" />
-                              ) : (
-                                <Bell size={14} className="text-neon-cyan" />
-                              )}
-                            </div>
+
                             <div className="flex-1 min-w-0">
                               <div className="text-[10px] font-black uppercase tracking-wider font-display text-text-main mb-0.5">
                                 {notif.title}
@@ -338,16 +340,15 @@ export function Layout() {
                                 e.stopPropagation();
                                 useNotificationStore.getState().dismissNotification(notif.id);
                               }}
-                              className="p-1 text-text-muted/20 hover:text-neon-red opacity-0 group-hover:opacity-100 transition-all hover:scale-125 shrink-0"
+                              className="p-2.5 text-text-muted/50 hover:text-neon-red opacity-100 transition-all hover:scale-125 shrink-0"
                             >
-                              <X size={12} />
+                              <X size={20} />
                             </button>
                           </div>
                         ))
                       )}
                     </div>
                   </div>
-                </>
               )}
             </div>
             {/* XP Display */}

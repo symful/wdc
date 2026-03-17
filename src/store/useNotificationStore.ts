@@ -16,7 +16,7 @@ export interface AppNotification {
 
 interface NotificationState {
   notifications: AppNotification[];
-  addNotification: (notif: Omit<AppNotification, 'id' | 'timestamp' | 'read' | 'isToast'>) => void;
+  addNotification: (notif: Omit<AppNotification, 'id' | 'timestamp' | 'read'>) => void;
   dismissNotification: (id: string) => void;
   removeToast: (id: string) => void;
   markAsRead: (id: string) => void;
@@ -30,11 +30,11 @@ export const useNotificationStore = create<NotificationState>((set, get) => ({
 
   addNotification: (notif) => {
     const newNotif: AppNotification = {
+      isToast: true,
       ...notif,
       id: Math.random().toString(36).substr(2, 9),
       timestamp: Date.now(),
       read: false,
-      isToast: true,
     };
 
     set((state) => ({

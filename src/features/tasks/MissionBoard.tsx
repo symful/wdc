@@ -138,13 +138,13 @@ export function MissionBoard() {
               className={`px-4 py-2 rounded-lg text-xs font-black uppercase tracking-widest transition-all ${ui.viewMode === 'active' ? 'bg-neon-cyan/20 text-neon-cyan shadow-[0_0_15px_rgba(0,240,255,0.2)]' : 'text-text-muted hover:text-text-main'}`}
               onClick={() => setUi(s => ({ ...s, viewMode: 'active' }))}
             >
-              <ScrollText size={14} className="inline mr-2" /> Bounties
+              <ScrollText size={14} className="inline mr-2" /> {t.tasks.bounties}
             </button>
             <button 
               className={`px-4 py-2 rounded-lg text-xs font-black uppercase tracking-widest transition-all ${ui.viewMode === 'archive' ? 'bg-neon-purple/20 text-neon-purple shadow-[0_0_15px_rgba(168,85,247,0.2)]' : 'text-text-muted hover:text-text-main'}`}
               onClick={() => setUi(s => ({ ...s, viewMode: 'archive' }))}
             >
-              <Archive size={14} className="inline mr-2" /> Archive
+              <Archive size={14} className="inline mr-2" /> {t.tasks.archive}
             </button>
           </div>
 
@@ -154,7 +154,7 @@ export function MissionBoard() {
               onClick={() => setUi(s => ({ ...s, showAddModal: true }))}
             >
               <Plus size={16} className="mr-2 group-hover:rotate-90 transition-transform inline" />
-              <span className="font-black uppercase tracking-widest text-[10px]">Post Bounty</span>
+              <span className="font-black uppercase tracking-widest text-[10px]">{t.tasks.postBounty}</span>
             </button>
           )}
         </div>
@@ -167,13 +167,13 @@ export function MissionBoard() {
             className={`px-4 py-2 rounded-full border text-[10px] font-black uppercase tracking-widest transition-all cursor-pointer ${ui.filterPriority === 'all' ? 'bg-surface-2 border-neon-cyan/30 text-neon-cyan' : 'bg-transparent border-transparent text-text-muted hover:bg-surface-2/50'}`}
             onClick={() => setUi(s => ({ ...s, filterPriority: 'all' }))}
           >
-            All Tasks
+            {t.tasks.allTasks}
           </button>
           <button 
             className={`px-4 py-2 rounded-full border text-[10px] font-black uppercase tracking-widest transition-all flex items-center gap-2 cursor-pointer ${ui.filterPriority === 'high' ? 'bg-neon-gold/10 border-neon-gold/30 text-neon-gold shadow-[0_0_15px_rgba(255,215,0,0.15)]' : 'bg-transparent border-transparent text-text-muted hover:bg-surface-2/50'}`}
             onClick={() => setUi(s => ({ ...s, filterPriority: 'high' }))}
           >
-            <Flame size={12} className={ui.filterPriority === 'high' ? 'animate-pulse' : ''} /> Critical Priority
+            <Flame size={12} className={ui.filterPriority === 'high' ? 'animate-pulse' : ''} /> {t.tasks.criticalPriority}
           </button>
         </div>
       )}
@@ -184,7 +184,7 @@ export function MissionBoard() {
           <div className="col-span-full py-32 flex flex-col items-center justify-center gap-6 game-panel border-dashed opacity-50">
             <PackageSearch size={64} className="text-text-muted/20" />
             <p className="text-text-muted text-xl font-bold font-display uppercase tracking-widest">
-              {ui.viewMode === 'active' ? 'No Active Bounties' : 'Archive is Empty'}
+              {ui.viewMode === 'active' ? t.tasks.noBounties : t.tasks.archiveEmpty}
             </p>
           </div>
         ) : (
@@ -207,7 +207,7 @@ export function MissionBoard() {
                 {isCompleting && (
                   <div className="absolute inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm animate-in fade-in duration-200">
                     <div className="border-4 border-neon-green text-neon-green px-6 py-2 rounded-lg font-black text-3xl uppercase tracking-[0.3em] font-display transform -rotate-12 animate-in zoom-in-50 duration-300 shadow-[0_0_30px_rgba(57,255,20,0.4)] bg-black/60 backdrop-blur-md">
-                      CLEARED
+                      {t.tasks.cleared}
                     </div>
                   </div>
                 )}
@@ -259,7 +259,7 @@ export function MissionBoard() {
                     <div className="mt-2 p-4 rounded-xl bg-neon-cyan/5 border border-neon-cyan/10 flex flex-col gap-2">
                       <div className="flex items-center gap-2 text-neon-cyan">
                         <Lightbulb size={14} />
-                        <span className="text-[10px] font-black uppercase tracking-widest">{language === 'id' ? 'Saran Strategi' : 'Strategy Suggestion'}</span>
+                        <span className="text-[10px] font-black uppercase tracking-widest">{t.tasks.strategySuggestion}</span>
                       </div>
                       <p className="text-xs text-text-muted leading-relaxed font-medium">
                         {tips[task.type]}
@@ -275,14 +275,14 @@ export function MissionBoard() {
                       className="w-full py-4 rounded-xl flex items-center justify-center gap-2 font-black uppercase tracking-[0.2em] text-xs transition-all duration-300 font-display cursor-pointer bg-surface-2 text-text-muted/60 border border-white/5 hover:bg-neon-green hover:text-bg-main hover:border-neon-green hover:shadow-[0_0_20px_rgba(57,255,20,0.4)]"
                       onClick={(e) => handleCompleteTask(task.id, e)}
                     >
-                      <CheckCircle2 size={16} /> Complete Task
+                      <CheckCircle2 size={16} /> {t.tasks.completeTask}
                     </button>
                   </div>
                 )}
                 {ui.viewMode === 'archive' && (
                   <div className="p-4 mt-auto border-t border-white/5 bg-surface-2/30">
                     <div className="flex items-center justify-center gap-2 text-[10px] font-black uppercase tracking-widest text-text-muted/40">
-                      <CheckCircle2 size={14} className="text-neon-green" /> Task Accomplished
+                      <CheckCircle2 size={14} className="text-neon-green" /> {t.tasks.taskAccomplished}
                     </div>
                   </div>
                 )}
@@ -297,7 +297,7 @@ export function MissionBoard() {
         <div className="fixed inset-0 bg-bg-main/80 backdrop-blur-xl z-100 flex items-center justify-center p-6 animate-in fade-in duration-300">
           <div className="game-panel p-8 max-w-md w-full flex flex-col gap-6 border-neon-cyan/20 bg-surface-1 shadow-[0_20px_60px_rgba(0,0,0,0.15)] relative overflow-hidden">
             <div className="flex justify-between items-center relative z-10">
-              <h3 className="text-2xl font-black tracking-tight font-display neon-cyan-text uppercase">Post Bounty</h3>
+              <h3 className="text-2xl font-black tracking-tight font-display neon-cyan-text uppercase">{t.tasks.postBounty}</h3>
               <button onClick={() => setUi(s => ({ ...s, showAddModal: false }))} className="p-2 hover:bg-neon-cyan/10 rounded-full text-text-muted/40 hover:text-neon-cyan transition-all cursor-pointer">
                 <X size={20} />
               </button>
@@ -359,7 +359,7 @@ export function MissionBoard() {
                 onClick={handleAddTask}
                 disabled={!form.title || !form.deadline}
               >
-                Post to Board
+                {t.tasks.postBounty}
               </button>
             </div>
             
