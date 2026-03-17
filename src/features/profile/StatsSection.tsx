@@ -214,10 +214,10 @@ export function StatsSection() {
   const isUp = minutesDiff >= 0;
 
   return (
-    <div className="flex flex-col gap-8">
+    <div className="flex flex-col gap-6 sm:gap-10">
       {/* Header */}
       <div className="border-b border-white/5 pb-4">
-        <h3 className="text-lg font-black font-display neon-glow-text uppercase tracking-widest flex items-center gap-3">
+        <h3 className="text-xl sm:text-2xl font-black font-display neon-glow-text uppercase tracking-widest flex items-center gap-3">
           <div className="p-2 bg-neon-cyan/10 rounded-xl border border-neon-cyan/20">
             <BarChart3 size={20} className="text-neon-cyan" />
           </div>
@@ -226,7 +226,7 @@ export function StatsSection() {
       </div>
 
       {/* Comparison Cards */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
         {/* This Week Study */}
         <div className="game-panel p-6 flex flex-col gap-3">
           <div className="flex items-center gap-3">

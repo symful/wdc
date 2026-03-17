@@ -490,13 +490,6 @@ export function Layout() {
                 {xp} {t.common.xp}
               </span>
             </div>
-            {/* Season Badge */}
-            <div className="hidden lg:flex px-3 py-1.5 bg-surface-1 rounded-lg border border-neon-cyan/10 text-[10px] font-black shadow-inner items-center gap-2 font-display shrink-0">
-              <span className="text-text-muted/40 uppercase tracking-wider">
-                {t.common.season}:
-              </span>
-              <span className="text-neon-cyan">S2 2026</span>
-            </div>
             {/* Level Badge */}
             <div className="flex px-2 sm:px-3 py-1.5 bg-neon-cyan/6 rounded-lg border border-neon-cyan/15 items-center gap-2 shrink-0">
               <Shield size={12} className="text-neon-cyan" />
@@ -508,7 +501,7 @@ export function Layout() {
         </header>
 
         {/* Page Content */}
-        <div className="app-content p-6 lg:p-10 flex-1 overflow-x-hidden">
+        <div className="app-content px-4 sm:px-6 lg:p-10 flex-1 overflow-x-hidden">
           <Suspense fallback={<DashboardSkeleton />}>
             <Outlet />
           </Suspense>

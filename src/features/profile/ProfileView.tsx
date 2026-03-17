@@ -67,13 +67,13 @@ export function ProfileView() {
   };
 
   return (
-    <div className="flex flex-col gap-8">
-      <div className="flex items-center justify-between flex-wrap gap-6">
-        <div>
-          <h1 className="text-4xl font-extrabold tracking-tight mb-2 neon-glow-text font-display uppercase">
+    <div className="flex flex-col gap-6 sm:gap-8 pb-10 sm:pb-0">
+      <div className="flex items-center justify-between flex-wrap gap-6 pt-4 sm:pt-0">
+        <div className="flex-1 min-w-0">
+          <h1 className="text-3xl sm:text-4xl font-extrabold tracking-tight mb-2 neon-glow-text font-display uppercase">
             {t.profile.title}
           </h1>
-          <p className="text-text-muted text-lg max-w-2xl">
+          <p className="text-text-muted text-base sm:text-lg max-w-2xl">
             {t.profile.subtitle}
           </p>
         </div>
@@ -308,8 +308,8 @@ export function ProfileView() {
             </h3>
 
             <div className="flex flex-col gap-4">
-              <div className="overflow-x-auto custom-scrollbar pb-2">
-                <div className="flex gap-[3px] min-w-max">
+              <div className="overflow-x-auto overflow-y-hidden custom-scrollbar pb-4 pt-2">
+                <div className="flex gap-[3px] min-w-max px-2">
                   {/* Generate 52 weeks (approx 1 year) */}
                   {Array.from({ length: 52 }).map((_, weekIdx) => (
                     <div key={weekIdx} className="flex flex-col gap-[3px]">
@@ -362,7 +362,7 @@ export function ProfileView() {
                 </div>
               </div>
 
-              <div className="flex justify-between items-center text-[9px] font-black uppercase tracking-widest text-text-muted/40 font-display">
+              <div className="flex flex-col sm:flex-row justify-between items-center gap-4 text-[9px] font-black uppercase tracking-widest text-text-muted/40 font-display mt-2">
                 <div className="flex gap-4">
                   <span>{t.dashboard.lastYear || "Last Year"}</span>
                 </div>

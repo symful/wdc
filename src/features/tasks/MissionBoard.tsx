@@ -33,6 +33,8 @@ const MISSION_TIPS_ID: Record<TaskType, string> = {
   ujian:
     "Buat blok belajar fokus. Tidur cukup dan review topik tersulit lebih dulu.",
 };
+import { FloatingActionButton } from "../../components/ui/FloatingActionButton";
+
 export function MissionBoard() {
   const { addTask, deleteTask, moveTask, getSortedTasks } = useTaskStore();
   const { language } = useLanguageStore();
@@ -174,57 +176,57 @@ export function MissionBoard() {
   }
 
   return (
-    <div className="flex flex-col gap-6 md:gap-8">
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 md:gap-6">
-        <div>
-          <h1 className="text-2xl md:text-4xl font-extrabold tracking-tight mb-2 neon-glow-text font-display uppercase">
+    <div className="flex flex-col gap-6 sm:gap-8 pb-10 sm:pb-0">
+      <FloatingActionButton onClick={() => setShowAddModal(true)} />
+
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 md:gap-6 pt-4 sm:pt-0">
+        <div className="flex-1 min-w-0">
+          <h1 className="text-3xl sm:text-4xl font-extrabold tracking-tight mb-2 neon-glow-text font-display uppercase">
             Task Board
           </h1>
-          <p className="text-text-muted text-sm md:text-lg max-w-2xl">
+          <p className="text-text-muted text-base sm:text-lg max-w-2xl">
             {viewMode === "active"
               ? "Accept assignments and claim rewards."
               : "Task Log Archives"}
           </p>
         </div>
 
-        <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 sm:gap-4 w-full sm:w-auto">
-          <div className="flex items-center p-1 bg-surface-2 rounded-xl border border-neon-cyan/10">
+        <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 sm:gap-4 w-full sm:w-auto">
+          <div className="flex items-center p-1 bg-surface-2 rounded-xl border border-neon-cyan/10 w-full sm:w-auto">
             <button
-              className={`px-2 sm:px-4 py-2 rounded-lg text-xs font-black uppercase tracking-widest transition-all whitespace-nowrap ${
+              className={`flex-1 sm:flex-none px-4 py-2 rounded-lg text-[10px] font-black uppercase tracking-widest transition-all whitespace-nowrap ${
                 viewMode === "active"
-                  ? "bg-neon-cyan/20 text-neon-cyan shadow-[0_0_15px_rgba(0,240,255,0.2)]"
+                  ? "bg-neon-cyan/20 text-neon-cyan shadow-glow"
                   : "text-text-muted hover:text-text-main"
               }`}
               onClick={() => setViewMode("active")}
             >
-              <ScrollText size={14} className="inline mr-1 sm:mr-2" />{" "}
-              <span className="hidden sm:inline">{t.tasks.bounties}</span>
-              <span className="sm:hidden">Bounties</span>
+              <ScrollText size={14} className="inline mr-2" />{" "}
+              {t.tasks.bounties}
             </button>
             <button
-              className={`px-2 sm:px-4 py-2 rounded-lg text-xs font-black uppercase tracking-widest transition-all whitespace-nowrap ${
+              className={`flex-1 sm:flex-none px-4 py-2 rounded-lg text-[10px] font-black uppercase tracking-widest transition-all whitespace-nowrap ${
                 viewMode === "archive"
                   ? "bg-neon-purple/20 text-neon-purple shadow-[0_0_15px_rgba(168,85,247,0.2)]"
                   : "text-text-muted hover:text-text-main"
               }`}
               onClick={() => setViewMode("archive")}
             >
-              <Archive size={14} className="inline mr-1 sm:mr-2" />{" "}
-              <span className="hidden sm:inline">{t.tasks.archive}</span>
-              <span className="sm:hidden">Archive</span>
+              <Archive size={14} className="inline mr-2" />{" "}
+              {t.tasks.archive}
             </button>
           </div>
 
           {viewMode === "active" && (
             <button
-              className="btn btn-neon px-4 sm:px-6 h-10 hover:scale-105 active:scale-95 transition-all group shadow-[0_0_20px_rgba(0,240,255,0.2)] cursor-pointer flex-1 sm:flex-none"
+              className="hidden sm:flex btn btn-neon px-6 h-12 hover:scale-105 active:scale-95 transition-all group shadow-glow cursor-pointer"
               onClick={() => setShowAddModal(true)}
             >
               <Plus
-                size={16}
-                className="mr-1 sm:mr-2 group-hover:rotate-90 transition-transform inline"
+                size={18}
+                className="mr-2 group-hover:rotate-90 transition-transform inline"
               />
-              <span className="font-black uppercase tracking-widest text-[10px]">
+              <span className="font-black uppercase tracking-widest text-xs">
                 {t.tasks.postBounty}
               </span>
             </button>

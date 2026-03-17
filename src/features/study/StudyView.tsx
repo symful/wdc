@@ -27,6 +27,8 @@ import {
 import { useUIStore } from "../../store/useUIStore";
 import { useStudyViewStore } from "../../store/useStudyViewStore";
 
+import { FloatingActionButton } from "../../components/ui/FloatingActionButton";
+
 export function StudyView() {
   const {
     sessions,
@@ -93,7 +95,8 @@ export function StudyView() {
       }, 4500),
     ];
 
-    return () => timers.forEach(clearTimeout);
+    const cleanup = () => timers.forEach(clearTimeout);
+    return cleanup;
   };
 
 
@@ -213,18 +216,23 @@ export function StudyView() {
   };
 
   return (
-    <div className="flex flex-col gap-8">
-      <div className="flex items-center justify-between flex-wrap gap-6">
-        <div>
-          <h1 className="text-4xl font-extrabold tracking-tight mb-2 neon-glow-text font-display uppercase">
+    <div className="flex flex-col gap-6 sm:gap-8 pb-10 sm:pb-0">
+      <FloatingActionButton
+        mainIcon={<BrainCircuit size={24} />}
+        onClick={() => setStudyModal("showTreeModal", true)}
+      />
+
+      <div className="flex items-center justify-between flex-wrap gap-6 pt-4 sm:pt-0">
+        <div className="flex-1 min-w-0">
+          <h1 className="text-3xl sm:text-4xl font-extrabold tracking-tight mb-2 neon-glow-text font-display uppercase">
             {t.study.title}
           </h1>
-          <p className="text-text-muted text-lg max-w-2xl">
+          <p className="text-text-muted text-base sm:text-lg max-w-2xl">
             {t.study.subtitle}
           </p>
         </div>
         <button
-          className="btn btn-glass px-8 h-14 rounded-2xl font-black uppercase tracking-widest gap-3 hover:scale-105 active:scale-95 transition-all group"
+          className="hidden sm:flex btn btn-glass px-8 h-14 rounded-2xl font-black uppercase tracking-widest gap-3 hover:scale-105 active:scale-95 transition-all group"
           onClick={() => setStudyModal("showTreeModal", true)}
         >
           <BrainCircuit

@@ -1,29 +1,28 @@
-import { useMemo, useState } from "react";
-import type { Task } from "../../store/useTaskStore";
-import type { StudySession } from "../../store/useStudyStore";
-import { useTaskStore } from "../../store/useTaskStore";
-import { useStudyStore } from "../../store/useStudyStore";
-import { useAcademicStore, type CourseSchedule } from "../../store/useAcademicStore";
+import React, { useState, useMemo, useEffect } from "react";
+import { useTaskStore, Task, TaskPriority } from "../../store/useTaskStore";
+import { useStudyStore, StudySession } from "../../store/useStudyStore";
+import { useAcademicStore, CourseSchedule } from "../../store/useAcademicStore";
+import { translations, useLanguageStore } from "../../store/useLanguageStore";
+import { useUIStore } from "../../store/useUIStore";
+import { useNotificationStore } from "../../store/useNotificationStore";
 import {
-  AlertCircle,
-  BarChart3,
+  Zap,
+  Sparkles,
   Calendar,
   CalendarDays,
-  CalendarRange,
   CheckCircle2,
-  ClipboardList,
-  Clock,
-  Lightbulb,
-  MapPin,
+  CalendarRange,
+  BarChart3,
   Search,
-  Sparkles,
-  Swords,
   User,
-  Zap,
+  Swords,
+  ClipboardList,
+  AlertCircle,
+  Lightbulb,
+  Clock,
+  MapPin,
 } from "lucide-react";
-import { translations, useLanguageStore } from "../../store/useLanguageStore";
-import { useNotificationStore } from "../../store/useNotificationStore";
-import { useUIStore } from "../../store/useUIStore";
+import { FloatingActionButton } from "../../components/ui/FloatingActionButton";
 
 export function DashboardView() {
   const { tasks } = useTaskStore();
@@ -82,7 +81,80 @@ export function DashboardView() {
       }, 4500),
     ];
 
-    return () => timers.forEach(clearTimeout);
+    const cleanup = () => timers.forEach(clearTimeout);
+    return cleanup;
+  };
+
+  const handleGoogleSync = async () => {
+    try {
+      const { playSuccessSound } = await import(
+        "../../hooks/useRPGAudio"
+      );
+      const { syncToGoogleCalendar } = await import(
+        "../../lib/googleCalendar"
+      );
+
+      setGenerationState({
+        isActive: true,
+        step: 0,
+        completed: false,
+        type: "google-sync",
+      });
+
+      const result = await syncToGoogleCalendar(
+        academicCourses,
+        tasks,
+        (stepProgress) => {
+          setGenerationState({ step: stepProgress });
+        },
+      );
+
+      if (result.success) {
+        playSuccessSound();
+        setGenerationState({ step: 3, completed: true });
+
+        useNotificationStore.getState().addNotification({
+          type: "info",
+          title: language === "id"
+            ? "Sinkronisasi Berhasil"
+            : "Sync Successful",
+          message: language === "id"
+            ? "Jadwal dan misi berhasil disinkronkan ke Google Calendar."
+            : "Schedules and missions were synced to Google Calendar.",
+        });
+
+        setTimeout(
+          () => setGenerationState({ isExiting: true }),
+          1500,
+        );
+        setTimeout(() => resetGenerationState(), 2100);
+      } else {
+        resetGenerationState();
+
+        let errorDetail = result.error || "Unknown error";
+        if (errorDetail === "NO_SCOPE") {
+          errorDetail = language === "id"
+            ? "Izin kalender tidak diberikan. Harap centang izin Google Calendar saat login."
+            : "Calendar permission denied. Please check the permission box during login.";
+        }
+
+        useNotificationStore.getState().addNotification({
+          type: "deadline", // Use deadline type for a red error styling
+          title: language === "id"
+            ? "Gagal Sinkronisasi"
+            : "Sync Failed",
+          message: errorDetail,
+          autoDismiss: false, // let it stay until dismissed manually
+        });
+      }
+    } catch {
+      resetGenerationState();
+      useNotificationStore.getState().addNotification({
+        type: "info",
+        title: "Error",
+        message: "A fatal error occurred during synchronization.",
+      });
+    }
   };
 
   // Purity fix for random hex - utilizing store if available, else local stable
@@ -176,130 +248,102 @@ export function DashboardView() {
   }, [selectedDayIndex, language]);
 
   return (
-    <div className="flex flex-col gap-8">
+    <div className="flex flex-col gap-6 sm:gap-8 pb-10 sm:pb-0">
+      <FloatingActionButton
+        mainIcon={<Calendar size={24} />}
+        actions={[
+          {
+            icon: <Sparkles size={20} />,
+            label: t.dashboard.generateStudyPlan,
+            onClick: handleGenerate,
+          },
+          {
+            icon: <CalendarDays size={20} />,
+            label: language === "id" ? "Sync ke Google" : "Sync to Google",
+            onClick: handleGoogleSync,
+          },
+        ]}
+      />
+
       {/* Header Section */}
-      <div className="flex flex-col 2xl:flex-row 2xl:items-center justify-between gap-6 w-full">
+      <div className="flex flex-col 2xl:flex-row 2xl:items-center justify-between gap-6 w-full pt-4 sm:pt-0">
         <div className="flex-1 min-w-0">
-          <h1 className="text-4xl font-extrabold tracking-tight mb-2 neon-glow-text font-display uppercase truncate">
+          <h1 className="text-3xl sm:text-4xl font-extrabold tracking-tight mb-2 neon-glow-text font-display uppercase truncate">
             {t.dashboard.title}
           </h1>
-          <p className="text-text-muted text-lg max-w-2xl">
+          <p className="text-text-muted text-base sm:text-lg max-w-2xl">
             {t.dashboard.subtitle}
           </p>
         </div>
-        <div className="grid grid-cols-1 sm:grid-cols-2 2xl:flex 2xl:flex-row gap-4 items-stretch w-full 2xl:w-auto">
-          <div className="game-panel px-6 py-4 flex items-center justify-center sm:justify-start gap-4 hover:scale-105 active:scale-[0.98] transition-all duration-300 group cursor-pointer h-14 2xl:min-w-45 shadow-lg shadow-neon-cyan/5">
-            <div className="p-2 bg-neon-cyan/10 rounded-xl group-hover:scale-110 transition-transform border border-neon-cyan/20">
-              <Zap className="text-neon-cyan" size={20} />
-            </div>
-            <div className="min-w-0">
-              <div className="text-[10px] text-text-muted/60 font-black uppercase tracking-widest font-display leading-tight">
-                {t.dashboard.weeklyPower}
+        
+        {/* Badges Container */}
+        <div className="flex flex-row flex-wrap 2xl:flex-nowrap gap-3 items-stretch w-full 2xl:w-auto">
+          {/* XP & Power Level side by side on mobile */}
+          <div className="flex flex-1 gap-3">
+            <div className="game-panel flex-1 px-4 py-3 flex items-center gap-3 hover:scale-105 active:scale-[0.98] transition-all duration-300 group cursor-pointer shadow-lg shadow-neon-cyan/5 border-neon-cyan/20">
+              <div className="p-1.5 bg-neon-cyan/10 rounded-lg group-hover:scale-110 transition-transform border border-neon-cyan/20 shrink-0">
+                <Zap className="text-neon-cyan" size={16} />
               </div>
-              <div className="text-lg font-black tabular-nums text-neon-cyan leading-tight truncate">
-                {(weeklyStudyTime / 60).toFixed(1)}{" "}
-                <span className="text-xs text-text-muted/60 lowercase">
-                  {t.dashboard.hours}
-                </span>
+              <div className="min-w-0">
+                <div className="text-[9px] text-text-muted/60 font-black uppercase tracking-widest font-display leading-tight">
+                  {t.dashboard.weeklyPower}
+                </div>
+                <div className="text-base font-black tabular-nums text-neon-cyan leading-tight truncate">
+                  {(weeklyStudyTime / 60).toFixed(1)}{" "}
+                  <span className="text-[10px] text-text-muted/60 lowercase">
+                    {t.dashboard.hours}
+                  </span>
+                </div>
+              </div>
+            </div>
+
+            <div className="game-panel flex-1 px-4 py-3 flex items-center gap-3 hover:scale-105 active:scale-[0.98] transition-all duration-300 group cursor-pointer shadow-lg shadow-neon-gold/5 border-neon-gold/20">
+              <div className="p-1.5 bg-neon-gold/10 rounded-lg group-hover:scale-110 transition-transform border border-neon-gold/20 shrink-0">
+                <Sparkles className="text-neon-gold" size={16} />
+              </div>
+              <div className="min-w-0">
+                <div className="text-[9px] text-text-muted/60 font-black uppercase tracking-widest font-display leading-tight">
+                  {language === "id" ? "Total XP" : "Total XP"}
+                </div>
+                <div className="text-base font-black tabular-nums text-neon-gold leading-tight truncate">
+                  {useAcademicStore.getState().xpLogs.reduce((acc, log) => acc + log.amount, 0)}{" "}
+                  <span className="text-[10px] text-text-muted/60 lowercase">
+                    XP
+                  </span>
+                </div>
               </div>
             </div>
           </div>
-          <button
-            className="btn btn-glass px-4 sm:px-8 h-14 rounded-2xl font-black uppercase tracking-widest gap-2 sm:gap-3 hover:scale-105 active:scale-95 transition-all group disabled:opacity-50 whitespace-nowrap flex justify-center overflow-hidden"
-            onClick={handleGenerate}
-            disabled={generationState.isActive}
-          >
-            <Sparkles
-              size={20}
-              className="text-neon-cyan group-hover:animate-pulse shrink-0"
-            />
-            <span className="text-xs sm:text-sm">
-              {t.dashboard.generateStudyPlan}
-            </span>
-          </button>
-          <button
-            className="btn btn-glass px-4 sm:px-6 h-14 rounded-2xl font-black uppercase tracking-widest gap-2 sm:gap-3 hover:scale-105 active:scale-95 transition-all group disabled:opacity-50 whitespace-nowrap flex justify-center overflow-hidden border-neon-cyan/20 hover:border-neon-cyan/40 sm:col-span-2 2xl:col-auto"
-            onClick={async () => {
-              try {
-                const { playSuccessSound } = await import(
-                  "../../hooks/useRPGAudio"
-                );
-                const { syncToGoogleCalendar } = await import(
-                  "../../lib/googleCalendar"
-                );
 
-                setGenerationState({
-                  isActive: true,
-                  step: 0,
-                  completed: false,
-                  type: "google-sync",
-                });
-
-                const result = await syncToGoogleCalendar(
-                  academicCourses,
-                  tasks,
-                  (stepProgress) => {
-                    setGenerationState({ step: stepProgress });
-                  },
-                );
-
-                if (result.success) {
-                  playSuccessSound();
-                  setGenerationState({ step: 3, completed: true });
-
-                  useNotificationStore.getState().addNotification({
-                    type: "info",
-                    title: language === "id"
-                      ? "Sinkronisasi Berhasil"
-                      : "Sync Successful",
-                    message: language === "id"
-                      ? "Jadwal dan misi berhasil disinkronkan ke Google Calendar."
-                      : "Schedules and missions were synced to Google Calendar.",
-                  });
-
-                  setTimeout(
-                    () => setGenerationState({ isExiting: true }),
-                    1500,
-                  );
-                  setTimeout(() => resetGenerationState(), 2100);
-                } else {
-                  resetGenerationState();
-
-                  let errorDetail = result.error || "Unknown error";
-                  if (errorDetail === "NO_SCOPE") {
-                    errorDetail = language === "id"
-                      ? "Izin kalender tidak diberikan. Harap centang izin Google Calendar saat login."
-                      : "Calendar permission denied. Please check the permission box during login.";
-                  }
-
-                  useNotificationStore.getState().addNotification({
-                    type: "deadline", // Use deadline type for a red error styling
-                    title: language === "id"
-                      ? "Gagal Sinkronisasi"
-                      : "Sync Failed",
-                    message: errorDetail,
-                    autoDismiss: false, // let it stay until dismissed manually
-                  });
-                }
-              } catch {
-                resetGenerationState();
-                useNotificationStore.getState().addNotification({
-                  type: "info",
-                  title: "Error",
-                  message: "A fatal error occurred during synchronization.",
-                });
-              }
-            }}
-            disabled={generationState.isActive}
-          >
-            <Calendar
-              size={20}
-              className="text-neon-cyan group-hover:scale-110 transition-transform shrink-0"
-            />
-            <span className="text-xs sm:text-sm">
-              {language === "id" ? "Sync ke Google" : "Sync to Google"}
-            </span>
-          </button>
+          {/* Buttons hidden on desktop, moved to FAB, but kept for desktop views if needed */}
+          <div className="hidden sm:grid sm:grid-cols-2 2xl:flex gap-3 w-full 2xl:w-auto">
+            <button
+              className="btn btn-glass px-6 h-12 rounded-xl font-black uppercase tracking-widest gap-3 hover:scale-105 active:scale-95 transition-all group disabled:opacity-50 whitespace-nowrap flex justify-center overflow-hidden"
+              onClick={handleGenerate}
+              disabled={generationState.isActive}
+            >
+              <Sparkles
+                size={18}
+                className="text-neon-cyan group-hover:animate-pulse shrink-0"
+              />
+              <span className="text-xs">
+                {t.dashboard.generateStudyPlan}
+              </span>
+            </button>
+            <button
+              className="btn btn-glass px-6 h-12 rounded-xl font-black uppercase tracking-widest gap-3 hover:scale-105 active:scale-95 transition-all group disabled:opacity-50 whitespace-nowrap flex justify-center overflow-hidden border-neon-cyan/20 hover:border-neon-cyan/40"
+              onClick={handleGoogleSync}
+              disabled={generationState.isActive}
+            >
+              <Calendar
+                size={18}
+                className="text-neon-cyan group-hover:scale-110 transition-transform shrink-0"
+              />
+              <span className="text-xs">
+                {language === "id" ? "Sync ke Google" : "Sync to Google"}
+              </span>
+            </button>
+          </div>
         </div>
       </div>
 
