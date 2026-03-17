@@ -309,7 +309,7 @@ export function ProfileView() {
 
             <div className="flex flex-col gap-4">
               <div className="overflow-x-auto overflow-y-hidden custom-scrollbar pb-4 pt-2">
-                <div className="flex gap-[3px] min-w-max px-2">
+                <div className="flex gap-[3px] min-w-max px-2 justify-center">
                   {/* Generate 52 weeks (approx 1 year) */}
                   {Array.from({ length: 52 }).map((_, weekIdx) => (
                     <div key={weekIdx} className="flex flex-col gap-[3px]">
