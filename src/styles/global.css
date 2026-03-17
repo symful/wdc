@@ -367,6 +367,27 @@
     letter-spacing: 0.02em;
   }
 
+  button,
+  [role="button"],
+  a,
+  select,
+  summary,
+  input[type="button"],
+  input[type="submit"],
+  input[type="reset"],
+  input[type="checkbox"],
+  input[type="radio"],
+  .cursor-pointer {
+    cursor: pointer !important;
+  }
+
+  /* Ensure icons inside clickable elements don't block pointer */
+  button svg,
+  [role="button"] svg,
+  .cursor-pointer svg {
+    pointer-events: none;
+  }
+
   /* Scrollbar Game Styling */
   ::-webkit-scrollbar {
     width: 6px;
