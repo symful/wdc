@@ -3,7 +3,7 @@ import type { Task } from "../../store/useTaskStore";
 import type { StudySession } from "../../store/useStudyStore";
 import { useTaskStore } from "../../store/useTaskStore";
 import { useStudyStore } from "../../store/useStudyStore";
-import { useAcademicStore, type AcademicSchedule } from "../../store/useAcademicStore";
+import { useAcademicStore, type CourseSchedule } from "../../store/useAcademicStore";
 import {
   AlertCircle,
   BarChart3,
@@ -124,7 +124,7 @@ export function DashboardView() {
   const dayIndex = (today.getDay() + 6) % 7; // Convert Sun-Sat to Mon-Sun (0-6)
 
   const selectedSchedules = useMemo(() => {
-    const schedules: (AcademicSchedule & { courseName: string; courseCode: string; type: string })[] = [];
+    const schedules: (CourseSchedule & { courseName: string; courseCode: string; type: string })[] = [];
     const filteredCourses = academicCourses.filter((c) =>
       c.semesterId === activeSemesterId
     );
