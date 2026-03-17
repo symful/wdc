@@ -5,6 +5,7 @@ import { DashboardSkeleton, KanbanSkeleton, ScheduleSkeleton } from './component
 import { SplashScreen } from './components/splash/SplashScreen';
 import { useAcademicStore } from './store/useAcademicStore';
 import { useStudyStore } from './store/useStudyStore';
+import { useLanguageStore } from './store/useLanguageStore';
 import semester2Data from './data/semesters/semester_2.json';
 
 const DashboardView = lazy(() => import('./features/analytics/DashboardView').then(m => ({ default: m.DashboardView })));
@@ -75,6 +76,13 @@ const router = createBrowserRouter([
   }
 ]);
 
+import { useRPGAudio } from './hooks/useRPGAudio';
+
+function GlobalAudio() {
+  useRPGAudio();
+  return null;
+}
+
 const SPLASH_KEY = 'ontime-splash-seen';
 
 export default function App() {
@@ -89,6 +97,7 @@ export default function App() {
 
   const { semesters, courses, xpLogs, importData } = useAcademicStore();
   const { sessions, setSessions } = useStudyStore();
+  const { language } = useLanguageStore();
 
   useEffect(() => {
     // Auto-initialize if empty (to ensure semester file is loaded)
@@ -110,6 +119,7 @@ export default function App() {
 
   return (
     <>
+      <GlobalAudio />
       {showSplash && <SplashScreen onComplete={handleSplashComplete} />}
       {!showSplash && !hasSemester && (
         <div className="fixed inset-0 z-200 bg-bg-main flex items-center justify-center p-6">
@@ -118,18 +128,20 @@ export default function App() {
                 <span className="text-4xl">⚔️</span>
              </div>
              <div>
-               <h2 className="text-3xl font-black neon-glow-text uppercase mb-2">Setup Required</h2>
-               <p className="text-text-muted">Commander, we need your academic parameters before we can begin the season.</p>
+               <h2 className="text-3xl font-black neon-glow-text uppercase mb-2">
+                 {language === 'id' ? 'DILEMA AKADEMIK' : 'Setup Required'}
+               </h2>
+               <p className="text-text-muted">
+                 {language === 'id' 
+                   ? 'Komandan, kami butuh parameter akademik Anda sebelum musim baru bisa dimulai.' 
+                   : 'Commander, we need your academic parameters before we can begin the season.'}
+               </p>
              </div>
              <a 
                href="/profile" 
                className="btn btn-primary h-16 w-full text-lg uppercase tracking-widest font-display"
-               onClick={(e) => {
-                 // We can't really navigate via href if we're blocking the router, 
-                 // but since we're using a guard below, we'll just let the user "enter"
-               }}
              >
-               Configure Profile
+               {language === 'id' ? 'KONFIGURASI PROFIL' : 'Configure Profile'}
              </a>
           </div>
         </div>

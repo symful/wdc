@@ -11,12 +11,14 @@ export interface AppNotification {
   timestamp: number;
   read: boolean;
   autoDismiss?: boolean;
+  isToast?: boolean;
 }
 
 interface NotificationState {
   notifications: AppNotification[];
-  addNotification: (notif: Omit<AppNotification, 'id' | 'timestamp' | 'read'>) => void;
+  addNotification: (notif: Omit<AppNotification, 'id' | 'timestamp' | 'read' | 'isToast'>) => void;
   dismissNotification: (id: string) => void;
+  removeToast: (id: string) => void;
   markAsRead: (id: string) => void;
   markAllAsRead: () => void;
   clearAll: () => void;
@@ -32,6 +34,7 @@ export const useNotificationStore = create<NotificationState>((set, get) => ({
       id: Math.random().toString(36).substr(2, 9),
       timestamp: Date.now(),
       read: false,
+      isToast: true,
     };
 
     set((state) => ({
@@ -42,7 +45,9 @@ export const useNotificationStore = create<NotificationState>((set, get) => ({
     if (notif.autoDismiss !== false) {
       setTimeout(() => {
         set((state) => ({
-          notifications: state.notifications.filter((n) => n.id !== newNotif.id),
+          notifications: state.notifications.map((n) =>
+            n.id === newNotif.id ? { ...n, isToast: false } : n
+          ),
         }));
       }, 6000);
     }
@@ -51,6 +56,13 @@ export const useNotificationStore = create<NotificationState>((set, get) => ({
   dismissNotification: (id) =>
     set((state) => ({
       notifications: state.notifications.filter((n) => n.id !== id),
+    })),
+
+  removeToast: (id) =>
+    set((state) => ({
+      notifications: state.notifications.map((n) =>
+        n.id === id ? { ...n, isToast: false } : n
+      ),
     })),
 
   markAsRead: (id) =>

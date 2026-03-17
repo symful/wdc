@@ -37,10 +37,12 @@ const initialActiveSession = {
   totalPausedTime: 0,
 };
 
+import semesterData from '../data/semesters/semester_2.json';
+
 export const useStudyStore = create<StudyState>()(
   persist(
     (set, get) => ({
-      sessions: [],
+      sessions: semesterData.sessions as StudySession[],
       activeSession: initialActiveSession,
       
       startSession: (courseId: string, topic: string) => set({

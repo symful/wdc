@@ -78,14 +78,16 @@ interface AcademicState {
   importData: (data: { semesters: Semester[]; courses: AcademicCourse[]; xpLogs?: XPLog[] }) => void;
 }
 
+import semesterData from '../data/semesters/semester_2.json';
+
 export const useAcademicStore = create<AcademicState>()(
   persist(
     (set) => ({
-      semesters: [],
-      courses: [],
-      activeSemesterId: null,
+      semesters: [semesterData.semester] as Semester[],
+      courses: semesterData.courses as AcademicCourse[],
+      activeSemesterId: semesterData.semester.id,
       studyPlan: [],
-      xpLogs: [],
+      xpLogs: semesterData.xpLogs as XPLog[],
       
       addSemester: (semData) => set((state) => {
         const id = Math.random().toString(36).substr(2, 9);

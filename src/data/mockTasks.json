@@ -1,0 +1,73 @@
+[
+  {
+    "id": "t1",
+    "title": "Finalize WPF Layout for Project 1",
+    "type": "tugas",
+    "deadline": "2026-04-03T23:59:59Z",
+    "priority": "high",
+    "status": "todo",
+    "weight": 40,
+    "estHours": 8,
+    "progress": 0,
+    "subtasks": [],
+    "links": [],
+    "createdAt": "2026-03-15T10:00:00Z"
+  },
+  {
+    "id": "t2",
+    "title": "Study Linked List & BST for Midterm",
+    "type": "quiz",
+    "deadline": "2026-04-05T08:00:00Z",
+    "priority": "high",
+    "status": "doing",
+    "weight": 20,
+    "estHours": 5,
+    "progress": 30,
+    "subtasks": [],
+    "links": [],
+    "createdAt": "2026-03-14T09:00:00Z"
+  },
+  {
+    "id": "t3",
+    "title": "English Technical Paper Draft",
+    "type": "tugas",
+    "deadline": "2026-04-08T23:59:59Z",
+    "priority": "low",
+    "status": "todo",
+    "weight": 10,
+    "estHours": 3,
+    "progress": 0,
+    "subtasks": [],
+    "links": [],
+    "createdAt": "2026-03-16T14:30:00Z"
+  },
+  {
+    "id": "t4",
+    "title": "Linear Algebra Week 5 Assignment",
+    "type": "tugas",
+    "deadline": "2026-04-02T12:00:00Z",
+    "priority": "med",
+    "status": "done",
+    "weight": 15,
+    "estHours": 2,
+    "progress": 100,
+    "subtasks": [],
+    "links": [],
+    "createdAt": "2026-03-12T08:00:00Z",
+    "completedAt": "2026-03-16T20:00:00Z"
+  },
+  {
+    "id": "t5",
+    "title": "Proyek 1: Entity Framework Integration",
+    "type": "ujian",
+    "deadline": "2026-04-01T16:00:00Z",
+    "priority": "high",
+    "status": "todo",
+    "weight": 50,
+    "estHours": 12,
+    "progress": 10,
+    "subtasks": [],
+    "links": [],
+    "createdAt": "2026-03-10T11:00:00Z"
+  }
+]

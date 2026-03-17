@@ -18,13 +18,15 @@ const bgMap = {
 };
 
 export function NotificationToast() {
-  const { notifications, dismissNotification } = useNotificationStore();
+  const { notifications, removeToast } = useNotificationStore();
 
-  if (notifications.length === 0) return null;
+  const toasts = notifications.filter((n) => n.isToast);
+
+  if (toasts.length === 0) return null;
 
   return (
-    <div className="fixed top-20 right-4 z-[999] flex flex-col gap-3 max-w-sm w-full pointer-events-none">
-      {notifications.slice(0, 5).map((notif) => (
+    <div className="fixed top-20 right-4 z-999 flex flex-col gap-3 max-w-sm w-full pointer-events-none">
+      {toasts.slice(0, 5).map((notif) => (
         <div
           key={notif.id}
           className={`pointer-events-auto game-panel p-4 border ${bgMap[notif.type]} flex items-start gap-3 animate-in slide-in-from-right-full duration-500 shadow-[0_0_30px_rgba(0,0,0,0.5)] backdrop-blur-xl`}
@@ -41,7 +43,7 @@ export function NotificationToast() {
             </div>
           </div>
           <button
-            onClick={() => dismissNotification(notif.id)}
+            onClick={() => removeToast(notif.id)}
             className="p-1 text-text-muted/40 hover:text-text-main hover:scale-125 active:scale-90 transition-all shrink-0 cursor-pointer"
           >
             <X size={14} />

@@ -141,8 +141,8 @@ export function Layout() {
       <aside className={`app-sidebar flex flex-col ${sidebarOpen ? 'open' : ''} transition-all duration-300 z-50`}>
         <div className="p-6 flex items-center justify-between border-b border-neon-cyan/10 shrink-0">
           <div className="flex items-center gap-3">
-            <div className="w-9 h-9 rounded-lg bg-neon-cyan/10 border border-neon-cyan/20 flex items-center justify-center">
-              <Timer size={18} className="text-neon-cyan" />
+            <div className="w-9 h-9 rounded-lg bg-neon-cyan/5 border border-neon-cyan/20 flex items-center justify-center p-1.5 overflow-hidden">
+              <img src="/branding/logo.webp" alt="ontime!" className="w-full h-full object-contain" />
             </div>
             <h1 className="text-xl font-black neon-cyan-text font-display tracking-wider">ontime!</h1>
           </div>

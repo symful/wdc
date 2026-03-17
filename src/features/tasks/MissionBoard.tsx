@@ -76,6 +76,7 @@ export function MissionBoard() {
   const handleCompleteTask = (id: string, e: React.MouseEvent) => {
     e.stopPropagation();
     setCompletingId(id);
+    import('../../hooks/useRPGAudio').then(({ playSuccessSound }) => playSuccessSound());
     // Play stamp animation then move task
     setTimeout(() => {
       moveTask(id, 'done');
@@ -127,8 +128,8 @@ export function MissionBoard() {
       {/* Header & Controls */}
       <div className="flex items-center justify-between flex-wrap gap-6 shrink-0 relative z-10">
         <div>
-          <h1 className="text-4xl font-extrabold tracking-tight mb-2 neon-glow-text font-display uppercase">Mission Board</h1>
-          <p className="text-text-muted text-lg max-w-2xl">{ui.viewMode === 'active' ? 'Accept assignments and claim rewards.' : 'Mission Log Archives'}</p>
+          <h1 className="text-4xl font-extrabold tracking-tight mb-2 neon-glow-text font-display uppercase">Task Board</h1>
+          <p className="text-text-muted text-lg max-w-2xl">{ui.viewMode === 'active' ? 'Accept assignments and claim rewards.' : 'Task Log Archives'}</p>
         </div>
         
         <div className="flex items-center gap-4">
@@ -166,7 +167,7 @@ export function MissionBoard() {
             className={`px-4 py-2 rounded-full border text-[10px] font-black uppercase tracking-widest transition-all cursor-pointer ${ui.filterPriority === 'all' ? 'bg-surface-2 border-neon-cyan/30 text-neon-cyan' : 'bg-transparent border-transparent text-text-muted hover:bg-surface-2/50'}`}
             onClick={() => setUi(s => ({ ...s, filterPriority: 'all' }))}
           >
-            All Missions
+            All Tasks
           </button>
           <button 
             className={`px-4 py-2 rounded-full border text-[10px] font-black uppercase tracking-widest transition-all flex items-center gap-2 cursor-pointer ${ui.filterPriority === 'high' ? 'bg-neon-gold/10 border-neon-gold/30 text-neon-gold shadow-[0_0_15px_rgba(255,215,0,0.15)]' : 'bg-transparent border-transparent text-text-muted hover:bg-surface-2/50'}`}
@@ -274,14 +275,14 @@ export function MissionBoard() {
                       className="w-full py-4 rounded-xl flex items-center justify-center gap-2 font-black uppercase tracking-[0.2em] text-xs transition-all duration-300 font-display cursor-pointer bg-surface-2 text-text-muted/60 border border-white/5 hover:bg-neon-green hover:text-bg-main hover:border-neon-green hover:shadow-[0_0_20px_rgba(57,255,20,0.4)]"
                       onClick={(e) => handleCompleteTask(task.id, e)}
                     >
-                      <CheckCircle2 size={16} /> Complete Mission
+                      <CheckCircle2 size={16} /> Complete Task
                     </button>
                   </div>
                 )}
                 {ui.viewMode === 'archive' && (
                   <div className="p-4 mt-auto border-t border-white/5 bg-surface-2/30">
                     <div className="flex items-center justify-center gap-2 text-[10px] font-black uppercase tracking-widest text-text-muted/40">
-                      <CheckCircle2 size={14} className="text-neon-green" /> Mission Accomplished
+                      <CheckCircle2 size={14} className="text-neon-green" /> Task Accomplished
                     </div>
                   </div>
                 )}
@@ -304,7 +305,7 @@ export function MissionBoard() {
 
             <div className="flex flex-col gap-5 relative z-10">
               <div className="flex flex-col gap-2">
-                <label className="text-xs font-black uppercase tracking-widest text-text-muted/60 px-1 font-display">Mission Target</label>
+                <label className="text-xs font-black uppercase tracking-widest text-text-muted/60 px-1 font-display">Task Target</label>
                 <input 
                   type="text" 
                   className="w-full h-12 bg-surface-2 border border-neon-cyan/20 rounded-xl px-4 font-bold outline-none focus:ring-2 focus:ring-neon-cyan/30 transition-all placeholder:text-text-muted/30"

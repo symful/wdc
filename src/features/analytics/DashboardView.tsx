@@ -22,9 +22,11 @@ import {
   CalendarRange,
   CheckCircle2,
   Loader2,
-  CalendarDays
+  CalendarDays,
+  Calendar
 } from 'lucide-react';
 import { useLanguageStore, translations } from '../../store/useLanguageStore';
+import { useNotificationStore } from '../../store/useNotificationStore';
 import { generateICS } from './calendarExport';
 
 export function DashboardView() {
@@ -39,16 +41,23 @@ export function DashboardView() {
     isExiting: boolean;
     step: number;
     completed: boolean;
-  }>({ isActive: false, isExiting: false, step: 0, completed: false });
+    type: 'study-plan' | 'google-sync';
+  }>({ isActive: false, isExiting: false, step: 0, completed: false, type: 'study-plan' });
 
-  const steps = [
+  const studyPlanSteps = [
     { title: language === 'id' ? 'Analisis jadwal minggu ini' : 'Analyzing weekly schedule', icon: <CalendarRange size={20} /> },
     { title: language === 'id' ? 'Membuat prioritas' : 'Creating priority mapping', icon: <BarChart3 size={20} /> },
     { title: language === 'id' ? 'Menyusun jadwal' : 'Developing schedule', icon: <Search size={20} /> },
   ];
 
+  const googleSyncSteps = [
+    { title: language === 'id' ? 'Otentikasi Google' : 'Authenticating Google Session', icon: <User size={20} /> },
+    { title: language === 'id' ? 'Mengumpulkan data jadwal' : 'Fetching schedules and events', icon: <CalendarDays size={20} /> },
+    { title: language === 'id' ? 'Menyinkronisasi ke Cloud' : 'Uploading to Google Cloud', icon: <Zap size={20} /> },
+  ];
+
   const handleGenerate = () => {
-    setGenerationState({ isActive: true, isExiting: false, step: 0, completed: false });
+    setGenerationState({ isActive: true, isExiting: false, step: 0, completed: false, type: 'study-plan' });
     
     // Simulate steps
     const timers = [
@@ -59,7 +68,7 @@ export function DashboardView() {
         setGenerationState(s => ({ ...s, isExiting: true }));
         generateStudyPlan(sessions);
         setTimeout(() => {
-          setGenerationState({ isActive: false, isExiting: false, step: 0, completed: false });
+          setGenerationState({ isActive: false, isExiting: false, step: 0, completed: false, type: 'study-plan' });
         }, 600); // Time for fade out
       }, 4500),
     ];
@@ -170,11 +179,63 @@ export function DashboardView() {
             <span className="text-xs sm:text-sm truncate">{t.dashboard.generateStudyPlan}</span>
           </button>
           <button 
-            className="btn btn-glass px-4 sm:px-6 h-14 rounded-2xl font-black uppercase tracking-widest gap-2 hover:scale-105 active:scale-95 transition-all group whitespace-nowrap justify-center overflow-hidden border-neon-green/20 hover:border-neon-green/40"
-            onClick={() => generateICS(academicCourses, tasks)}
+            className="btn btn-glass px-4 sm:px-6 h-14 rounded-2xl font-black uppercase tracking-widest gap-2 hover:scale-105 active:scale-95 transition-all group whitespace-nowrap justify-center overflow-hidden border-neon-cyan/20 hover:border-neon-cyan/40 disabled:opacity-50"
+            onClick={async () => {
+              try {
+                const { playSuccessSound } = await import('../../hooks/useRPGAudio');
+                const { syncToGoogleCalendar } = await import('../../lib/googleCalendar');
+                
+                setGenerationState(s => ({ ...s, isActive: true, step: 0, completed: false, type: 'google-sync' }));
+                
+                const result = await syncToGoogleCalendar(academicCourses, tasks, (stepProgress) => {
+                  setGenerationState(s => ({ ...s, step: stepProgress }));
+                });
+                
+                if (result.success) {
+                  playSuccessSound();
+                  setGenerationState(s => ({ ...s, step: 3, completed: true }));
+
+                  useNotificationStore.getState().addNotification({
+                    type: 'info',
+                    title: language === 'id' ? 'Sinkronisasi Berhasil' : 'Sync Successful',
+                    message: language === 'id' ? 'Jadwal dan misi berhasil disinkronkan ke Google Calendar.' : 'Schedules and missions were synced to Google Calendar.',
+                    icon: '✨'
+                  });
+
+                  setTimeout(() => setGenerationState(s => ({ ...s, isExiting: true })), 1500);
+                  setTimeout(() => setGenerationState({ isActive: false, isExiting: false, step: 0, completed: false, type: 'google-sync' }), 2100);
+                } else {
+                  setGenerationState({ isActive: false, isExiting: false, step: 0, completed: false, type: 'google-sync' });
+
+                  let errorDetail = result.error || 'Unknown error';
+                  if (errorDetail === 'NO_SCOPE') {
+                    errorDetail = language === 'id' 
+                      ? 'Izin kalender tidak diberikan. Harap centang izin Google Calendar saat login.' 
+                      : 'Calendar permission denied. Please check the permission box during login.';
+                  }
+
+                  useNotificationStore.getState().addNotification({
+                    type: 'deadline', // Use deadline type for a red error styling
+                    title: language === 'id' ? 'Gagal Sinkronisasi' : 'Sync Failed',
+                    message: errorDetail,
+                    icon: '⚠️',
+                    autoDismiss: false // let it stay until dismissed manually
+                  });
+                }
+              } catch (e) {
+                setGenerationState({ isActive: false, isExiting: false, step: 0, completed: false, type: 'google-sync' });
+                useNotificationStore.getState().addNotification({
+                  type: 'info',
+                  title: 'Error',
+                  message: 'A fatal error occurred during synchronization.',
+                  icon: '⚠️'
+                });
+              }
+            }}
+            disabled={generationState.isActive}
           >
-            <CalendarDays size={20} className="text-neon-green group-hover:scale-110 transition-transform shrink-0" />
-            <span className="text-xs sm:text-sm truncate hidden sm:inline">{language === 'id' ? 'Export Kalender' : 'Export Calendar'}</span>
+            <Calendar size={20} className="text-neon-cyan group-hover:scale-110 transition-transform shrink-0" />
+            <span className="text-xs sm:text-sm truncate hidden sm:inline">{language === 'id' ? 'Sync ke Google' : 'Sync to Google'}</span>
           </button>
         </div>
       </div>
@@ -197,12 +258,17 @@ export function DashboardView() {
                   )}
                </div>
                <h3 className="text-2xl font-black tracking-tight font-display neon-glow-text uppercase">
-                 {generationState.completed ? (language === 'id' ? 'Selesai' : 'Completed') : (language === 'id' ? 'Generating Plan...' : 'Generating Plan...')}
+                 {generationState.completed 
+                   ? (language === 'id' ? 'Selesai' : 'Completed') 
+                   : generationState.type === 'google-sync'
+                     ? (language === 'id' ? 'Syncing to Google...' : 'Syncing to Google...')
+                     : (language === 'id' ? 'Generating Plan...' : 'Generating Plan...')
+                 }
                </h3>
             </div>
 
             <div className="flex flex-col gap-6 relative z-10">
-              {steps.map((s, idx) => (
+              {(generationState.type === 'study-plan' ? studyPlanSteps : googleSyncSteps).map((s, idx) => (
                 <div key={idx} className={`flex items-center gap-4 transition-all duration-500 ${generationState.step >= idx ? 'opacity-100 translate-x-0' : 'opacity-20 translate-x-4'}`}>
                   <div className={`p-2 rounded-lg border transition-all duration-300 ${generationState.step > idx ? 'bg-neon-green/10 border-neon-green/30 text-neon-green' : generationState.step === idx ? 'bg-neon-cyan/10 border-neon-cyan/30 text-neon-cyan animate-pulse' : 'bg-surface-2 border-white/5 text-text-muted/40'}`}>
                     {generationState.step > idx ? <CheckCircle2 size={20} /> : s.icon}
@@ -343,9 +409,9 @@ export function DashboardView() {
                    <a href="#/profile" className="text-[10px] text-neon-cyan underline uppercase font-black">Go to Profile to select</a>
                 </div>
               ) : selectedSchedules.length === 0 ? (
-                <div className="py-20 flex flex-col items-center justify-center gap-4 text-text-muted/20 italic text-center">
-                   <Clock size={40} />
-                   <p className="font-extrabold tracking-widest uppercase text-sm">
+                <div className="py-20 flex flex-col items-center justify-center gap-4 text-center">
+                   <Clock size={40} className="text-text-main" />
+                   <p className="font-extrabold tracking-widest uppercase text-sm text-text-main">
                      {language === 'id' ? 'Hari ini kosong, selamat beristirahat' : 'Today is empty, have a good rest'}
                    </p>
                 </div>

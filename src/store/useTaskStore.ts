@@ -36,10 +36,9 @@ interface TaskState {
   getSortedTasks: () => Task[];
 }
 
-const initialTasks: Task[] = [
-  { id: 't1', title: 'Laporan Tugas Akhir', type: 'tugas', deadline: new Date(Date.now() + 86400000 * 2).toISOString(), priority: 'high', status: 'todo', weight: 40, estHours: 10, progress: 0, subtasks: [], links: [], createdAt: new Date().toISOString() },
-  { id: 't2', title: 'Revisi Jurnal', type: 'tugas', deadline: new Date(Date.now() + 86400000 * 4).toISOString(), priority: 'med', status: 'doing', weight: 20, estHours: 5, progress: 30, subtasks: [], links: [], createdAt: new Date().toISOString() },
-];
+import mockTasks from '../data/mockTasks.json';
+
+const initialTasks: Task[] = mockTasks as Task[];
 
 export const useTaskStore = create<TaskState>()(
   persist(

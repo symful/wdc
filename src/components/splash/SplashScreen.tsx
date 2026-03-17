@@ -31,12 +31,7 @@ function playBootSequence(ctx: AudioContext) {
   });
 }
 
-function playConfirmSound(ctx: AudioContext) {
-  const now = ctx.currentTime;
-  playBootBeep(ctx, 523, now, 0.12);
-  playBootBeep(ctx, 784, now + 0.1, 0.12);
-  playBootBeep(ctx, 1047, now + 0.2, 0.2);
-}
+// Removed redundant local sound funcs to rely on useRPGAudio hook 
 
 // ===== PARTICLE DATA =====
 interface Particle {
@@ -127,16 +122,7 @@ export function SplashScreen({ onComplete }: SplashScreenProps) {
     return () => timers.forEach(clearTimeout);
   }, []);
 
-  // Play boot sound on phase 1
-  useEffect(() => {
-    if (phase === 1) {
-      const ctx = createAudioContext();
-      if (ctx) {
-        audioCtxRef.current = ctx;
-        playBootSequence(ctx);
-      }
-    }
-  }, [phase]);
+  // Removed blocked auto-play audio implementation
 
   // Loading bar animation
   useEffect(() => {
@@ -166,9 +152,7 @@ export function SplashScreen({ onComplete }: SplashScreenProps) {
   const handleStart = useCallback(() => {
     if (phase < 4 || exiting) return;
 
-    if (audioCtxRef.current) {
-      playConfirmSound(audioCtxRef.current);
-    }
+    import('../../hooks/useRPGAudio').then(({ playSuccessSound }) => playSuccessSound());
 
     setExiting(true);
     setPhase(5);
@@ -203,7 +187,7 @@ export function SplashScreen({ onComplete }: SplashScreenProps) {
   }, [handleStart]);
 
   // Typewriter texts
-  const bootText = useTypewriter(language === 'id' ? '> INITIALIZING SYSTEM...' : '> INITIALIZING SYSTEM...', phase >= 1 ? 0 : 99999, 40);
+  const bootText = useTypewriter(language === 'id' ? '> MENGINISIALISASI SISTEM...' : '> INITIALIZING SYSTEM...', phase >= 1 ? 0 : 99999, 40);
   const titleText = useTypewriter('ontime!', phase >= 2 ? 0 : 99999, 80);
 
   if (phase === 6) return null;
@@ -254,7 +238,7 @@ export function SplashScreen({ onComplete }: SplashScreenProps) {
         onClick={(e) => { e.stopPropagation(); handleSkip(); }}
         id="splash-skip-btn"
       >
-        SKIP ▸
+        {language === 'id' ? 'LEWATI ▸' : 'SKIP ▸'}
       </button>
 
       {/* Central Content */}
@@ -315,7 +299,7 @@ export function SplashScreen({ onComplete }: SplashScreenProps) {
         {/* Tagline */}
         {phase >= 3 && (
           <p className="splash-tagline">
-            Apakah kamu siap menaklukkan setiap misi?
+            {language === 'id' ? 'Apakah kamu siap menaklukkan setiap misi?' : 'Are you ready to conquer every mission?'}
           </p>
         )}
 
@@ -330,8 +314,8 @@ export function SplashScreen({ onComplete }: SplashScreenProps) {
             </div>
             <div className="splash-loading-text">
               {loadingProgress < 100
-                ? `${language === 'id' ? 'LOADING TASK DATA...' : 'LOADING TASK DATA...'} ${Math.floor(loadingProgress)}%`
-                : (language === 'id' ? 'SYSTEM READY' : 'SYSTEM READY')}
+                ? `${language === 'id' ? 'MEMUAT DATA TUGAS...' : 'LOADING TASK DATA...'} ${Math.floor(loadingProgress)}%`
+                : (language === 'id' ? 'SISTEM SIAP' : 'SYSTEM READY')}
             </div>
           </div>
         )}
