@@ -26,6 +26,7 @@ import {
 } from 'lucide-react';
 import { useLanguageStore, translations } from '../../store/useLanguageStore';
 import { useNotificationStore } from '../../store/useNotificationStore';
+import { useUIStore } from '../../store/useUIStore';
 import { generateICS } from './calendarExport';
 
 export function DashboardView() {
@@ -35,24 +36,18 @@ export function DashboardView() {
   const { language } = useLanguageStore();
   const t = translations[language];
 
-  const [generationState, setGenerationState] = useState<{
-    isActive: boolean;
-    isExiting: boolean;
-    step: number;
-    completed: boolean;
-    type: 'study-plan' | 'google-sync';
-  }>({ isActive: false, isExiting: false, step: 0, completed: false, type: 'study-plan' });
+  const { generationState, setGenerationState, resetGenerationState, selectedDayIndex, setSelectedDayIndex } = useUIStore();
 
   const studyPlanSteps = [
-    { title: language === 'id' ? 'Analisis jadwal minggu ini' : 'Analyzing weekly schedule', icon: <CalendarRange size={20} /> },
-    { title: language === 'id' ? 'Membuat prioritas' : 'Creating priority mapping', icon: <BarChart3 size={20} /> },
-    { title: language === 'id' ? 'Menyusun jadwal' : 'Developing schedule', icon: <Search size={20} /> },
+    { title: t.dashboard.analyzing, icon: <CalendarRange size={20} /> },
+    { title: t.dashboard.prioritizing, icon: <BarChart3 size={20} /> },
+    { title: t.dashboard.developing, icon: <Search size={20} /> },
   ];
 
   const googleSyncSteps = [
-    { title: language === 'id' ? 'Otentikasi Google' : 'Authenticating Google Session', icon: <User size={20} /> },
-    { title: language === 'id' ? 'Mengumpulkan data jadwal' : 'Fetching schedules and events', icon: <CalendarDays size={20} /> },
-    { title: language === 'id' ? 'Menyinkronisasi ke Cloud' : 'Uploading to Google Cloud', icon: <Zap size={20} /> },
+    { title: t.dashboard.authenticating, icon: <User size={20} /> },
+    { title: t.dashboard.fetchingData, icon: <CalendarDays size={20} /> },
+    { title: t.dashboard.uploading, icon: <Zap size={20} /> },
   ];
 
   const handleGenerate = () => {
@@ -60,14 +55,14 @@ export function DashboardView() {
     
     // Simulate steps
     const timers = [
-      setTimeout(() => setGenerationState(s => ({ ...s, step: 1 })), 1000),
-      setTimeout(() => setGenerationState(s => ({ ...s, step: 2 })), 2000),
-      setTimeout(() => setGenerationState(s => ({ ...s, step: 3, completed: true })), 3000),
+      setTimeout(() => setGenerationState({ step: 1 }), 1000),
+      setTimeout(() => setGenerationState({ step: 2 }), 2000),
+      setTimeout(() => setGenerationState({ step: 3, completed: true }), 3000),
       setTimeout(() => {
-        setGenerationState(s => ({ ...s, isExiting: true }));
+        setGenerationState({ isExiting: true });
         generateStudyPlan(sessions);
         setTimeout(() => {
-          setGenerationState({ isActive: false, isExiting: false, step: 0, completed: false, type: 'study-plan' });
+          resetGenerationState();
         }, 600); // Time for fade out
       }, 4500),
     ];
@@ -105,7 +100,6 @@ export function DashboardView() {
 
   const today = new Date();
   const dayIndex = (today.getDay() + 6) % 7; // Convert Sun-Sat to Mon-Sun (0-6)
-  const [selectedDayIndex, setSelectedDayIndex] = useState(dayIndex);
   
   const selectedSchedules = useMemo(() => {
     const schedules: any[] = [];
@@ -184,15 +178,15 @@ export function DashboardView() {
                 const { playSuccessSound } = await import('../../hooks/useRPGAudio');
                 const { syncToGoogleCalendar } = await import('../../lib/googleCalendar');
                 
-                setGenerationState(s => ({ ...s, isActive: true, step: 0, completed: false, type: 'google-sync' }));
+                setGenerationState({ isActive: true, step: 0, completed: false, type: 'google-sync' });
                 
                 const result = await syncToGoogleCalendar(academicCourses, tasks, (stepProgress) => {
-                  setGenerationState(s => ({ ...s, step: stepProgress }));
+                  setGenerationState({ step: stepProgress });
                 });
                 
                 if (result.success) {
                   playSuccessSound();
-                  setGenerationState(s => ({ ...s, step: 3, completed: true }));
+                  setGenerationState({ step: 3, completed: true });
 
                   useNotificationStore.getState().addNotification({
                     type: 'info',
@@ -200,10 +194,10 @@ export function DashboardView() {
                     message: language === 'id' ? 'Jadwal dan misi berhasil disinkronkan ke Google Calendar.' : 'Schedules and missions were synced to Google Calendar.'
                   });
 
-                  setTimeout(() => setGenerationState(s => ({ ...s, isExiting: true })), 1500);
-                  setTimeout(() => setGenerationState({ isActive: false, isExiting: false, step: 0, completed: false, type: 'google-sync' }), 2100);
+                  setTimeout(() => setGenerationState({ isExiting: true }), 1500);
+                  setTimeout(() => resetGenerationState(), 2100);
                 } else {
-                  setGenerationState({ isActive: false, isExiting: false, step: 0, completed: false, type: 'google-sync' });
+                  resetGenerationState();
 
                   let errorDetail = result.error || 'Unknown error';
                   if (errorDetail === 'NO_SCOPE') {
@@ -220,7 +214,7 @@ export function DashboardView() {
                   });
                 }
               } catch (e) {
-                setGenerationState({ isActive: false, isExiting: false, step: 0, completed: false, type: 'google-sync' });
+                resetGenerationState();
                 useNotificationStore.getState().addNotification({
                   type: 'info',
                   title: 'Error',
@@ -257,8 +251,8 @@ export function DashboardView() {
                  {generationState.completed 
                    ? (language === 'id' ? 'Selesai' : 'Completed') 
                    : generationState.type === 'google-sync'
-                     ? (language === 'id' ? 'Syncing to Google...' : 'Syncing to Google...')
-                     : (language === 'id' ? 'Generating Plan...' : 'Generating Plan...')
+                     ? t.dashboard.syncing
+                     : t.dashboard.generatingPlan
                  }
                </h3>
             </div>

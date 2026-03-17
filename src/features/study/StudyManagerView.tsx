@@ -192,12 +192,12 @@ export function StudyManagerView() {
               <div className="flex items-center gap-6 py-3 border-y border-neon-cyan/10">
                 <div className="flex flex-col">
                   <span className="text-[9px] font-black text-text-muted/60 uppercase tracking-widest mb-1">{t.academic.sks}</span>
-                  <span className="text-sm font-bold">{course.sks} SKS</span>
+                  <span className="text-sm font-bold">{course.sks} {t.academic.sks}</span>
                 </div>
                 <div className="w-px h-6 bg-neon-cyan/20"></div>
                 <div className="flex flex-col">
                   <span className="text-[9px] font-black text-text-muted/60 uppercase tracking-widest mb-1">{t.academic.schedule}</span>
-                  <span className="text-sm font-bold">{course.schedules.length} Slot</span>
+                  <span className="text-sm font-bold">{course.schedules.length} {language === 'id' ? 'Slot' : 'Slots'}</span>
                 </div>
               </div>
 
@@ -243,7 +243,7 @@ export function StudyManagerView() {
               {/* General Info */}
               <div className="flex flex-col gap-6">
                 <h4 className="text-xs font-black uppercase tracking-[0.2em] text-neon-cyan/60 flex items-center gap-2 font-display">
-                  <Layers size={14} /> General Info
+                  <Layers size={14} /> {t.academic.generalInfo}
                 </h4>
                 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -298,13 +298,13 @@ export function StudyManagerView() {
               <div className="flex flex-col gap-6">
                 <div className="flex justify-between items-center">
                   <h4 className="text-xs font-black uppercase tracking-[0.2em] text-neon-cyan/60 flex items-center gap-2 font-display">
-                    <Clock size={14} /> Schedule
+                    <Clock size={14} /> {t.academic.schedule}
                   </h4>
                   <button 
                     className="p-2 rounded-xl bg-neon-cyan/10 text-neon-cyan hover:bg-neon-cyan/20 transition-all flex items-center gap-2 text-[10px] font-black uppercase tracking-widest"
                     onClick={addScheduleField}
                   >
-                    <Plus size={14} /> Add Slot
+                    <Plus size={14} /> {t.academic.addSlot}
                   </button>
                 </div>
 
@@ -328,7 +328,7 @@ export function StudyManagerView() {
                             value={sch.day}
                             onChange={(e) => updateScheduleField(index, { day: parseInt(e.target.value) })}
                           >
-                            {['Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu', 'Minggu'].map((d, i) => (
+                            {t.academic.days.map((d, i) => (
                               <option key={i} value={i}>{d}</option>
                             ))}
                           </select>
@@ -386,7 +386,7 @@ export function StudyManagerView() {
                 onClick={handleSave}
                 disabled={!form.name}
               >
-                {editingId ? 'Confirm Update' : 'Accept Archives'}
+                {editingId ? t.academic.confirmUpdate : t.academic.acceptArchives}
               </button>
             </div>
           </div>

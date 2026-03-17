@@ -24,8 +24,10 @@ import {
   Info,
   CalendarRange,
   BarChart3,
-  Search
+  Search,
+  ChevronRight as ChevronRightIcon
 } from 'lucide-react';
+import { useUIStore } from '../../store/useUIStore';
 
 export function StudyView() {
   const { sessions, activeSession, startSession, pauseSession, resumeSession, endSession, cancelSession } = useStudyStore();
@@ -33,41 +35,30 @@ export function StudyView() {
   const { language } = useLanguageStore();
   const t = translations[language];
 
+  const { studyModals, setStudyModal, generationState, setGenerationState, resetGenerationState } = useUIStore();
+
   const activeSemester = semesters.find(s => s.id === activeSemesterId);
   const filteredCourses = courses.filter(c => c.semesterId === activeSemesterId);
 
-  const [ui, setUi] = useState({
-    confidenceModal: false,
-    showTreeModal: false,
-    showSuggestions: false
-  });
-
-  const [generationState, setGenerationState] = useState<{
-    isActive: boolean;
-    isExiting: boolean;
-    step: number;
-    completed: boolean;
-  }>({ isActive: false, isExiting: false, step: 0, completed: false });
-
   const steps = [
-    { title: language === 'id' ? 'Analisis jadwal minggu ini' : 'Analyzing weekly schedule', icon: <CalendarRange size={20} /> },
-    { title: language === 'id' ? 'Membuat prioritas' : 'Creating priority mapping', icon: <BarChart3 size={20} /> },
-    { title: language === 'id' ? 'Menyusun jadwal' : 'Developing schedule', icon: <Search size={20} /> },
+    { title: t.dashboard.analyzing, icon: <CalendarRange size={20} /> },
+    { title: t.dashboard.prioritizing, icon: <BarChart3 size={20} /> },
+    { title: t.dashboard.developing, icon: <Search size={20} /> },
   ];
 
   const handleGenerate = () => {
-    setGenerationState({ isActive: true, isExiting: false, step: 0, completed: false });
+    setGenerationState({ isActive: true, step: 0, completed: false });
     
     // Simulate steps
     const timers = [
-      setTimeout(() => setGenerationState(s => ({ ...s, step: 1 })), 1000),
-      setTimeout(() => setGenerationState(s => ({ ...s, step: 2 })), 2000),
-      setTimeout(() => setGenerationState(s => ({ ...s, step: 3, completed: true })), 3000),
+      setTimeout(() => setGenerationState({ step: 1 }), 1000),
+      setTimeout(() => setGenerationState({ step: 2 }), 2000),
+      setTimeout(() => setGenerationState({ step: 3, completed: true }), 3000),
       setTimeout(() => {
-        setGenerationState(s => ({ ...s, isExiting: true }));
+        setGenerationState({ isExiting: true });
         generateStudyPlan(sessions);
         setTimeout(() => {
-          setGenerationState({ isActive: false, isExiting: false, step: 0, completed: false });
+          resetGenerationState();
         }, 600); // Time for fade out
       }, 4500),
     ];
@@ -129,7 +120,7 @@ export function StudyView() {
     }
     
     endSession(confidence);
-    setUi(s => ({ ...s, confidenceModal: false }));
+    setStudyModal('confidenceModal', false);
     setTimerState(s => ({ ...s, topicTitle: '', isCustomTopic: false }));
   };
 
@@ -188,7 +179,7 @@ export function StudyView() {
         </div>
         <button 
           className="btn btn-glass px-8 h-14 rounded-2xl font-black uppercase tracking-widest gap-3 hover:scale-105 active:scale-95 transition-all group"
-          onClick={() => setUi(s => ({ ...s, showTreeModal: true }))}
+          onClick={() => setStudyModal('showTreeModal', true)}
         >
           <BrainCircuit size={20} className="text-neon-cyan group-hover:rotate-12 transition-transform" />
           {t.study.viewSkillTree}
@@ -208,7 +199,7 @@ export function StudyView() {
               {t.dashboard.todayStudyPlan}
             </h3>
             <div className="px-3 py-1 rounded-lg bg-neon-cyan/10 border border-neon-cyan/30 text-[10px] font-black text-neon-cyan uppercase">
-              {studyPlan.length} Missions Pending
+              {studyPlan.length} {t.dashboard.missionsPending}
             </div>
           </div>
 
@@ -217,7 +208,7 @@ export function StudyView() {
               <div className="py-12 flex flex-col items-center justify-center gap-6 text-text-muted/20 italic text-center">
                 <div className="flex flex-col items-center gap-4">
                   <ClipboardList size={40} />
-                  <p className="font-bold tracking-widest uppercase text-xs">No study plan generated today</p>
+                  <p className="font-bold tracking-widest uppercase text-xs">{t.dashboard.noStudyPlan}</p>
                 </div>
                 
                 <button 
@@ -225,10 +216,10 @@ export function StudyView() {
                   className="btn btn-primary px-8 h-12 rounded-xl font-black uppercase tracking-widest flex items-center gap-3 shadow-[0_0_20px_rgba(0,240,255,0.2)] hover:scale-105 transition-all"
                 >
                   <Sparkles size={16} />
-                  Generate Study Plan
+                  {t.dashboard.generateStudyPlan}
                 </button>
                 
-                <div className="text-[9px] uppercase font-black opacity-50 max-w-45 mt-2">Generate a plan from the Watchlist to start training</div>
+                <div className="text-[9px] uppercase font-black opacity-50 max-w-45 mt-2">{t.dashboard.generatePrompt}</div>
               </div>
             ) : (
               studyPlan.map((plan, idx) => {
@@ -272,7 +263,7 @@ export function StudyView() {
               }}
             >
               <Play size={20} fill="currentColor" />
-              Mulai Plan Study Session
+              {t.study.startStudySession}
             </button>
           )}
 
@@ -295,14 +286,14 @@ export function StudyView() {
                     className="btn btn-primary px-8 h-12 rounded-xl font-black flex items-center gap-3 transition-all uppercase text-[10px] tracking-widest shadow-[0_0_20px_rgba(0,240,255,0.2)]"
                     onClick={resumeSession}
                   >
-                    <Play size={14} fill="currentColor" /> Resume
+                    <Play size={14} fill="currentColor" /> {language === 'id' ? 'Lanjut' : 'Resume'}
                   </button>
                 ) : (
                   <button 
                     className="btn btn-glass px-8 h-12 rounded-xl font-black flex items-center gap-3 transition-all uppercase text-[10px] tracking-widest hover:border-neon-gold/50"
                     onClick={pauseSession}
                   >
-                    <Pause size={14} fill="currentColor" /> Pause
+                    <Pause size={14} fill="currentColor" /> {language === 'id' ? 'Jeda' : 'Pause'}
                   </button>
                 )}
                 
@@ -312,15 +303,15 @@ export function StudyView() {
                     onClick={handleSkipSession}
                     title="Next Topic"
                   >
-                    <FastForward size={14} fill="currentColor" /> Skip
+                    <FastForward size={14} fill="currentColor" /> {language === 'id' ? 'Lewati' : 'Skip'}
                   </button>
                 )}
                 
                 <button 
                   className="btn bg-neon-red/80 hover:bg-neon-red text-white px-8 h-12 rounded-xl font-black flex items-center gap-3 transition-all duration-300 shadow-[0_0_20px_rgba(255,49,49,0.2)] uppercase text-[10px] tracking-widest"
-                  onClick={() => setUi(s => ({ ...s, confidenceModal: true }))}
+                  onClick={() => setStudyModal('confidenceModal', true)}
                 >
-                  <Square size={14} fill="currentColor" /> Finish
+                  <Square size={14} fill="currentColor" /> {language === 'id' ? 'Selesai' : 'Finish'}
                 </button>
               </div>
             </div>
@@ -332,7 +323,7 @@ export function StudyView() {
           <div className="game-panel p-8 border-neon-gold/20 flex flex-col gap-8 bg-linear-to-br from-neon-gold/5 to-transparent">
             <h4 className="text-sm font-black uppercase tracking-[0.2em] text-neon-gold font-display flex items-center gap-3">
               <Zap size={18} className="animate-pulse" />
-              Manual Training Start
+              {t.study.manualSession}
             </h4>
             
             <div className="flex flex-col gap-6">
@@ -371,13 +362,13 @@ export function StudyView() {
                               ? course.topics.map(t => t.title).filter(t => t.toLowerCase().includes(val.toLowerCase()))
                               : course.topics.map(t => t.title);
                             setSuggestions(filtered);
-                            setUi(s => ({ ...s, showSuggestions: filtered.length > 0 }));
+                            setStudyModal('showSuggestions', filtered.length > 0);
                           }
                         }
                       }}
                       onBlur={() => {
                         // Delay to allow clicking a suggestion
-                        setTimeout(() => setUi(s => ({ ...s, showSuggestions: false })), 200);
+                        setTimeout(() => setStudyModal('showSuggestions', false), 200);
                       }}
                       onFocus={() => {
                         if (timerState.courseId) {
@@ -388,7 +379,7 @@ export function StudyView() {
                               ? course.topics.map(t => t.title).filter(t => t.toLowerCase().includes(val.toLowerCase()))
                               : course.topics.map(t => t.title);
                             setSuggestions(filtered);
-                            setUi(s => ({ ...s, showSuggestions: filtered.length > 0 }));
+                            setStudyModal('showSuggestions', filtered.length > 0);
                           }
                         }
                       }}
@@ -396,7 +387,7 @@ export function StudyView() {
                     />
 
                     {/* Suggestions Dropdown */}
-                    {ui.showSuggestions && suggestions.length > 0 && (
+                    {studyModals.showSuggestions && suggestions.length > 0 && (
                       <div className="absolute top-[calc(100%+8px)] left-0 right-0 z-50 bg-bg-main border border-neon-cyan/30 rounded-2xl shadow-[0_10px_30px_rgba(0,0,0,0.5)] overflow-hidden animate-in fade-in slide-in-from-top-2 duration-300">
                         {suggestions.map((s, i) => (
                           <div 
@@ -404,7 +395,7 @@ export function StudyView() {
                             className="px-5 py-4 text-xs font-bold text-text-muted hover:text-neon-cyan hover:bg-neon-cyan/10 cursor-pointer border-b border-white/5 last:border-0 transition-colors"
                             onClick={() => {
                               setTimerState(prev => ({ ...prev, topicTitle: s }));
-                              setUi(prev => ({ ...prev, showSuggestions: false }));
+                              setStudyModal('showSuggestions', false);
                             }}
                           >
                             {s}
@@ -421,7 +412,7 @@ export function StudyView() {
                       onClick={handleStart}
                       disabled={!timerState.courseId || !timerState.topicTitle}
                     >
-                      <Play size={20} fill="currentColor" /> Start Manual Session
+                      <Play size={20} fill="currentColor" /> {t.study.manualSession}
                     </button>
                   ) : (
                     <button 
@@ -439,7 +430,7 @@ export function StudyView() {
       </div>
 
       {/* Power Level Assessment Modal */}
-      {ui.confidenceModal && (
+      {studyModals.confidenceModal && (
         <div className="fixed inset-0 bg-black/80 backdrop-blur-xl z-200 flex items-center justify-center p-6 animate-in fade-in duration-500">
           <div className="game-panel p-10 flex flex-col items-center gap-10 max-w-lg w-full border-neon-cyan/20 shadow-[0_0_50px_rgba(0,240,255,0.1)]">
             <div className="text-center">
@@ -468,12 +459,12 @@ export function StudyView() {
       )}
 
       {/* Skill Tree Visualizer Modal */}
-      {ui.showTreeModal && (
+      {studyModals.showTreeModal && (
         <div className="fixed inset-0 bg-bg-main/95 backdrop-blur-2xl z-200 flex items-center justify-center p-6 animate-in fade-in slide-in-from-bottom-8 duration-500 overflow-hidden">
           <div className="game-panel p-10 max-w-6xl w-full border-neon-cyan/20 overflow-y-auto max-h-[90vh] shadow-[0_40px_100px_rgba(0,0,0,0.1)] relative bg-surface-1/80 custom-scrollbar">
             <button 
               className="absolute top-8 right-8 p-3 hover:bg-neon-cyan/10 rounded-full border border-transparent hover:border-neon-cyan/20 transition-all hover:scale-110 active:scale-90 cursor-pointer text-text-muted/40 hover:text-neon-cyan"
-              onClick={() => setUi(s => ({ ...s, showTreeModal: false }))}
+              onClick={() => setStudyModal('showTreeModal', false)}
             >
               <X size={24} />
             </button>
@@ -583,7 +574,7 @@ export function StudyView() {
                   )}
                </div>
                <h3 className="text-2xl font-black tracking-tight font-display neon-glow-text uppercase">
-                 {generationState.completed ? (language === 'id' ? 'Selesai' : 'Completed') : (language === 'id' ? 'Generating Plan...' : 'Generating Plan...')}
+                 {generationState.completed ? (language === 'id' ? 'Selesai' : 'Completed') : t.dashboard.generatingPlan}
                </h3>
             </div>
 

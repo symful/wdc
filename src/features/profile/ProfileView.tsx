@@ -171,7 +171,7 @@ export function ProfileView() {
               className="mt-4 w-full py-4 rounded-xl bg-white/5 border border-white/10 text-[10px] font-black uppercase tracking-widest text-text-muted hover:text-neon-cyan hover:bg-neon-cyan/5 hover:border-neon-cyan/20 transition-all cursor-pointer font-display"
               onClick={() => setShowLogModal(true)}
             >
-               View Full Activity Log
+               {t.profile.viewActivityLog}
             </button>
           </div>
         </div>
@@ -263,7 +263,7 @@ export function ProfileView() {
               <div className="p-2 bg-neon-green/10 rounded-xl border border-neon-green/20">
                 <CalendarDays size={20} className="text-neon-green" />
               </div>
-              <span className="neon-green-text uppercase tracking-widest">Activity Monitor</span>
+              <span className="neon-green-text uppercase tracking-widest">{t.profile.activityMonitor}</span>
             </h3>
             
             <div className="flex flex-col gap-4">
@@ -299,8 +299,8 @@ export function ProfileView() {
               </div>
               
               <div className="flex justify-between text-[9px] font-black uppercase tracking-widest text-text-muted/40 font-display">
-                <span>{language === 'id' ? 'BULAN LALU' : 'LAST MONTH'}</span>
-                <span>{language === 'id' ? 'SEKARANG' : 'NOW'}</span>
+                <span>{t.dashboard.lastMonth}</span>
+                <span>{t.dashboard.now}</span>
               </div>
             </div>
           </div>
@@ -396,8 +396,8 @@ export function ProfileView() {
                     <History size={24} className="text-neon-cyan" />
                   </div>
                   <div>
-                    <h3 className="text-2xl font-black tracking-tight font-display neon-cyan-text uppercase">Full Activity Log</h3>
-                    <p className="text-[10px] font-black uppercase tracking-widest text-text-muted/40 mt-1">Player XP gain history record</p>
+                    <h3 className="text-2xl font-black tracking-tight font-display neon-cyan-text uppercase">{t.profile.activityLogTitle}</h3>
+                    <p className="text-[10px] font-black uppercase tracking-widest text-text-muted/40 mt-1">{t.profile.activityLogSubtitle}</p>
                   </div>
                 </div>
                 <button 
@@ -412,7 +412,7 @@ export function ProfileView() {
                 {xpLogs.length === 0 ? (
                   <div className="flex flex-col items-center justify-center gap-4 py-20 opacity-20 italic">
                     <Shield size={40} />
-                    <p className="font-bold uppercase tracking-widest text-xs">No records available</p>
+                    <p className="font-bold uppercase tracking-widest text-xs">{t.profile.noRecords}</p>
                   </div>
                 ) : (
                   [...xpLogs].reverse().map((log) => (
@@ -432,7 +432,7 @@ export function ProfileView() {
                       </div>
                       <div className="flex flex-col items-end">
                         <div className="text-lg font-black text-neon-gold tabular-nums">+{log.amount}</div>
-                        <div className="text-[8px] font-black text-neon-gold/40 uppercase tracking-widest">EXP POINTS</div>
+                        <div className="text-[8px] font-black text-neon-gold/40 uppercase tracking-widest">{t.profile.expPoints}</div>
                       </div>
                     </div>
                   ))
@@ -442,7 +442,7 @@ export function ProfileView() {
               <div className="p-5 rounded-2xl bg-neon-cyan/5 border border-neon-cyan/10 flex items-center justify-between">
                 <div className="flex items-center gap-3">
                    <Info size={16} className="text-neon-cyan/60" />
-                   <span className="text-[10px] font-bold text-text-muted/60 uppercase tracking-wide">Total Accumulation</span>
+                   <span className="text-[10px] font-bold text-text-muted/60 uppercase tracking-wide">{t.profile.totalAccumulation}</span>
                 </div>
                 <div className="text-xl font-black text-neon-cyan tabular-nums">{xp} XP</div>
               </div>
