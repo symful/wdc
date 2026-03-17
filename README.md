@@ -2,9 +2,9 @@
 
 ![ontime! logo](assets/branding/logo.svg)
 
-> **Nama Website:** ontime!
-> **Nama Tim:** Crownless Monarch
-> **Kompetisi:** Web Design Competition (WDC) — iFest #14, Universitas Atma Jaya Yogyakarta
+> **Nama Website:** ontime!<br />
+> **Nama Tim:** Crownless Monarch<br />
+> **Kompetisi:** Web Design Competition (WDC) — iFest #14, Universitas Atma Jaya Yogyakarta<br />
 
 ## Deskripsi Singkat
 
