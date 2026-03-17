@@ -361,14 +361,14 @@ export function Layout() {
         <header className="h-16 px-6 flex items-center justify-between bg-sidebar-bg/80 backdrop-blur-md border-b border-neon-cyan/10 sticky top-0 z-40">
           <div className="flex items-center gap-4">
             <button
-              className="lg:hidden p-2 text-text-muted/60 hover:text-neon-cyan bg-surface-1 rounded-lg border border-border-main hover:border-neon-cyan/30 hover:scale-110 active:scale-95 transition-all cursor-pointer"
+              className="lg:hidden w-10 h-10 flex items-center justify-center text-text-muted/60 hover:text-neon-cyan bg-surface-1 rounded-lg border border-border-main hover:border-neon-cyan/30 hover:scale-110 active:scale-95 transition-all cursor-pointer"
               onClick={toggleSidebar}
               id="mobile-menu-btn"
             >
               <Menu size={20} />
             </button>
             <div className="flex items-center gap-2">
-              <div className="w-2 h-2 rounded-full bg-neon-cyan shadow-[0_0_8px_rgba(0,240,255,0.5)] animate-pulse">
+              <div className="w-2 h-2 rounded-full bg-neon-cyan shadow-[0_0_8px_rgba(0,240,255,0.5)] animate-pulse hidden lg:block">
               </div>
               <h2 className="text-xs font-black tracking-[0.15em] font-display text-text-muted/60 hidden lg:block uppercase">
                 {t.common.commandCenter}
@@ -385,7 +385,7 @@ export function Layout() {
                     useNotificationStore.getState().markAllAsRead();
                   }
                 }}
-                className="relative p-2 rounded-lg bg-surface-1 border border-border-main hover:border-neon-cyan/30 hover:scale-110 active:scale-95 transition-all cursor-pointer"
+                className="relative w-10 h-10 flex items-center justify-center rounded-lg bg-surface-1 border border-border-main hover:border-neon-cyan/30 hover:scale-110 active:scale-95 transition-all cursor-pointer"
               >
                 <Bell size={16} className="text-text-muted/60" />
                 {unreadCount > 0 && (
