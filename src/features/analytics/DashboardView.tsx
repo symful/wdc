@@ -250,7 +250,6 @@ export function DashboardView() {
   return (
     <div className="flex flex-col gap-6 sm:gap-8 pb-10 sm:pb-0">
       <FloatingActionButton
-        mainIcon={<Calendar size={24} />}
         actions={[
           {
             icon: <Sparkles size={20} />,
