@@ -1029,7 +1029,7 @@ export function ChatView() {
                             <div
                               className={`px-4 md:px-5 py-2.5 md:py-3.5 rounded-2xl text-xs md:text-sm font-medium leading-relaxed whitespace-pre-wrap ${
                                 msg.senderId === currentUser?.id
-                                  ? "bg-neon-cyan/80 text-white rounded-tr-sm shadow-lg shadow-[0_0_15px_rgba(0,240,255,0.15)]"
+                                  ? "bg-neon-cyan/80 text-white rounded-tr-sm shadow-[0_0_15px_rgba(0,240,255,0.15)]"
                                   : "bg-surface-subtle border border-neon-cyan/10 text-text-main rounded-tl-sm"
                               }`}
                             >
@@ -1122,7 +1122,7 @@ export function ChatView() {
               <button
                 className={`absolute right-3 bottom-3 w-10 h-10 rounded-xl flex items-center justify-center transition-all hover:scale-110 active:scale-90 ${
                   form.inputText.trim()
-                    ? "bg-neon-cyan text-white shadow-lg shadow-[0_0_15px_rgba(0,240,255,0.3)]"
+                    ? "bg-neon-cyan text-white shadow-[0_0_15px_rgba(0,240,255,0.3)]"
                     : "bg-surface-subtle text-text-muted cursor-not-allowed"
                 }`}
                 onClick={handleSend}
