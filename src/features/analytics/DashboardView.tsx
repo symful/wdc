@@ -187,25 +187,25 @@ export function DashboardView() {
             {t.dashboard.subtitle}
           </p>
         </div>
-        <div className="flex flex-col sm:flex-row flex-wrap gap-4 items-stretch w-full 2xl:w-auto">
-          <div className="game-panel px-6 py-4 flex items-center justify-center sm:justify-start gap-4 hover:scale-105 active:scale-[0.98] transition-all duration-300 group cursor-pointer h-14 min-w-45">
+        <div className="grid grid-cols-1 sm:grid-cols-2 2xl:flex 2xl:flex-row gap-4 items-stretch w-full 2xl:w-auto">
+          <div className="game-panel px-6 py-4 flex items-center justify-center sm:justify-start gap-4 hover:scale-105 active:scale-[0.98] transition-all duration-300 group cursor-pointer h-14 2xl:min-w-45 shadow-lg shadow-neon-cyan/5">
             <div className="p-2 bg-neon-cyan/10 rounded-xl group-hover:scale-110 transition-transform border border-neon-cyan/20">
               <Zap className="text-neon-cyan" size={20} />
             </div>
-            <div>
+            <div className="min-w-0">
               <div className="text-[10px] text-text-muted/60 font-black uppercase tracking-widest font-display leading-tight">
                 {t.dashboard.weeklyPower}
               </div>
-              <div className="text-lg font-black tabular-nums text-neon-cyan leading-tight">
+              <div className="text-lg font-black tabular-nums text-neon-cyan leading-tight truncate">
                 {(weeklyStudyTime / 60).toFixed(1)}{" "}
-                <span className="text-xs text-text-muted/60">
+                <span className="text-xs text-text-muted/60 lowercase">
                   {t.dashboard.hours}
                 </span>
               </div>
             </div>
           </div>
           <button
-            className="btn btn-glass px-4 sm:px-8 h-14 rounded-2xl font-black uppercase tracking-widest gap-2 sm:gap-3 hover:scale-105 active:scale-95 transition-all group disabled:opacity-50 whitespace-nowrap flex-1 sm:flex-none justify-center overflow-hidden"
+            className="btn btn-glass px-4 sm:px-8 h-14 rounded-2xl font-black uppercase tracking-widest gap-2 sm:gap-3 hover:scale-105 active:scale-95 transition-all group disabled:opacity-50 whitespace-nowrap flex justify-center overflow-hidden"
             onClick={handleGenerate}
             disabled={generationState.isActive}
           >
@@ -218,7 +218,7 @@ export function DashboardView() {
             </span>
           </button>
           <button
-            className="btn btn-glass px-4 sm:px-6 h-14 rounded-2xl font-black uppercase tracking-widest gap-2 sm:gap-3 hover:scale-105 active:scale-95 transition-all group disabled:opacity-50 whitespace-nowrap flex-1 sm:flex-none justify-center overflow-hidden border-neon-cyan/20 hover:border-neon-cyan/40"
+            className="btn btn-glass px-4 sm:px-6 h-14 rounded-2xl font-black uppercase tracking-widest gap-2 sm:gap-3 hover:scale-105 active:scale-95 transition-all group disabled:opacity-50 whitespace-nowrap flex justify-center overflow-hidden border-neon-cyan/20 hover:border-neon-cyan/40 sm:col-span-2 2xl:col-auto"
             onClick={async () => {
               try {
                 const { playSuccessSound } = await import(
@@ -296,7 +296,7 @@ export function DashboardView() {
               size={20}
               className="text-neon-cyan group-hover:scale-110 transition-transform shrink-0"
             />
-            <span className="text-xs sm:text-sm hidden sm:inline">
+            <span className="text-xs sm:text-sm">
               {language === "id" ? "Sync ke Google" : "Sync to Google"}
             </span>
           </button>

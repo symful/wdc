@@ -478,23 +478,23 @@ export function Layout() {
               )}
             </div>
             {/* XP Display */}
-            <div className="flex items-center gap-2 px-3 py-1.5 bg-neon-gold/6 rounded-lg border border-neon-gold/15">
+            <div className="hidden xs:flex items-center gap-2 px-3 py-1.5 bg-neon-gold/6 rounded-lg border border-neon-gold/15 shrink-0">
               <span className="text-neon-gold text-[10px] font-black font-display">
                 {xp} {t.common.xp}
               </span>
             </div>
             {/* Season Badge */}
-            <div className="px-3 py-1.5 bg-surface-1 rounded-lg border border-neon-cyan/10 text-[10px] font-black shadow-inner flex items-center gap-2 font-display">
-              <span className="text-text-muted/40 uppercase tracking-wider hidden xs:inline">
+            <div className="hidden sm:flex px-3 py-1.5 bg-surface-1 rounded-lg border border-neon-cyan/10 text-[10px] font-black shadow-inner items-center gap-2 font-display shrink-0">
+              <span className="text-text-muted/40 uppercase tracking-wider">
                 {t.common.season}:
               </span>
               <span className="text-neon-cyan">S2 2026</span>
             </div>
             {/* Level Badge */}
-            <div className="px-3 py-1.5 bg-neon-cyan/6 rounded-lg border border-neon-cyan/15 flex items-center gap-2">
+            <div className="flex px-2 sm:px-3 py-1.5 bg-neon-cyan/6 rounded-lg border border-neon-cyan/15 items-center gap-2 shrink-0">
               <Shield size={12} className="text-neon-cyan" />
               <span className="text-neon-cyan text-[10px] font-black font-display">
-                LVL {level}
+                L{level}
               </span>
             </div>
           </div>

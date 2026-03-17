@@ -344,34 +344,34 @@ export function MissionBoard() {
                     </div>
 
                     {/* Body Details */}
-                    <div className="flex flex-wrap items-center gap-3 mt-2">
+                    <div className="flex flex-row flex-wrap items-center gap-2 mt-2">
                       <div
-                        className={`flex items-center gap-2 px-3 py-1.5 rounded-lg border bg-surface-2/50 ${
+                        className={`flex items-center gap-2 px-2 py-1 rounded-lg border bg-surface-2/50 ${
                           urgency.pulse
                             ? "border-neon-red/30"
                             : "border-white/5"
                         }`}
                       >
                         <AlertCircle
-                          size={14}
+                          size={12}
                           style={{ color: urgencyMap[task.id]?.color }}
                           className={urgencyMap[task.id]?.pulse ? "animate-pulse" : ""}
                         />
                         <span
-                          className="text-xs font-bold tabular-nums"
+                          className="text-[10px] font-bold tabular-nums"
                           style={{ color: urgencyMap[task.id]?.color }}
                         >
                           {formatDate(task.deadline)}
                         </span>
                       </div>
 
-                      <div className="flex items-center gap-2 px-3 py-1.5 rounded-lg border border-neon-cyan/10 bg-surface-2/50">
+                      <div className="flex items-center gap-2 px-2 py-1 rounded-lg border border-neon-cyan/10 bg-surface-2/50">
                         <Bolt
-                          size={14}
+                          size={12}
                           className="text-neon-cyan"
                           fill="currentColor"
                         />
-                        <span className="text-xs font-black text-neon-cyan">
+                        <span className="text-[10px] font-black text-neon-cyan">
                           {task.weight} XP
                         </span>
                       </div>

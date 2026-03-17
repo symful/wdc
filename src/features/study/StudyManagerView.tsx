@@ -213,21 +213,21 @@ export function StudyManagerView() {
                       key={i}
                       className="flex flex-col gap-2 p-3 bg-surface-2/60 rounded-xl border border-neon-cyan/10 text-[11px] shadow-sm"
                     >
-                      <div className="flex justify-between items-center font-bold">
+                      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2 font-bold">
                         <div className="flex items-center gap-2 text-neon-cyan">
-                          <Clock size={12} />
-                          <span>
+                          <Clock size={12} className="shrink-0" />
+                          <span className="truncate">
                             {getDayName(sch.day)}, {sch.startTime} -{" "}
                             {sch.endTime}
                           </span>
                         </div>
                         <div className="flex items-center gap-2 text-text-muted/80">
-                          <MapPin size={12} />
-                          <span>{sch.room || "TBA"}</span>
+                          <MapPin size={12} className="shrink-0" />
+                          <span className="truncate">{sch.room || "TBA"}</span>
                         </div>
                       </div>
                       <div className="flex items-center gap-2 text-text-muted/60">
-                        <UserIcon size={12} />
+                        <UserIcon size={12} className="shrink-0" />
                         <span className="truncate">
                           {sch.lecturer || "N/A"}
                         </span>

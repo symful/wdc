@@ -1101,7 +1101,7 @@ export function ChatView() {
             )}
             <div className="relative">
               <textarea
-                className={`w-full bg-surface-2 border border-neon-cyan/10 pl-12 md:pl-16 pr-12 md:pr-16 py-3 md:py-4 text-xs md:text-sm font-medium focus:ring-2 focus:ring-neon-cyan/30 outline-none transition-all resize-none max-h-32 shadow-inner ${
+                className={`w-full bg-surface-2 border border-neon-cyan/10 pl-12 md:pl-16 pr-12 md:pr-16 py-3 md:py-4 text-xs md:text-sm font-medium focus:ring-2 focus:ring-neon-cyan/30 outline-none transition-all resize-none max-h-32 shadow-inner overflow-hidden ${
                   replyingTo
                     ? "rounded-b-xl md:rounded-b-2xl border-t-0"
                     : "rounded-xl md:rounded-2xl"
@@ -1120,7 +1120,7 @@ export function ChatView() {
               />
 
               <button
-                className={`absolute right-3 bottom-3 w-10 h-10 rounded-xl flex items-center justify-center transition-all hover:scale-110 active:scale-90 ${
+                className={`absolute right-2 md:right-3 bottom-2 md:bottom-3 w-8 h-8 md:w-10 md:h-10 rounded-lg md:rounded-xl flex items-center justify-center transition-all hover:scale-110 active:scale-90 ${
                   form.inputText.trim()
                     ? "bg-neon-cyan text-white shadow-[0_0_15px_rgba(0,240,255,0.3)]"
                     : "bg-surface-subtle text-text-muted cursor-not-allowed"
@@ -1129,16 +1129,17 @@ export function ChatView() {
                 disabled={!form.inputText.trim()}
               >
                 <Send
-                  size={18}
+                  size={16}
+                  className="md:w-[18px] md:h-[18px]"
                   fill={form.inputText.trim() ? "currentColor" : "none"}
                 />
               </button>
 
               <button
-                className="absolute left-3 bottom-3 w-10 h-10 rounded-xl flex items-center justify-center bg-surface-subtle text-text-muted hover:text-neon-cyan hover:scale-110 active:scale-90 transition-all border border-neon-cyan/10"
+                className="absolute left-2 md:left-3 bottom-2 md:bottom-3 w-8 h-8 md:w-10 md:h-10 rounded-lg md:rounded-xl flex items-center justify-center bg-surface-subtle text-text-muted hover:text-neon-cyan hover:scale-110 active:scale-90 transition-all border border-neon-cyan/10"
                 onClick={() => fileInputRef.current?.click()}
               >
-                <Paperclip size={18} />
+                <Paperclip size={16} className="md:w-[18px] md:h-[18px]" />
               </button>
               <input
                 type="file"

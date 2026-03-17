@@ -199,8 +199,8 @@ export function ProfileView() {
                 {language === "id" ? "Trophy Case" : "Trophy Case"}
               </span>
             </h3>
-
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+            {/* Comparison Cards */}
+            <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 md:gap-4">
               {achievements.map((ach) => {
                 const isUnlocked = !!ach.unlockedAt;
                 const rarityColors = {
@@ -308,56 +308,75 @@ export function ProfileView() {
             </h3>
 
             <div className="flex flex-col gap-4">
-              <div className="grid grid-cols-7 gap-2 sm:grid-cols-14">
-                {Array.from({ length: 28 }).map((_, i) => {
-                  const date = new Date();
-                  date.setDate(date.getDate() - (27 - i));
-                  const dateStr = date.toISOString().split("T")[0];
+              <div className="overflow-x-auto custom-scrollbar pb-2">
+                <div className="flex gap-[3px] min-w-max">
+                  {/* Generate 52 weeks (approx 1 year) */}
+                  {Array.from({ length: 52 }).map((_, weekIdx) => (
+                    <div key={weekIdx} className="flex flex-col gap-[3px]">
+                      {Array.from({ length: 7 }).map((_, dayIdx) => {
+                        const date = new Date();
+                        const daysAgo = (51 - weekIdx) * 7 + (6 - dayIdx);
+                        date.setDate(date.getDate() - daysAgo);
+                        const dateStr = date.toISOString().split("T")[0];
 
-                  const daySessions = sessions.filter((s: StudySession) =>
-                    s.date.startsWith(dateStr)
-                  );
-                  const totalMins = daySessions.reduce(
-                    (acc: number, s: StudySession) => acc + s.durationMinutes,
-                    0,
-                  );
+                        const daySessions = sessions.filter((s: StudySession) =>
+                          s.date.startsWith(dateStr)
+                        );
+                        const totalMins = daySessions.reduce(
+                          (acc: number, s: StudySession) =>
+                            acc + s.durationMinutes,
+                          0,
+                        );
 
-                  // Gradient logic: 0 to 120 mins maps to 0.1 to 1.0 opacity
-                  const opacity = totalMins === 0
-                    ? 0.05
-                    : Math.min(1, 0.3 + (totalMins / 100));
+                        const level = totalMins === 0
+                          ? 0
+                          : totalMins < 30
+                          ? 1
+                          : totalMins < 60
+                          ? 2
+                          : totalMins < 120
+                          ? 3
+                          : 4;
 
-                  return (
-                    <div
-                      key={i}
-                      className="aspect-square rounded-sm transition-all duration-300 hover:scale-[1.2] hover:z-20 cursor-help relative"
-                      style={{
-                        backgroundColor: `rgba(57, 255, 20, ${opacity})`,
-                        boxShadow: totalMins > 60
-                          ? `0 0 10px rgba(57, 255, 20, ${opacity}), 0 0 20px rgba(57, 255, 20, ${
-                            opacity * 0.5
-                          })`
-                          : "none",
-                        border: totalMins > 0
-                          ? `1px solid rgba(57, 255, 20, ${
-                            Math.max(0.2, opacity)
-                          })`
-                          : "1px solid rgba(255,255,255,0.05)",
-                      }}
-                      title={`${dateStr}: ${totalMins} menit`}
-                    >
-                      {totalMins > 60 && (
-                        <div className="absolute inset-0 bg-white/20 animate-pulse rounded-sm">
-                        </div>
-                      )}
+                        const colors = [
+                          "rgba(255, 255, 255, 0.05)",
+                          "rgba(57, 255, 20, 0.2)",
+                          "rgba(57, 255, 20, 0.4)",
+                          "rgba(57, 255, 20, 0.7)",
+                          "rgba(57, 255, 20, 1)",
+                        ];
+
+                        return (
+                          <div
+                            key={dayIdx}
+                            className="w-[10px] h-[10px] rounded-[2px] transition-all hover:ring-1 hover:ring-neon-cyan cursor-help"
+                            style={{
+                              backgroundColor: colors[level],
+                            }}
+                            title={`${dateStr}: ${totalMins} mins`}
+                          />
+                        );
+                      })}
                     </div>
-                  );
-                })}
+                  ))}
+                </div>
               </div>
 
-              <div className="flex justify-between text-[9px] font-black uppercase tracking-widest text-text-muted/40 font-display">
-                <span>{t.dashboard.lastMonth}</span>
-                <span>{t.dashboard.now}</span>
+              <div className="flex justify-between items-center text-[9px] font-black uppercase tracking-widest text-text-muted/40 font-display">
+                <div className="flex gap-4">
+                  <span>{t.dashboard.lastYear || "Last Year"}</span>
+                </div>
+                <div className="flex items-center gap-1.5">
+                  <span>Less</span>
+                  <div className="flex gap-[3px]">
+                    <div className="w-[10px] h-[10px] rounded-[2px] bg-white/5"></div>
+                    <div className="w-[10px] h-[10px] rounded-[2px] bg-[rgba(57,255,20,0.2)]"></div>
+                    <div className="w-[10px] h-[10px] rounded-[2px] bg-[rgba(57,255,20,0.4)]"></div>
+                    <div className="w-[10px] h-[10px] rounded-[2px] bg-[rgba(57,255,20,0.7)]"></div>
+                    <div className="w-[10px] h-[10px] rounded-[2px] bg-[rgba(57,255,20,1)]"></div>
+                  </div>
+                  <span>More</span>
+                </div>
               </div>
             </div>
           </div>
