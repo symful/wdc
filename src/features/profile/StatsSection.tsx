@@ -226,7 +226,7 @@ export function StatsSection() {
       </div>
 
       {/* Comparison Cards */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-6">
         {/* This Week Study */}
         <div className="game-panel p-6 flex flex-col gap-3">
           <div className="flex items-center gap-3">

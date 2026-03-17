@@ -309,9 +309,9 @@ export function ProfileView() {
 
             <div className="flex flex-col gap-4">
               <div className="overflow-x-auto overflow-y-hidden custom-scrollbar pb-4 pt-2">
-                <div className="flex gap-[3px] min-w-max px-2 justify-center">
-                  {/* Generate 52 weeks (approx 1 year) */}
-                  {Array.from({ length: 52 }).map((_, weekIdx) => (
+                <div className="flex gap-[6px] min-w-max px-2 justify-center">
+                  {/* Generate 5 weeks (approx 1 month) */}
+                  {Array.from({ length: 5 }).map((_, weekIdx) => (
                     <div key={weekIdx} className="flex flex-col gap-[3px]">
                       {Array.from({ length: 7 }).map((_, dayIdx) => {
                         const date = new Date();
@@ -349,7 +349,7 @@ export function ProfileView() {
                         return (
                           <div
                             key={dayIdx}
-                            className="w-[10px] h-[10px] rounded-[2px] transition-all hover:ring-1 hover:ring-neon-cyan cursor-help"
+                            className="w-[14px] h-[14px] sm:w-[18px] sm:h-[18px] rounded-[3px] transition-all hover:ring-2 hover:ring-neon-cyan cursor-help"
                             style={{
                               backgroundColor: colors[level],
                             }}
@@ -364,7 +364,7 @@ export function ProfileView() {
 
               <div className="flex flex-col sm:flex-row justify-between items-center gap-4 text-[9px] font-black uppercase tracking-widest text-text-muted/40 font-display mt-2">
                 <div className="flex gap-4">
-                  <span>{t.dashboard.lastYear || "Last Year"}</span>
+                  <span>{language === "id" ? "Bulan Terakhir" : "Last Month"}</span>
                 </div>
                 <div className="flex items-center gap-1.5">
                   <span>Less</span>
