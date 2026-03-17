@@ -375,7 +375,8 @@ export function Layout() {
               </h2>
             </div>
           </div>
-          <div className="flex items-center gap-3 md:gap            {/* Notification Bell + Dropdown */}
+          <div className="flex items-center gap-3 md:gap-4">
+            {/* Notification Bell + Dropdown */}
             <div className="relative">
               <button
                 onClick={() => {
@@ -505,7 +506,6 @@ export function Layout() {
             </div>
           </div>
         </header>
-der>
 
         {/* Page Content */}
         <div className="app-content p-6 lg:p-10 flex-1 overflow-x-hidden">
