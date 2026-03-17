@@ -139,11 +139,8 @@ export function Layout() {
 
       {/* Sidebar */}
       <aside className={`app-sidebar flex flex-col ${sidebarOpen ? 'open' : ''} transition-all duration-300 z-50`}>
-        <div className="p-6 flex items-center justify-between border-b border-neon-cyan/10 shrink-0">
+        <div className="h-16 px-6 flex items-center justify-between border-b border-neon-cyan/10 shrink-0">
           <div className="flex items-center gap-3">
-            <div className="w-9 h-9 rounded-lg bg-neon-cyan/5 border border-neon-cyan/20 flex items-center justify-center p-1.5 overflow-hidden">
-              <img src="/branding/logo.webp" alt="ontime!" className="w-full h-full object-contain" />
-            </div>
             <h1 className="text-xl font-black neon-cyan-text font-display tracking-wider">ontime!</h1>
           </div>
           <button className="p-2 lg:hidden text-text-main/60 hover:text-neon-cyan hover:scale-110 active:scale-95 transition-all cursor-pointer" onClick={toggleSidebar} id="mobile-close-btn">

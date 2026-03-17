@@ -104,6 +104,7 @@ export function StudyView() {
 
   const handleStart = () => {
     if (!timerState.courseId || !timerState.topicTitle) return;
+    setTimerState(s => ({ ...s, elapsed: 0 }));
     startSession(timerState.courseId, timerState.topicTitle);
   };
 
@@ -137,6 +138,9 @@ export function StudyView() {
     
     const currentCourseId = activeSession.courseId;
     const currentTopic = activeSession.topic;
+
+    // 0. Reset local timer immediately
+    setTimerState(s => ({ ...s, elapsed: 0 }));
 
     // 1. Cancel session in store
     cancelSession();

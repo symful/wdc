@@ -12,7 +12,6 @@ import {
   Lightbulb, 
   Clock, 
   MapPin, 
-  ChevronRight, 
   User, 
   GraduationCap, 
   ClipboardList, 
@@ -450,9 +449,6 @@ export function DashboardView() {
                             {sch.startTime} - {sch.endTime}
                           </span>
                           
-                          <div className="hidden md:flex p-2 rounded-full bg-neon-cyan/5 text-neon-cyan opacity-0 group-hover:opacity-100 transition-all translate-x-4 group-hover:translate-x-0">
-                            <ChevronRight size={18} />
-                          </div>
                         </div>
                       </div>
                     </div>

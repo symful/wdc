@@ -251,42 +251,7 @@ export function SplashScreen({ onComplete }: SplashScreenProps) {
           </div>
         )}
 
-        {/* Timer Emblem */}
-        {phase >= 2 && (
-          <div className="splash-emblem">
-            <svg viewBox="0 0 60 70" fill="none" xmlns="http://www.w3.org/2000/svg" className="splash-shield-svg">
-              <circle
-                cx="30"
-                cy="38"
-                r="26"
-                stroke="currentColor"
-                strokeWidth="2"
-                fill="none"
-              />
-              <circle
-                cx="30"
-                cy="38"
-                r="22"
-                stroke="currentColor"
-                strokeWidth="1"
-                fill="rgba(0, 240, 255, 0.05)"
-              />
-              <path
-                d="M30 12V2M24 2H36M46 22L50 18"
-                stroke="currentColor"
-                strokeWidth="2"
-                strokeLinecap="round"
-              />
-              <path
-                d="M30 38L38 30"
-                stroke="currentColor"
-                strokeWidth="2"
-                strokeLinecap="round"
-              />
-              <text x="30" y="44" textAnchor="middle" fill="currentColor" fontSize="12" fontFamily="Orbitron" fontWeight="900" opacity="0.3">T</text>
-            </svg>
-          </div>
-        )}
+
 
         {/* Title */}
         {phase >= 2 && (
